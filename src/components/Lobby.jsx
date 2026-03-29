@@ -91,8 +91,8 @@ export default function Lobby({ onSelect, gameState, onReset }) {
         )}
 
         {/* Player grid */}
-        <div style={{ marginBottom:'1rem' }}>
-          <div style={{ fontSize:'0.65rem', letterSpacing:'0.4em', color:'rgba(167,139,250,0.4)', marginBottom:'1rem', textTransform:'uppercase', textAlign:'center' }}>Who are you?</div>
+        <div style={{ marginBottom:'2.5rem', background:'rgba(6,2,14,0.55)', padding:'1.75rem', borderRadius:'24px', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', boxShadow:'0 8px 32px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(167,139,250,0.1)' }}>
+          <div style={{ fontSize:'0.7rem', letterSpacing:'0.4em', color:'rgba(167,139,250,0.5)', marginBottom:'1.25rem', textTransform:'uppercase', textAlign:'center', fontWeight:'600' }}>Select Your Profile</div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'0.65rem' }}>
             {PLAYERS.map(p => {
               const col    = PLAYER_COLORS[p]

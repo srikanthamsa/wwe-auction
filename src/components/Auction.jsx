@@ -260,14 +260,6 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         @keyframes flashIn    { 0%{opacity:0;transform:scale(0.85) translateY(10px)} 12%{opacity:1;transform:scale(1.02) translateY(0)} 18%{transform:scale(1)} 80%{opacity:1} 100%{opacity:0;transform:scale(1.03)} }
         @keyframes leaderPulse{ 0%,100%{box-shadow:0 0 0 1px rgba(15,23,42,0.06) inset} 50%{box-shadow:0 0 0 1px rgba(15,23,42,0.1) inset, 0 0 20px rgba(139,92,246,0.2)} }
         @keyframes glowPulse  { 0%,100%{opacity:0.4} 50%{opacity:0.85} }
-        @keyframes pulseGradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-
-        .pitch-black-pulse {
-          background: linear-gradient(90deg, #020617 0%, #2e1065 50%, #020617 100%);
-          background-size: 200% 200%;
-          animation: pulseGradient 6s ease infinite;
-          background-attachment: fixed;
-        }
 
         .bid-btn:hover:not(:disabled) { transform: translateY(-2px) !important; filter: brightness(1.18); }
         .bid-btn:active:not(:disabled){ transform: translateY(1px) scale(0.97) !important; }
@@ -275,23 +267,20 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
         .auction-layout {
           display: grid;
-          display: block;
-          padding-right: 310px;
+          grid-template-columns: 1fr 310px;
           min-height: calc(100vh - 72px);
         }
         .sidebar {
+          background: rgba(15,23,42,0.4);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
           overflow-y: auto;
-          position: fixed;
-          top: 0;
-          right: 0;
-          width: 310px;
-          height: 100vh;
-          max-height: 100vh;
-          z-index: 150;
-          box-shadow: -8px 0 40px rgba(0,0,0,0.15);
-          border-left: 1px solid rgba(255,255,255,0.05);
+          position: sticky;
+          top: 72px;
+          max-height: calc(100vh - 72px);
+          /* Soft glow left edge */
+          box-shadow: -1px 0 0 rgba(0,0,0,0.05), -8px 0 40px rgba(0,0,0,0.03);
+          border-left: 1px solid rgba(15,23,42,0.6);
         }
         @media (max-width: 820px) {
           .auction-layout { grid-template-columns: 1fr; }
@@ -330,14 +319,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           ) : (
             <>
               <div style={{ fontFamily:'Bebas Neue', fontSize:'clamp(3rem,12vw,6rem)', letterSpacing:'0.08em', color:'rgba(30,41,59,0.5)', lineHeight:1 }}>SKIPPED</div>
-              <div style={{ marginTop:'0.5rem', fontSize:'1rem', color:'rgba(15,23,42,0.85)', letterSpacing:'0.2em' }}>{flash.superstar}</div>
+              <div style={{ marginTop:'0.5rem', fontSize:'1rem', color:'rgba(30,41,59,0.3)', letterSpacing:'0.2em' }}>{flash.superstar}</div>
             </>
           )}
         </div>
       )}
 
       {/* ── TOP BAR ── */}
-      <div className="pitch-black-pulse" style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', width:'calc(100% - 310px)', boxShadow:'0 1px 0 rgba(0,0,0,0.03), 0 4px 32px rgba(0,0,0,0.05)' }}>
+      <div style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', background:'rgba(255,255,255,0.6)', backdropFilter:'blur(24px)', borderBottom:'1px solid rgba(255,255,255,0.6)', boxShadow:'0 1px 0 rgba(0,0,0,0.03), 0 4px 32px rgba(0,0,0,0.05)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'1.25rem' }}>
           <div style={{ fontFamily:'Bebas Neue', fontSize:'1.75rem', letterSpacing:'0.08em', background:'linear-gradient(135deg,#a78bfa,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>WWE 2K25</div>
           <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
@@ -368,7 +357,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           {/* Superstar hero */}
           <div key={gs.current_superstar} style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'2.5rem 0 2rem', textAlign:'center' }}>
             {/* Tier badge */}
-            <div style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.3rem 1rem', background:`linear-gradient(135deg,${tierStyle.from}33,${tierStyle.to}22)`, boxShadow:`inset 0 0 0 1px ${tierStyle.from}44`, borderRadius:20, marginBottom:'1.1rem', animation:'starIn 0.4s ease' }}>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.3rem 1rem', background:`linear-gradient(135deg,${tierStyle.from}1a,${tierStyle.to}0d)`, boxShadow:`inset 0 0 0 1px ${tierStyle.from}44`, borderRadius:20, marginBottom:'1.1rem', animation:'starIn 0.4s ease' }}>
               <span style={{ fontFamily:'Bebas Neue', fontSize:'1rem', color:tierStyle.from, letterSpacing:'0.1em' }}>{tierStyle.label}</span>
               <span style={{ fontSize:'0.7rem', color:`${tierStyle.from}99`, letterSpacing:'0.2em' }}>· OVR {gs.current_ovr}</span>
             </div>
@@ -381,16 +370,16 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               </div>
             </div>
 
-            <div style={{ fontSize:'0.7rem', color:'rgba(15,23,42,0.85)', letterSpacing:'0.25em', marginTop:'0.8rem', animation:'starIn 0.5s ease' }}>
+            <div style={{ fontSize:'0.7rem', color:'rgba(30,41,59,0.3)', letterSpacing:'0.25em', marginTop:'0.8rem', animation:'starIn 0.5s ease' }}>
               BASE ₹{getBaseBid(gs.current_ovr).toLocaleString()}
             </div>
           </div>
 
           {/* Current bid */}
           <div style={{ textAlign:'center', marginBottom:'1.5rem' }}>
-            <div style={{ fontSize:'0.65rem', letterSpacing:'0.4em', color:'rgba(15,23,42,0.85)', fontWeight:600, marginBottom:'0.3rem' }}>CURRENT BID</div>
+            <div style={{ fontSize:'0.65rem', letterSpacing:'0.4em', color:'rgba(30,41,59,0.35)', marginBottom:'0.3rem' }}>CURRENT BID</div>
             <div style={{ fontFamily:'Bebas Neue', fontSize:'clamp(2.2rem,7vw,3.8rem)', letterSpacing:'0.05em', lineHeight:1, background:'linear-gradient(135deg,#a78bfa 0%,#ec4899 50%,#fbbf24 100%)', backgroundSize:'200% auto', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', animation:'shimmer 5s linear infinite' }}>
-              ₹<NumberTicker value={currentBid} />
+              ₹{currentBid.toLocaleString()}
             </div>
             <div style={{ marginTop:'0.5rem' }}>
               {leader ? (
@@ -401,7 +390,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                   </span>
                 </div>
               ) : (
-                <div style={{ display:'inline-block', padding:'0.4rem 1.2rem', background:'rgba(15,23,42,0.06)', borderRadius:20, fontSize:'0.85rem', color:'rgba(15,23,42,0.7)', letterSpacing:'0.15em', fontWeight:600 }}>No bids yet — be first!</div>
+                <div style={{ fontSize:'0.8rem', color:'rgba(30,41,59,0.25)', letterSpacing:'0.15em' }}>No bids yet — be first!</div>
               )}
             </div>
           </div>
@@ -527,7 +516,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         </div>
 
         {/* ── RIGHT: Sidebar ── */}
-        <div className="sidebar pitch-black-pulse" style={{ padding:'calc(72px + 1.5rem) 1.1rem 1.5rem 1.1rem', position:'relative' }}>
+        <div className="sidebar" style={{ padding:'1.5rem 1.1rem', position:'relative' }}>
 
           {/* Arc glow bulge on left edge */}
           <div style={{ position:'absolute', left:-50, top:'25%', bottom:'25%', width:100, background:'radial-gradient(ellipse, rgba(139,92,246,0.18) 0%, transparent 70%)', filter:'blur(18px)', pointerEvents:'none' }} />
@@ -624,33 +613,4 @@ function SidebarDivider({ label }) {
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />
     </div>
   )
-}
-
-
-function NumberTicker({ value }) {
-  const [displayVal, setDisplayVal] = React.useState(value)
-  
-  React.useEffect(() => {
-    let startTimestamp = null
-    const startVal = displayVal
-    const endVal = value
-    const duration = 350
-    
-    if (startVal === endVal) return;
-    
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1)
-      const easeOut = 1 - Math.pow(1 - progress, 3) 
-      setDisplayVal(Math.floor(startVal + (endVal - startVal) * easeOut))
-      if (progress < 1) {
-        window.requestAnimationFrame(step)
-      } else {
-        setDisplayVal(endVal)
-      }
-    }
-    window.requestAnimationFrame(step)
-  }, [value])
-  
-  return <>{displayVal.toLocaleString()}</>
 }

@@ -7,9 +7,9 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 
 export const ROSTER = [
   ["AJ Styles", 85], ["Aleister Black", 82], ["Batista", 89], ["Big E", 85],
-  ["Booker T", 89], ["Braun Strowman", 81], ["Bray Wyatt", 90], ["Bret Hart", 93],
-  ["Brock Lesnar", 94], ["Bron Breakker", 87], ["Bronson Reed", 85], ["Carmelo Hayes", 81],
-  ["Chad Gable", 80], ["CM Punk", 93], ["Cody Rhodes", 95], ["Damian Priest", 86],
+  ["Booker T", 89], ["Braun Strowman", 81], ["Bray Wyatt", 90], ["Bret Hart", 93], ["Bronson Reed", 85],
+  ["Carmelo Hayes", 81],
+  ["Chad Gable", 80], ["CM Punk", 93], ["Damian Priest", 86],
   ["Dominik Mysterio", 84], ["Drew McIntyre", 91], ["Dusty Rhodes", 91], ["Eddie Guerrero", 90],
   ["El Grande Americano", 85], ["Erick Rowan", 80], ["Ethan Page", 80], ["Finn Bálor", 90],
   ["Goldberg", 90], ["Gunther", 92], ["Hulk Hogan", 92], ["Ilja Dragunov", 80],
@@ -17,8 +17,8 @@ export const ROSTER = [
   ["Kane", 88], ["Kevin Owens", 87], ["King Corbin", 81], ["Kofi Kingston '17", 85],
   ["Kurt Angle", 89], ["LA Knight", 88], ["Logan Paul", 90], ["Mark Henry", 90],
   ["Oba Femi", 80], ["Penta", 84], ["R-Truth Ron Cena", 83], ["Randy Orton", 93],
-  ["Rey Mysterio", 86], ["Rikishi", 81], ["Rob Van Dam", 90], ["Roman Reigns", 97],
-  ["Sami Zayn", 86], ["Seth \"Freakin\" Rollins", 93], ["Shawn Michaels", 94], ["Sheamus", 86],
+  ["Rey Mysterio", 86], ["Rikishi", 81], ["Rob Van Dam", 90],
+  ["Sami Zayn", 86], ["Shawn Michaels", 94], ["Sheamus", 86],
   ["Shinsuke Nakamura", 87], ["Sika", 86], ["Solo Sikoa", 88], ["Stone Cold Steve Austin", 97],
   ["Tama Tonga", 83], ["The Fiend Bray Wyatt", 92], ["The Miz", 81], ["The Rock", 96],
   ["Triple H", 91], ["Uncle Howdy", 87], ["Undertaker", 96], ["Wade Barrett", 85],

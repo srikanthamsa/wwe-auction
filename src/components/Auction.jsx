@@ -355,7 +355,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         <div style={{ display:'flex', flexDirection:'column', padding:'0 2rem', maxWidth:580, margin:'0 auto', width:'100%' }}>
 
           {/* Superstar hero */}
-          <div key={gs.current_superstar} className="names-container" style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'3rem 2rem', textAlign:'center', background:'rgba(6,2,14,0.55)', borderRadius:'32px', filter:'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', border:'1px solid rgba(167,139,250,0.08)', marginBottom:'2rem' }}>
+          <div key={gs.current_superstar} className="names-container" style={{ display:'flex', flexDirection:'column', alignItems:'center', marginTop:'2.5rem', padding:'3rem 2rem', textAlign:'center', background:'rgba(6,2,14,0.55)', borderRadius:'32px', filter:'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', border:'1px solid rgba(167,139,250,0.08)', marginBottom:'2rem' }}>
             {/* Tier badge */}
             <div style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.3rem 1rem', background:`linear-gradient(135deg,${tierStyle.from}1a,${tierStyle.to}0d)`, boxShadow:`inset 0 0 0 1px ${tierStyle.from}44`, borderRadius:20, marginBottom:'1.1rem', animation:'starIn 0.4s ease' }}>
               <span style={{ fontFamily:'Bebas Neue', fontSize:'1rem', color:tierStyle.from, letterSpacing:'0.1em' }}>{tierStyle.label}</span>

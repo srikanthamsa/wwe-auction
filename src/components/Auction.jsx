@@ -260,6 +260,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         @keyframes flashIn    { 0%{opacity:0;transform:scale(0.85) translateY(10px)} 12%{opacity:1;transform:scale(1.02) translateY(0)} 18%{transform:scale(1)} 80%{opacity:1} 100%{opacity:0;transform:scale(1.03)} }
         @keyframes leaderPulse{ 0%,100%{box-shadow:0 0 0 1px rgba(15,23,42,0.06) inset} 50%{box-shadow:0 0 0 1px rgba(15,23,42,0.1) inset, 0 0 20px rgba(139,92,246,0.2)} }
         @keyframes glowPulse  { 0%,100%{opacity:0.4} 50%{opacity:0.85} }
+        @keyframes pulseGradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+        .pitch-black-pulse {
+          background: linear-gradient(90deg, #020617 0%, #2e1065 50%, #020617 100%);
+          background-size: 200% 200%;
+          animation: pulseGradient 6s ease infinite;
+          background-attachment: fixed;
+        }
 
         .bid-btn:hover:not(:disabled) { transform: translateY(-2px) !important; filter: brightness(1.18); }
         .bid-btn:active:not(:disabled){ transform: translateY(1px) scale(0.97) !important; }
@@ -271,16 +279,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           min-height: calc(100vh - 72px);
         }
         .sidebar {
-          background: rgba(15,23,42,0.4);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
           overflow-y: auto;
           position: sticky;
           top: 72px;
           max-height: calc(100vh - 72px);
-          /* Soft glow left edge */
           box-shadow: -1px 0 0 rgba(0,0,0,0.05), -8px 0 40px rgba(0,0,0,0.03);
-          border-left: 1px solid rgba(15,23,42,0.6);
+          border-left: 1px solid rgba(255,255,255,0.05);
         }
         @media (max-width: 820px) {
           .auction-layout { grid-template-columns: 1fr; }
@@ -326,7 +332,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
       )}
 
       {/* ── TOP BAR ── */}
-      <div style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', background:'rgba(255,255,255,0.6)', backdropFilter:'blur(24px)', borderBottom:'1px solid rgba(255,255,255,0.6)', boxShadow:'0 1px 0 rgba(0,0,0,0.03), 0 4px 32px rgba(0,0,0,0.05)' }}>
+      <div className="pitch-black-pulse" style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', boxShadow:'0 1px 0 rgba(0,0,0,0.03), 0 4px 32px rgba(0,0,0,0.05)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'1.25rem' }}>
           <div style={{ fontFamily:'Bebas Neue', fontSize:'1.75rem', letterSpacing:'0.08em', background:'linear-gradient(135deg,#a78bfa,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>WWE 2K25</div>
           <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
@@ -516,7 +522,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         </div>
 
         {/* ── RIGHT: Sidebar ── */}
-        <div className="sidebar" style={{ padding:'1.5rem 1.1rem', position:'relative' }}>
+        <div className="sidebar pitch-black-pulse" style={{ padding:'1.5rem 1.1rem', position:'relative' }}>
 
           {/* Arc glow bulge on left edge */}
           <div style={{ position:'absolute', left:-50, top:'25%', bottom:'25%', width:100, background:'radial-gradient(ellipse, rgba(139,92,246,0.18) 0%, transparent 70%)', filter:'blur(18px)', pointerEvents:'none' }} />

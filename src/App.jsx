@@ -47,11 +47,12 @@ export default function App() {
   }
 
   async function handleReset() {
-    await supabase.from('auction_state').upsert({
+    const { error } = await supabase.from('auction_state').upsert({
       id: 1, phase: 'lobby', roster: [], roster_index: 0,
       current_superstar: null, current_ovr: null, current_bid: 0,
       current_leader: null, bid_history: [], purses: {}, sold_log: []
     })
+    if (error) throw error
     setPlayer(null)
     localStorage.removeItem('wwe_player')
     fetchGameState()
@@ -66,10 +67,12 @@ export default function App() {
 
 function LoadingScreen() {
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#06040a' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: 'Bebas Neue', fontSize: '3rem', color: '#c8a84b', letterSpacing: '0.1em' }}>WWE 2K25</div>
-        <div style={{ color: '#333', fontSize: '0.8rem', marginTop: '0.5rem', fontFamily: 'Barlow Condensed', letterSpacing: '0.3em' }}>CONNECTING...</div>
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#07040f', fontFamily: 'Barlow Condensed, sans-serif' }}>
+      <style>{`@keyframes glowPulse{0%,100%{opacity:0.4}50%{opacity:0.9}} @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}`}</style>
+      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 500, height: 500, background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 65%)', pointerEvents: 'none', animation: 'glowPulse 3s ease-in-out infinite' }} />
+      <div style={{ textAlign: 'center', position: 'relative' }}>
+        <div style={{ fontFamily: 'Bebas Neue', fontSize: '3rem', letterSpacing: '0.08em', background: 'linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #fbbf24 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 3s linear infinite' }}>WWE 2K25</div>
+        <div style={{ fontSize: '0.7rem', color: 'rgba(167,139,250,0.4)', marginTop: '0.5rem', letterSpacing: '0.4em' }}>CONNECTING...</div>
       </div>
     </div>
   )
@@ -77,21 +80,34 @@ function LoadingScreen() {
 
 function RecoveryScreen({ onReset }) {
   const [working, setWorking] = useState(false)
+  const [error, setError] = useState(null)
   async function go() {
     setWorking(true)
-    await onReset()
+    setError(null)
+    try {
+      await onReset()
+    } catch (e) {
+      setError(e?.message || String(e))
+    }
     setWorking(false)
   }
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#06040a', padding: '2rem' }}>
-      <div style={{ textAlign: 'center', maxWidth: '380px' }}>
-        <div style={{ fontFamily: 'Bebas Neue', fontSize: '2.5rem', color: '#c8a84b', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>WWE 2K25</div>
-        <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#444', letterSpacing: '0.3em', marginBottom: '2.5rem' }}>AUCTION HOUSE</div>
-        <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.95rem', color: '#555', marginBottom: '2rem', lineHeight: 1.7 }}>
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#07040f', padding: '2rem', fontFamily: 'Barlow Condensed, sans-serif' }}>
+      <style>{`@keyframes glowPulse{0%,100%{opacity:0.4}50%{opacity:0.9}} @keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}} .init-btn{transition:all 0.2s} .init-btn:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(139,92,246,0.4)!important} .init-btn:disabled{opacity:0.5;cursor:not-allowed}`}</style>
+      <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 500, height: 500, background: 'radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 65%)', pointerEvents: 'none', animation: 'glowPulse 4s ease-in-out infinite' }} />
+      <div style={{ textAlign: 'center', maxWidth: 400, position: 'relative' }}>
+        <div style={{ fontFamily: 'Bebas Neue', fontSize: '2.8rem', letterSpacing: '0.08em', background: 'linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #fbbf24 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 4s linear infinite', marginBottom: '0.25rem' }}>WWE 2K25</div>
+        <div style={{ fontSize: '0.7rem', color: 'rgba(167,139,250,0.4)', letterSpacing: '0.4em', marginBottom: '2.5rem' }}>AUCTION HOUSE</div>
+        <div style={{ fontSize: '0.9rem', color: 'rgba(167,139,250,0.45)', marginBottom: '0.75rem', lineHeight: 1.7, letterSpacing: '0.05em' }}>
           No auction data found.<br />The row may be missing from Supabase.
         </div>
-        <button onClick={go} disabled={working}
-          style={{ padding: '0.9rem 2.5rem', background: '#c8a84b', border: 'none', borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: '#06040a', cursor: working ? 'not-allowed' : 'pointer', opacity: working ? 0.6 : 1, transition: 'opacity 0.2s' }}>
+        {error && (
+          <div style={{ fontSize: '0.8rem', color: '#fb7185', marginBottom: '1.25rem', wordBreak: 'break-all', lineHeight: 1.6, padding: '0.6rem 0.8rem', background: 'rgba(251,113,133,0.08)', border: '1px solid rgba(251,113,133,0.2)', borderRadius: 10 }}>
+            Error: {error}
+          </div>
+        )}
+        <button className="init-btn" onClick={go} disabled={working}
+          style={{ padding: '0.9rem 2.5rem', background: 'linear-gradient(135deg, #7c3aed, #a21caf)', border: 'none', borderRadius: 12, fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: '#fff', cursor: 'pointer', boxShadow: '0 4px 24px rgba(124,58,237,0.3)', textShadow: '0 0 16px rgba(255,255,255,0.3)' }}>
           {working ? 'Initialising...' : 'Initialise Auction Data'}
         </button>
       </div>

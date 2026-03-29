@@ -25,115 +25,110 @@ function LiquidBackground() {
         /* ── Blob animations ── */
         @keyframes blob1 {
           0%,100% { transform: translate(0,0) scale(1); }
-          25%      { transform: translate(3%,7%) scale(1.07); }
-          50%      { transform: translate(-2%,10%) scale(0.95); }
-          75%      { transform: translate(5%,3%) scale(1.04); }
+          50%     { transform: translate(3%,4%) scale(1.05); }
         }
         @keyframes blob2 {
           0%,100% { transform: translate(0,0) scale(1); }
-          33%     { transform: translate(-4%,-6%) scale(1.09); }
-          66%     { transform: translate(3%,-9%) scale(0.93); }
+          50%     { transform: translate(-3%,-4%) scale(1.05); }
         }
         @keyframes blob3 {
           0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(-4%,7%) scale(1.11); }
+          50%     { transform: translate(-2%,5%) scale(1.03); }
         }
         @keyframes blob4 {
           0%,100% { transform: translate(0,0) scale(1) rotate(0deg); }
-          30%     { transform: translate(6%,3%) scale(1.05) rotate(3deg); }
-          70%     { transform: translate(-3%,2%) scale(0.97) rotate(-2deg); }
+          50%     { transform: translate(5%,-3%) scale(0.97) rotate(2deg); }
         }
         @keyframes arcGlow  { 0%,100%{opacity:0.3} 50%{opacity:0.65} }
-        @keyframes sparkle  { 0%,100%{opacity:0;transform:scale(0.3)} 50%{opacity:0.9;transform:scale(1)} }
+        @keyframes sparkle  { 0%,100%{opacity:0;transform:scale(0.3)} 50%{opacity:0.6;transform:scale(1)} }
 
-        /* ── Global Glow Button ── */
-        .glow-wrap {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
+        /* ── Glass Container for buttons ── */
+        .glass-container {
+          background: rgba(255, 255, 255, 0.45);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border: 1px solid rgba(255, 255, 255, 0.6);
+          border-radius: 20px;
+          padding: 1.5rem;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255,255,255,0.8);
         }
+
+        /* ── Global Minimal Button (hijacking glow-wrap) ── */
+        .glow-wrap { display: inline-flex; width: 100%; position: relative; }
         .glow-wrap-full { width: 100%; }
         .glow-wrap-full .glow-inner { width: 100%; }
+        .glow-layer { display: none !important; }
 
-        .glow-layer {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(90deg, #6366f1, #ec4899, #fbbf24);
-          border-radius: 10px;
-          filter: blur(8px);
-          opacity: 0.4;
-          transition: opacity 0.3s ease, filter 0.3s ease;
-          pointer-events: none;
-        }
-        .glow-wrap:hover .glow-layer { opacity: 0.75; filter: blur(12px); }
-
-        .glow-inner {
+        .glow-inner, .minimal-btn {
           position: relative;
-          background: #0d0920;
-          color: #fff;
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 10px;
+          background: #ffffff;
+          color: #0f172a;
+          border: 1px solid rgba(0,0,0,0.06) !important;
+          border-radius: 12px !important;
           font-family: 'Outfit', sans-serif;
           font-weight: 600;
           letter-spacing: 0.03em;
           cursor: pointer;
-          transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+          transition: all 0.2s ease !important;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,1) !important;
         }
         .glow-inner:hover:not(:disabled) {
-          background: #1a1035;
-          transform: translateY(-1px);
+          background: #f8fafc !important;
+          transform: translateY(-1px) !important;
+          box-shadow: 0 6px 16px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,1) !important;
+          border-color: rgba(99, 102, 241, 0.15) !important;
         }
-        .glow-inner:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
-        .glow-inner:disabled { opacity: 0.4; cursor: not-allowed; }
+        .glow-inner:active:not(:disabled) { 
+          transform: translateY(0) scale(0.98) !important; 
+        }
+        .glow-inner:disabled { 
+          opacity: 0.5 !important; 
+          cursor: not-allowed !important; 
+          background: #f1f5f9 !important; 
+          box-shadow: none !important;
+          color: #94a3b8 !important;
+        }
 
-        /* ── Global font override ── */
-        body { font-family: 'Outfit', sans-serif; }
+        /* ── Global override ── */
+        body { font-family: 'Outfit', sans-serif; background: #ffffff; color: #0f172a; }
 
         /* ── Scrollbar ── */
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 2px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
 
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
         input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none', background: '#fafafa' }}>
 
-        {/* Deep dark base — near-black with purple undertone */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 40% 30%, #180038 0%, #06001a 50%, #020008 100%)' }} />
+        {/* Soft white base */}
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%)' }} />
 
-        {/* ★ White bloom at top — the key element from the reference */}
-        <div style={{ position: 'absolute', top: '-35%', left: '-15%', width: '130%', height: '70%', background: 'radial-gradient(ellipse at 50% 10%, rgba(255,255,255,0.22) 0%, rgba(210,185,255,0.09) 38%, transparent 65%)', filter: 'blur(50px)', animation: 'blob3 16s ease-in-out infinite' }} />
+        {/* Blurry colorful gooey liquids */}
+        {/* Blue */}
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '80%', height: '80%', background: 'radial-gradient(ellipse, rgba(59,130,246,0.3) 0%, transparent 60%)', filter: 'blur(90px)', animation: 'blob1 35s ease-in-out infinite' }} />
+        
+        {/* Purple/Violet */}
+        <div style={{ position: 'absolute', top: '15%', right: '-15%', width: '75%', height: '75%', background: 'radial-gradient(ellipse, rgba(147,51,234,0.2) 0%, rgba(167,139,250,0.15) 50%, transparent 70%)', filter: 'blur(100px)', animation: 'blob2 40s ease-in-out infinite reverse' }} />
+        
+        {/* Red */}
+        <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(239,68,68,0.2) 0%, transparent 60%)', filter: 'blur(80px)', animation: 'blob3 38s ease-in-out infinite' }} />
+        
+        {/* Black/Charcoal gooey accent */}
+        <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.05) 50%, transparent 70%)', filter: 'blur(80px)', animation: 'blob4 42s ease-in-out infinite reverse' }} />
 
-        {/* Main vivid purple/indigo cloud — right side, matches reference */}
-        <div style={{ position: 'absolute', top: '5%', right: '-18%', width: '72%', height: '72%', background: 'radial-gradient(ellipse, rgba(55,25,190,0.8) 0%, rgba(70,15,160,0.55) 35%, transparent 65%)', filter: 'blur(55px)', animation: 'blob1 10s ease-in-out infinite' }} />
+        {/* Central unifying bloom */}
+        <div style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', height: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 60%)', filter: 'blur(70px)', animation: 'blob1 25s ease-in-out infinite' }} />
 
-        {/* Luminous inner white glow within the purple zone */}
-        <div style={{ position: 'absolute', top: '18%', right: '12%', width: '42%', height: '48%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.14) 0%, rgba(190,160,255,0.06) 45%, transparent 70%)', filter: 'blur(35px)', animation: 'blob2 14s ease-in-out infinite reverse' }} />
-
-        {/* Left purple cloud */}
-        <div style={{ position: 'absolute', top: '10%', left: '-22%', width: '58%', height: '65%', background: 'radial-gradient(ellipse, rgba(75,25,200,0.55) 0%, transparent 65%)', filter: 'blur(70px)', animation: 'blob4 18s ease-in-out infinite' }} />
-
-        {/* Centre deep indigo */}
-        <div style={{ position: 'absolute', top: '32%', left: '18%', width: '48%', height: '48%', background: 'radial-gradient(ellipse, rgba(45,15,120,0.45) 0%, transparent 65%)', filter: 'blur(65px)', animation: 'blob3 20s ease-in-out infinite reverse' }} />
-
-        {/* Dark gradient covering the bottom half — gives the deep navy look */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'linear-gradient(180deg, transparent 0%, rgba(2,0,10,0.75) 55%, rgba(2,0,10,0.97) 100%)' }} />
-
-        {/* Arc glow column divider */}
-        <div style={{ position: 'absolute', left: '52%', top: 0, bottom: 0, width: 2, transform: 'translateX(-50%)', background: 'linear-gradient(180deg, transparent 0%, rgba(139,92,246,0) 8%, rgba(167,139,250,0.18) 28%, rgba(236,72,153,0.22) 50%, rgba(167,139,250,0.18) 72%, rgba(139,92,246,0) 92%, transparent 100%)', animation: 'arcGlow 7s ease-in-out infinite' }}>
-          <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 160, height: 340, background: 'radial-gradient(ellipse, rgba(139,92,246,0.15) 0%, transparent 70%)', filter: 'blur(28px)' }} />
-        </div>
-
-        {/* Edge vignette */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 30%, rgba(2,0,10,0.55) 100%)' }} />
+        {/* Edge vignette light */}
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 40%, rgba(255,255,255,0.4) 100%)' }} />
 
         {/* Sparkles */}
         {SPARKS.map(s => (
-          <div key={s.id} style={{ position: 'absolute', left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, borderRadius: '50%', background: s.color, animation: `sparkle ${s.dur}s ${s.delay}s ease-in-out infinite` }} />
+          <div key={s.id} style={{ position: 'absolute', left: `${s.x}%`, top: `${s.y}%`, width: s.size, height: s.size, borderRadius: '50%', background: s.color.replace('255,255,255','139,92,246'), animation: `sparkle ${s.dur}s ${s.delay}s ease-in-out infinite` }} />
         ))}
       </div>
     </>

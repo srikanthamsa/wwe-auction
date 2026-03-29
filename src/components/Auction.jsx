@@ -271,18 +271,20 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           min-height: calc(100vh - 72px);
         }
         .sidebar {
-          background: rgba(6,2,14,0.55);
+          background: rgba(255, 255, 255, 0.4);
           backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
           overflow-y: auto;
           position: sticky;
           top: 72px;
           max-height: calc(100vh - 72px);
-          /* Arc glow left edge */
-          box-shadow: -1px 0 0 rgba(167,139,250,0.12), -8px 0 40px rgba(109,40,217,0.1);
+          /* Soft glow left edge */
+          box-shadow: -1px 0 0 rgba(0,0,0,0.05), -8px 0 40px rgba(0,0,0,0.03);
+          border-left: 1px solid rgba(255,255,255,0.6);
         }
         @media (max-width: 820px) {
           .auction-layout { grid-template-columns: 1fr; }
-          .sidebar { position:static; max-height:none; box-shadow: 0 -1px 0 rgba(167,139,250,0.12); }
+          .sidebar { position:static; max-height:none; box-shadow: 0 -1px 0 rgba(0,0,0,0.05); border-left:none; border-top:1px solid rgba(255,255,255,0.6); }
         }
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
@@ -302,7 +304,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
       {/* Flash overlay — SOLD or SKIPPED */}
       {flash && (
-        <div style={{ position:'fixed', inset:0, zIndex:150, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'rgba(6,2,14,0.92)', animation:'flashIn 2.4s ease forwards', pointerEvents:'none', backdropFilter:'blur(20px)' }}>
+        <div style={{ position:'fixed', inset:0, zIndex:150, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'rgba(255,255,255,0.7)', animation:'flashIn 2.4s ease forwards', pointerEvents:'none', backdropFilter:'blur(20px)' }}>
           {flash.type === 'sold' ? (
             <>
               <div style={{ fontSize:'0.7rem', letterSpacing:'0.5em', color:'rgba(167,139,250,0.5)', marginBottom:'0.6rem', textTransform:'uppercase' }}>Sold to</div>
@@ -324,7 +326,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
       )}
 
       {/* ── TOP BAR ── */}
-      <div style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', background:'rgba(6,2,14,0.88)', backdropFilter:'blur(24px)', boxShadow:'0 1px 0 rgba(139,92,246,0.1), 0 4px 32px rgba(0,0,0,0.4)' }}>
+      <div style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', background:'rgba(255,255,255,0.6)', backdropFilter:'blur(24px)', borderBottom:'1px solid rgba(255,255,255,0.6)', boxShadow:'0 1px 0 rgba(0,0,0,0.03), 0 4px 32px rgba(0,0,0,0.05)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'1.25rem' }}>
           <div style={{ fontFamily:'Bebas Neue', fontSize:'1.75rem', letterSpacing:'0.08em', background:'linear-gradient(135deg,#a78bfa,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>WWE 2K25</div>
           <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
@@ -403,7 +405,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           </div>
 
           {/* ── BID CONTROLS ── */}
-          <div style={{ display:'flex', flexDirection:'column', gap:'0.6rem', marginBottom:'1rem' }}>
+          <div className="glass-container" style={{ display:'flex', flexDirection:'column', gap:'0.6rem', marginBottom:'1rem' }}>
 
             {/* Quick raise */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.5rem' }}>
@@ -498,8 +500,8 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           {isAdmin && (
             <div style={{ textAlign:'center', paddingBottom:'2.5rem', marginTop:'auto' }}>
               {!confirmReset ? (
-                <button onClick={() => setConfirmReset(true)}
-                  style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.25em', color:'rgba(167,139,250,0.18)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Outfit' }}>
+                  <button onClick={() => setConfirmReset(true)}
+                  style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.25em', color:'rgba(15,23,42,0.4)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Outfit' }}>
                   Reset entire auction
                 </button>
               ) : (

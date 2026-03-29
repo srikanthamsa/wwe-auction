@@ -60,34 +60,32 @@ function LiquidBackground() {
           position: absolute;
           inset: 0;
           background: linear-gradient(90deg, #6366f1, #ec4899, #fbbf24);
-          border-radius: 14px;
-          filter: blur(14px);
-          opacity: 0.55;
+          border-radius: 10px;
+          filter: blur(8px);
+          opacity: 0.4;
           transition: opacity 0.3s ease, filter 0.3s ease;
           pointer-events: none;
         }
-        .glow-wrap:hover .glow-layer { opacity: 1; filter: blur(20px); }
+        .glow-wrap:hover .glow-layer { opacity: 0.75; filter: blur(12px); }
 
         .glow-inner {
           position: relative;
           background: #0d0920;
           color: #fff;
-          border: none;
-          border-radius: 14px;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
           font-family: 'Outfit', sans-serif;
           font-weight: 600;
           letter-spacing: 0.03em;
           cursor: pointer;
           transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.07);
         }
         .glow-inner:hover:not(:disabled) {
           background: #1a1035;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+          transform: translateY(-1px);
         }
         .glow-inner:active:not(:disabled) { transform: translateY(1px) scale(0.98); }
-        .glow-inner:disabled { opacity: 0.35; cursor: not-allowed; }
+        .glow-inner:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* ── Global font override ── */
         body { font-family: 'Outfit', sans-serif; }

@@ -156,6 +156,12 @@ export default function App() {
   }
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.has('reset')) {
+      localStorage.clear()
+      window.history.replaceState({}, '', window.location.pathname)
+      return
+    }
     const saved = localStorage.getItem('wwe_player')
     if (saved && PLAYERS.includes(saved)) setPlayer(saved)
   }, [])

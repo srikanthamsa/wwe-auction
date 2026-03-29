@@ -71,12 +71,12 @@ export default function Lobby({ onSelect, gameState, onReset }) {
               WWE 2K25
             </div>
           </div>
-          <div style={{ fontSize:'0.8rem', letterSpacing:'0.5em', color:'rgba(255,255,255,0.45)', marginTop:'0.5rem', textTransform:'uppercase' }}>
+          <div style={{ fontSize:'0.8rem', letterSpacing:'0.5em', color:'rgba(167,139,250,0.45)', marginTop:'0.5rem', textTransform:'uppercase' }}>
             Superstar Auction House
           </div>
           <div style={{ marginTop:'0.75rem', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.6rem' }}>
             <div style={{ height:1, width:50, background:'linear-gradient(90deg,transparent,rgba(139,92,246,0.4))' }} />
-            <span style={{ fontSize:'0.62rem', letterSpacing:'0.25em', color:'rgba(255,255,255,0.3)' }}>
+            <span style={{ fontSize:'0.62rem', letterSpacing:'0.25em', color:'rgba(167,139,250,0.3)' }}>
               {ROSTER.length} SUPERSTARS · ₹{STARTING_PURSE.toLocaleString()} PURSE
             </span>
             <div style={{ height:1, width:50, background:'linear-gradient(90deg,rgba(139,92,246,0.4),transparent)' }} />
@@ -92,7 +92,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
 
         {/* Player grid */}
         <div style={{ marginBottom:'1rem' }}>
-          <div style={{ fontSize:'0.65rem', letterSpacing:'0.4em', color:'rgba(255,255,255,0.4)', marginBottom:'1rem', textTransform:'uppercase', textAlign:'center' }}>Who are you?</div>
+          <div style={{ fontSize:'0.65rem', letterSpacing:'0.4em', color:'rgba(167,139,250,0.4)', marginBottom:'1rem', textTransform:'uppercase', textAlign:'center' }}>Who are you?</div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:'0.65rem' }}>
             {PLAYERS.map(p => {
               const col    = PLAYER_COLORS[p]
@@ -103,18 +103,18 @@ export default function Lobby({ onSelect, gameState, onReset }) {
                 <button key={p} className="player-btn" onClick={() => setSelected(p)}
                   style={{
                     padding:'1rem 0.85rem',
-                    background: active ? `rgba(${rgb},0.14)` : 'rgba(240,240,240,0.04)',
+                    background: active ? `rgba(${rgb},0.14)` : 'rgba(255,255,255,0.04)',
                     boxShadow: active
                       ? `inset 0 0 0 1px ${col}, 0 0 28px rgba(${rgb},0.22), inset 0 0 24px rgba(${rgb},0.06)`
-                      : 'inset 0 0 0 1px rgba(240,240,240,0.07)',
+                      : 'inset 0 0 0 1px rgba(255,255,255,0.07)',
                     borderRadius:16, border:'none',
                     textAlign:'left',
                     textShadow: active ? `0 0 20px rgba(${rgb},0.6)` : 'none',
                   }}>
-                  <div style={{ fontFamily:'Bebas Neue', fontSize:'1.25rem', letterSpacing:'0.1em', color: active ? col : 'rgba(240,240,240,0.45)', lineHeight:1.1 }}>
+                  <div style={{ fontFamily:'Bebas Neue', fontSize:'1.25rem', letterSpacing:'0.1em', color: active ? col : 'rgba(255,255,255,0.45)', lineHeight:1.1 }}>
                     {disp.first}
                   </div>
-                  <div style={{ fontSize:'0.62rem', letterSpacing:'0.06em', color: active ? `rgba(${rgb},0.7)` : 'rgba(255,255,255,0.25)', marginTop:'0.15rem', lineHeight:1.3 }}>
+                  <div style={{ fontSize:'0.62rem', letterSpacing:'0.06em', color: active ? `rgba(${rgb},0.7)` : 'rgba(167,139,250,0.25)', marginTop:'0.15rem', lineHeight:1.3 }}>
                     {disp.gimmick}
                   </div>
                 </button>
@@ -144,7 +144,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
             </button>
           </div>
         ) : (
-          <div style={{ textAlign:'center', padding:'1rem', fontSize:'0.9rem', color:'rgba(255,255,255,0.35)', letterSpacing:'0.15em' }}>
+          <div style={{ textAlign:'center', padding:'1rem', fontSize:'0.9rem', color:'rgba(167,139,250,0.35)', letterSpacing:'0.15em' }}>
             {selected ? 'Waiting for Srikant to start...' : 'Select your name above'}
           </div>
         )}
@@ -154,18 +154,18 @@ export default function Lobby({ onSelect, gameState, onReset }) {
           <div style={{ marginTop:'1.5rem', textAlign:'center' }}>
             {!confirmReset ? (
               <button onClick={() => setConfirmReset(true)}
-                style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.2em', color:'rgba(255,255,255,0.2)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Outfit' }}>
+                style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.2em', color:'rgba(167,139,250,0.2)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Outfit' }}>
                 Reset Auction
               </button>
             ) : (
               <div style={{ display:'flex', gap:'0.75rem', justifyContent:'center', alignItems:'center' }}>
-                <span style={{ fontSize:'0.8rem', color:'rgba(255,255,255,0.45)', letterSpacing:'0.1em' }}>Sure? Wipes everything.</span>
+                <span style={{ fontSize:'0.8rem', color:'rgba(167,139,250,0.45)', letterSpacing:'0.1em' }}>Sure? Wipes everything.</span>
                 <button onClick={doReset} disabled={resetting}
                   style={{ background:'rgba(239,68,68,0.1)', boxShadow:'inset 0 0 0 1px rgba(239,68,68,0.2)', borderRadius:8, padding:'0.35rem 0.8rem', border:'none', fontSize:'0.78rem', letterSpacing:'0.15em', color:'#f87171', cursor:'pointer', fontFamily:'Outfit' }}>
                   {resetting ? 'Resetting...' : 'Yes, reset'}
                 </button>
                 <button onClick={() => setConfirmReset(false)}
-                  style={{ background:'none', border:'none', fontSize:'0.78rem', color:'rgba(255,255,255,0.25)', cursor:'pointer', fontFamily:'Outfit' }}>
+                  style={{ background:'none', border:'none', fontSize:'0.78rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Outfit' }}>
                   Cancel
                 </button>
               </div>

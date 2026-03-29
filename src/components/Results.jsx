@@ -62,11 +62,11 @@ export default function Results({ gameState, player, onReset }) {
 
         {/* Header */}
         <div style={{ textAlign:'center', marginBottom:'2.5rem', animation:'fadeUp 0.5s ease' }}>
-          <div style={{ fontSize:'0.75rem', letterSpacing:'0.5em', color:'rgba(255,255,255,0.45)', marginBottom:'0.5rem', textTransform:'uppercase' }}>Auction Complete</div>
+          <div style={{ fontSize:'0.75rem', letterSpacing:'0.5em', color:'rgba(167,139,250,0.45)', marginBottom:'0.5rem', textTransform:'uppercase' }}>Auction Complete</div>
           <div style={{ fontFamily:'Bebas Neue', fontSize:'clamp(3rem,12vw,5.5rem)', letterSpacing:'0.06em', lineHeight:0.95, background:'linear-gradient(135deg,#a78bfa 0%,#ec4899 50%,#fbbf24 100%)', backgroundSize:'200% auto', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', animation:'shimmer 5s linear infinite' }}>
             WWE 2K25
           </div>
-          <div style={{ fontSize:'0.85rem', color:'rgba(255,255,255,0.35)', letterSpacing:'0.2em', marginTop:'0.3rem' }}>{totalSold} superstars sold</div>
+          <div style={{ fontSize:'0.85rem', color:'rgba(167,139,250,0.35)', letterSpacing:'0.2em', marginTop:'0.3rem' }}>{totalSold} superstars sold</div>
         </div>
 
         {/* Global stats */}
@@ -76,9 +76,9 @@ export default function Results({ gameState, player, onReset }) {
             { label:'Total Value', val: `₹${(totalValue/1000).toFixed(0)}k` },
             { label:'Avg Price',   val: `₹${(avgPrice/1000).toFixed(1)}k` },
           ].map(({ label, val }) => (
-            <div key={label} style={{ padding:'0.9rem', background:'rgba(240,240,240,0.04)', boxShadow:'inset 0 0 0 1px rgba(240,240,240,0.07)', borderRadius:14, textAlign:'center' }}>
+            <div key={label} style={{ padding:'0.9rem', background:'rgba(255,255,255,0.04)', boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.07)', borderRadius:14, textAlign:'center' }}>
               <div style={{ fontFamily:'Bebas Neue', fontSize:'1.6rem', color:'#a78bfa', letterSpacing:'0.04em' }}>{val}</div>
-              <div style={{ fontSize:'0.58rem', color:'rgba(255,255,255,0.4)', letterSpacing:'0.2em', textTransform:'uppercase', marginTop:2 }}>{label}</div>
+              <div style={{ fontSize:'0.58rem', color:'rgba(167,139,250,0.4)', letterSpacing:'0.2em', textTransform:'uppercase', marginTop:2 }}>{label}</div>
             </div>
           ))}
         </div>
@@ -111,35 +111,35 @@ export default function Results({ gameState, player, onReset }) {
               <div key={s.name}>
                 <div className="stand-row"
                   onClick={() => setExpanded(open ? null : s.name)}
-                  style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'1rem 1.1rem', background: isFirst ? `rgba(${rgb},0.1)` : isMe ? `rgba(${rgb},0.07)` : 'rgba(240,240,240,0.04)', boxShadow: isFirst ? `inset 0 0 0 1px rgba(${rgb},0.35), 0 0 24px rgba(${rgb},0.1)` : isMe ? `inset 0 0 0 1px rgba(${rgb},0.2)` : 'inset 0 0 0 1px rgba(240,240,240,0.06)', borderRadius: open ? '14px 14px 0 0' : 14 }}>
+                  style={{ display:'flex', alignItems:'center', gap:'0.75rem', padding:'1rem 1.1rem', background: isFirst ? `rgba(${rgb},0.1)` : isMe ? `rgba(${rgb},0.07)` : 'rgba(255,255,255,0.04)', boxShadow: isFirst ? `inset 0 0 0 1px rgba(${rgb},0.35), 0 0 24px rgba(${rgb},0.1)` : isMe ? `inset 0 0 0 1px rgba(${rgb},0.2)` : 'inset 0 0 0 1px rgba(255,255,255,0.06)', borderRadius: open ? '14px 14px 0 0' : 14 }}>
                   <div style={{ fontSize:'1.7rem', minWidth:'2rem', textAlign:'center', animation: isFirst ? 'rankGlow 2.5s ease-in-out infinite' : 'none' }}>{RANK_ICONS[i]}</div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ display:'flex', alignItems:'center', gap:'0.4rem', marginBottom:'0.2rem' }}>
                       <span style={{ fontFamily:'Bebas Neue', fontSize:'1.2rem', color:col, letterSpacing:'0.08em', textShadow: isFirst ? `0 0 16px rgba(${rgb},0.5)` : 'none' }}>{pFirst(s.name)}</span>
                       {isMe && <span style={{ fontSize:'0.52rem', color:`rgba(${rgb},0.6)`, background:`rgba(${rgb},0.12)`, padding:'1px 6px', borderRadius:6 }}>YOU</span>}
                     </div>
-                    <div style={{ fontSize:'0.68rem', color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em' }}>
+                    <div style={{ fontSize:'0.68rem', color:'rgba(167,139,250,0.4)', letterSpacing:'0.08em' }}>
                       {s.count} superstars · ₹{s.remaining.toLocaleString()} left · avg OVR {s.avgOvr || '—'}
                     </div>
                   </div>
                   <div style={{ textAlign:'right' }}>
                     <div style={{ fontFamily:'Bebas Neue', fontSize:'1.2rem', color:col, letterSpacing:'0.04em' }}>₹{s.spent.toLocaleString()}</div>
-                    <div style={{ fontSize:'0.58rem', color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em' }}>SPENT</div>
+                    <div style={{ fontSize:'0.58rem', color:'rgba(167,139,250,0.35)', letterSpacing:'0.1em' }}>SPENT</div>
                   </div>
-                  <div style={{ fontSize:'0.75rem', color:'rgba(255,255,255,0.3)', marginLeft:'0.25rem' }}>{open ? '▲' : '▼'}</div>
+                  <div style={{ fontSize:'0.75rem', color:'rgba(167,139,250,0.3)', marginLeft:'0.25rem' }}>{open ? '▲' : '▼'}</div>
                 </div>
 
                 {open && s.roster.length > 0 && (
-                  <div style={{ background:'rgba(255,255,255,0.55)', boxShadow:`inset 0 0 0 1px rgba(${rgb},0.1)`, borderTop:'none', borderRadius:'0 0 14px 14px', padding:'0.85rem' }}>
+                  <div style={{ background:'rgba(6,2,14,0.55)', boxShadow:`inset 0 0 0 1px rgba(${rgb},0.1)`, borderTop:'none', borderRadius:'0 0 14px 14px', padding:'0.85rem' }}>
                     <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.4rem', marginBottom:'0.7rem' }}>
                       {[
                         { label:'Best OVR',   val: s.topOvr },
                         { label:'Avg OVR',    val: s.avgOvr },
                         { label:'Avg ₹/Star', val: `₹${s.avgPrice>=1000?`${(s.avgPrice/1000).toFixed(1)}k`:s.avgPrice}` },
                       ].map(({ label, val }) => (
-                        <div key={label} style={{ textAlign:'center', padding:'0.35rem', background:'rgba(240,240,240,0.04)', borderRadius:9 }}>
+                        <div key={label} style={{ textAlign:'center', padding:'0.35rem', background:'rgba(255,255,255,0.04)', borderRadius:9 }}>
                           <div style={{ fontFamily:'Bebas Neue', fontSize:'1.05rem', color:col }}>{val}</div>
-                          <div style={{ fontSize:'0.5rem', color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.1em' }}>{label}</div>
+                          <div style={{ fontSize:'0.5rem', color:'rgba(167,139,250,0.4)', textTransform:'uppercase', letterSpacing:'0.1em' }}>{label}</div>
                         </div>
                       ))}
                     </div>
@@ -147,10 +147,10 @@ export default function Results({ gameState, player, onReset }) {
                       {s.roster.sort((a, b) => b.ovr - a.ovr).map((star, j) => {
                         const tc = star.ovr >= 90 ? TIER_COLORS.S : star.ovr >= 85 ? TIER_COLORS.A : TIER_COLORS.B
                         return (
-                          <div key={j} style={{ display:'flex', alignItems:'center', padding:'0.32rem 0.55rem', background:'rgba(240,240,240,0.03)', borderRadius:8, gap:'0.5rem' }}>
+                          <div key={j} style={{ display:'flex', alignItems:'center', padding:'0.32rem 0.55rem', background:'rgba(255,255,255,0.03)', borderRadius:8, gap:'0.5rem' }}>
                             <div style={{ fontFamily:'Bebas Neue', fontSize:'0.82rem', color:tc, minWidth:'2rem' }}>{star.ovr}</div>
-                            <div style={{ flex:1, fontSize:'0.88rem', fontWeight:600, color:'rgba(240,240,240,0.8)' }}>{star.superstar}</div>
-                            <div style={{ fontFamily:'Bebas Neue', fontSize:'0.78rem', color:'rgba(255,255,255,0.45)' }}>₹{star.price>=1000?`${(star.price/1000).toFixed(1)}k`:star.price}</div>
+                            <div style={{ flex:1, fontSize:'0.88rem', fontWeight:600, color:'rgba(226,232,240,0.8)' }}>{star.superstar}</div>
+                            <div style={{ fontFamily:'Bebas Neue', fontSize:'0.78rem', color:'rgba(167,139,250,0.45)' }}>₹{star.price>=1000?`${(star.price/1000).toFixed(1)}k`:star.price}</div>
                           </div>
                         )
                       })}
@@ -175,9 +175,9 @@ export default function Results({ gameState, player, onReset }) {
               </div>
             ) : (
               <div style={{ display:'flex', gap:'0.75rem', justifyContent:'center', alignItems:'center' }}>
-                <span style={{ fontSize:'0.85rem', color:'rgba(255,255,255,0.5)', letterSpacing:'0.1em', fontFamily:'Outfit' }}>Resets everything.</span>
+                <span style={{ fontSize:'0.85rem', color:'rgba(167,139,250,0.5)', letterSpacing:'0.1em', fontFamily:'Outfit' }}>Resets everything.</span>
                 <button onClick={onReset} style={{ background:'rgba(239,68,68,0.1)', boxShadow:'inset 0 0 0 1px rgba(239,68,68,0.2)', borderRadius:9, padding:'0.4rem 1rem', border:'none', fontSize:'0.82rem', letterSpacing:'0.1em', color:'#f87171', cursor:'pointer', fontFamily:'Outfit' }}>Yes, reset</button>
-                <button onClick={() => setConfirmReset(false)} style={{ background:'none', border:'none', fontSize:'0.82rem', color:'rgba(255,255,255,0.25)', cursor:'pointer', fontFamily:'Outfit' }}>Cancel</button>
+                <button onClick={() => setConfirmReset(false)} style={{ background:'none', border:'none', fontSize:'0.82rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Outfit' }}>Cancel</button>
               </div>
             )}
           </div>
@@ -189,7 +189,7 @@ export default function Results({ gameState, player, onReset }) {
 
 function Divider({ label }) {
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.9rem', fontFamily:'Outfit', fontSize:'0.6rem', letterSpacing:'0.38em', color:'rgba(255,255,255,0.4)', textTransform:'uppercase' }}>
+    <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.9rem', fontFamily:'Outfit', fontSize:'0.6rem', letterSpacing:'0.38em', color:'rgba(167,139,250,0.4)', textTransform:'uppercase' }}>
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />
       {label}
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />

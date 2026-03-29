@@ -25,26 +25,26 @@ function LiquidBackground() {
         /* ── Blob animations ── */
         @keyframes blob1 {
           0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(8%,12%) scale(1.1); }
+          50%     { transform: translate(3%,4%) scale(1.05); }
         }
         @keyframes blob2 {
           0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(-10%,-12%) scale(1.12); }
+          50%     { transform: translate(-3%,-4%) scale(1.05); }
         }
         @keyframes blob3 {
           0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(-12%,9%) scale(1.08); }
+          50%     { transform: translate(-2%,5%) scale(1.03); }
         }
         @keyframes blob4 {
           0%,100% { transform: translate(0,0) scale(1) rotate(0deg); }
-          50%     { transform: translate(14%,-8%) scale(0.97) rotate(6deg); }
+          50%     { transform: translate(5%,-3%) scale(0.97) rotate(2deg); }
         }
         @keyframes arcGlow  { 0%,100%{opacity:0.3} 50%{opacity:0.65} }
         @keyframes sparkle  { 0%,100%{opacity:0;transform:scale(0.3)} 50%{opacity:0.6;transform:scale(1)} }
 
         /* ── Glass Container for buttons ── */
         .glass-container {
-          background: rgba(6,2,14,0.55);
+          background: rgba(255, 255, 255, 0.45);
           backdrop-filter: blur(24px);
           -webkit-backdrop-filter: blur(24px);
           border: 1px solid rgba(255, 255, 255, 0.6);
@@ -61,9 +61,9 @@ function LiquidBackground() {
 
         .glow-inner, .minimal-btn {
           position: relative;
-          background: #000000;
-          color: #ffffff;
-          border: 1px solid rgba(0,0,0,0.15) !important;
+          background: #ffffff;
+          color: #0f172a;
+          border: 1px solid rgba(0,0,0,0.06) !important;
           border-radius: 12px !important;
           font-family: 'Outfit', sans-serif;
           font-weight: 600;
@@ -73,7 +73,7 @@ function LiquidBackground() {
           box-shadow: 0 2px 5px rgba(0,0,0,0.02), inset 0 1px 0 rgba(255,255,255,1) !important;
         }
         .glow-inner:hover:not(:disabled) {
-          background: #000000 !important;
+          background: #f8fafc !important;
           transform: translateY(-1px) !important;
           box-shadow: 0 6px 16px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,1) !important;
           border-color: rgba(99, 102, 241, 0.15) !important;
@@ -84,13 +84,13 @@ function LiquidBackground() {
         .glow-inner:disabled { 
           opacity: 0.5 !important; 
           cursor: not-allowed !important; 
-          background: #000000 !important; 
+          background: #f1f5f9 !important; 
           box-shadow: none !important;
           color: #94a3b8 !important;
         }
 
         /* ── Global override ── */
-        body { font-family: 'Outfit', sans-serif; background: #000000; color: #ffffff; }
+        body { font-family: 'Outfit', sans-serif; background: #ffffff; color: #0f172a; }
 
         /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 6px; }
@@ -102,26 +102,26 @@ function LiquidBackground() {
         input[type=number] { -moz-appearance: textfield; }
       `}</style>
 
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none', background: '#000000' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none', background: '#fafafa' }}>
 
         {/* Soft white base */}
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, #000000 0%, #000000 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, #ffffff 0%, #f1f5f9 100%)' }} />
 
         {/* Blurry colorful gooey liquids */}
         {/* Blue */}
-        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '80%', height: '80%', background: 'radial-gradient(ellipse, rgba(37,99,235,0.45) 0%, transparent 60%)', filter: 'blur(90px)', animation: 'blob1 30s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '80%', height: '80%', background: 'radial-gradient(ellipse, rgba(59,130,246,0.3) 0%, transparent 60%)', filter: 'blur(90px)', animation: 'blob1 35s ease-in-out infinite' }} />
         
         {/* Purple/Violet */}
-        <div style={{ position: 'absolute', top: '15%', right: '-15%', width: '75%', height: '75%', background: 'radial-gradient(ellipse, rgba(147,51,234,0.35) 0%, rgba(255,255,255,0.2) 50%, transparent 70%)', filter: 'blur(100px)', animation: 'blob2 35s ease-in-out infinite reverse' }} />
+        <div style={{ position: 'absolute', top: '15%', right: '-15%', width: '75%', height: '75%', background: 'radial-gradient(ellipse, rgba(147,51,234,0.2) 0%, rgba(167,139,250,0.15) 50%, transparent 70%)', filter: 'blur(100px)', animation: 'blob2 40s ease-in-out infinite reverse' }} />
         
         {/* Red */}
-        <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(220,38,38,0.35) 0%, transparent 60%)', filter: 'blur(80px)', animation: 'blob3 32s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(239,68,68,0.2) 0%, transparent 60%)', filter: 'blur(80px)', animation: 'blob3 38s ease-in-out infinite' }} />
         
         {/* Black/Charcoal gooey accent */}
-        <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(240,240,240,0.25) 0%, rgba(240,240,240,0.1) 50%, transparent 70%)', filter: 'blur(80px)', animation: 'blob4 38s ease-in-out infinite reverse' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.05) 50%, transparent 70%)', filter: 'blur(80px)', animation: 'blob4 42s ease-in-out infinite reverse' }} />
 
         {/* Central unifying bloom */}
-        <div style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', height: '50%', background: 'radial-gradient(ellipse, rgba(6,2,14,0.88) 0%, transparent 60%)', filter: 'blur(70px)', animation: 'blob1 25s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', height: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 60%)', filter: 'blur(70px)', animation: 'blob1 25s ease-in-out infinite' }} />
 
         {/* Edge vignette light */}
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 40%, rgba(255,255,255,0.4) 100%)' }} />
@@ -185,7 +185,7 @@ function LoadingScreen() {
       <style>{`@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}`}</style>
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontFamily: 'Bebas Neue', fontSize: '3.5rem', letterSpacing: '0.08em', background: 'linear-gradient(135deg,#a78bfa 0%,#ec4899 50%,#fbbf24 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 3s linear infinite' }}>WWE 2K25</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.5rem', letterSpacing: '0.15em' }}>CONNECTING...</div>
+        <div style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: 'rgba(167,139,250,0.45)', marginTop: '0.5rem', letterSpacing: '0.15em' }}>CONNECTING...</div>
       </div>
     </div>
   )
@@ -204,8 +204,8 @@ function RecoveryScreen({ onReset }) {
       <style>{`@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}`}</style>
       <div style={{ textAlign: 'center', maxWidth: 420 }}>
         <div style={{ fontFamily: 'Bebas Neue', fontSize: '3rem', letterSpacing: '0.08em', background: 'linear-gradient(135deg,#a78bfa,#ec4899,#fbbf24)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 4s linear infinite', marginBottom: '0.25rem' }}>WWE 2K25</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.25em', marginBottom: '2.5rem' }}>AUCTION HOUSE</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '1rem', color: 'rgba(255,255,255,0.5)', marginBottom: '0.75rem', lineHeight: 1.7 }}>
+        <div style={{ fontFamily: 'Outfit', fontSize: '0.8rem', color: 'rgba(167,139,250,0.4)', letterSpacing: '0.25em', marginBottom: '2.5rem' }}>AUCTION HOUSE</div>
+        <div style={{ fontFamily: 'Outfit', fontSize: '1rem', color: 'rgba(167,139,250,0.5)', marginBottom: '0.75rem', lineHeight: 1.7 }}>
           No auction data found.<br />The row may be missing from Supabase.
         </div>
         {error && (

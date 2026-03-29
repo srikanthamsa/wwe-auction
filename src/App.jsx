@@ -112,7 +112,7 @@ function LiquidBackground() {
         <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '80%', height: '80%', background: 'radial-gradient(ellipse, rgba(59,130,246,0.3) 0%, transparent 60%)', filter: 'blur(90px)', animation: 'blob1 35s ease-in-out infinite' }} />
         
         {/* Purple/Violet */}
-        <div style={{ position: 'absolute', top: '15%', right: '-15%', width: '75%', height: '75%', background: 'radial-gradient(ellipse, rgba(147,51,234,0.2) 0%, rgba(167,139,250,0.15) 50%, transparent 70%)', filter: 'blur(100px)', animation: 'blob2 40s ease-in-out infinite reverse' }} />
+        <div style={{ position: 'absolute', top: '15%', right: '-15%', width: '75%', height: '75%', background: 'radial-gradient(ellipse, rgba(147,51,234,0.2) 0%, rgba(30,41,59,0.15) 50%, transparent 70%)', filter: 'blur(100px)', animation: 'blob2 40s ease-in-out infinite reverse' }} />
         
         {/* Red */}
         <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(239,68,68,0.2) 0%, transparent 60%)', filter: 'blur(80px)', animation: 'blob3 38s ease-in-out infinite' }} />
@@ -185,7 +185,7 @@ function LoadingScreen() {
       <style>{`@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}`}</style>
       <div style={{ textAlign: 'center' }}>
         <div style={{ fontFamily: 'Bebas Neue', fontSize: '3.5rem', letterSpacing: '0.08em', background: 'linear-gradient(135deg,#a78bfa 0%,#ec4899 50%,#fbbf24 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 3s linear infinite' }}>WWE 2K25</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: 'rgba(167,139,250,0.45)', marginTop: '0.5rem', letterSpacing: '0.15em' }}>CONNECTING...</div>
+        <div style={{ fontFamily: 'Outfit', fontSize: '0.85rem', color: 'rgba(30,41,59,0.45)', marginTop: '0.5rem', letterSpacing: '0.15em' }}>CONNECTING...</div>
       </div>
     </div>
   )
@@ -204,8 +204,8 @@ function RecoveryScreen({ onReset }) {
       <style>{`@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}`}</style>
       <div style={{ textAlign: 'center', maxWidth: 420 }}>
         <div style={{ fontFamily: 'Bebas Neue', fontSize: '3rem', letterSpacing: '0.08em', background: 'linear-gradient(135deg,#a78bfa,#ec4899,#fbbf24)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 4s linear infinite', marginBottom: '0.25rem' }}>WWE 2K25</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '0.8rem', color: 'rgba(167,139,250,0.4)', letterSpacing: '0.25em', marginBottom: '2.5rem' }}>AUCTION HOUSE</div>
-        <div style={{ fontFamily: 'Outfit', fontSize: '1rem', color: 'rgba(167,139,250,0.5)', marginBottom: '0.75rem', lineHeight: 1.7 }}>
+        <div style={{ fontFamily: 'Outfit', fontSize: '0.8rem', color: 'rgba(30,41,59,0.4)', letterSpacing: '0.25em', marginBottom: '2.5rem' }}>AUCTION HOUSE</div>
+        <div style={{ fontFamily: 'Outfit', fontSize: '1rem', color: 'rgba(30,41,59,0.5)', marginBottom: '0.75rem', lineHeight: 1.7 }}>
           No auction data found.<br />The row may be missing from Supabase.
         </div>
         {error && (

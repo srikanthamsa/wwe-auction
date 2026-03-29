@@ -100,44 +100,17 @@ function useRipple() {
 }
 
 // ── Button helpers ────────────────────────────────────────────────────────────
-// All buttons use box-shadow for depth instead of explicit borders
-const btnBase = {
-  cursor: 'pointer',
-  fontFamily: 'Barlow Condensed, sans-serif',
-  letterSpacing: '0.12em',
-  transition: 'transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease',
-  userSelect: 'none',
-}
-const btnPrimary = {
-  ...btnBase,
-  background: 'linear-gradient(155deg, #7c3aed 0%, #9333ea 55%, #a21caf 100%)',
-  boxShadow: '0 6px 28px rgba(124,58,237,0.42), inset 0 1px 0 rgba(255,255,255,0.18)',
-  color: '#fff',
-  textShadow: '0 1px 8px rgba(0,0,0,0.4)',
+const btnSmall = {
+  cursor: 'pointer', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.06em',
+  transition: 'transform 0.12s ease, filter 0.12s ease', userSelect: 'none', border: 'none',
 }
 const btnGhost = {
-  ...btnBase,
-  background: 'rgba(255,255,255,0.055)',
-  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.3)',
-  color: 'rgba(255,255,255,0.65)',
-}
-const btnPurple = {
-  ...btnBase,
-  background: 'rgba(139,92,246,0.13)',
-  boxShadow: 'inset 0 0 0 1px rgba(167,139,250,0.18), 0 1px 3px rgba(0,0,0,0.25)',
-  color: '#c4b5fd',
-}
-const btnGreen = {
-  ...btnBase,
-  background: 'linear-gradient(155deg, rgba(52,211,153,0.22), rgba(16,185,129,0.14))',
-  boxShadow: '0 4px 20px rgba(52,211,153,0.18), inset 0 1px 0 rgba(255,255,255,0.1)',
-  color: '#34d399',
+  ...btnSmall, background: 'rgba(255,255,255,0.055)',
+  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.65)',
 }
 const btnDanger = {
-  ...btnBase,
-  background: 'rgba(239,68,68,0.1)',
-  boxShadow: 'inset 0 0 0 1px rgba(239,68,68,0.18)',
-  color: '#f87171',
+  ...btnSmall, background: 'rgba(239,68,68,0.1)',
+  boxShadow: 'inset 0 0 0 1px rgba(239,68,68,0.18)', color: '#f87171',
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -278,7 +251,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
   const actionLabel = { bid:'✓ Bid placed', unbid:'↩ Bid removed', sold:'🔨 Sold!', skip:'→ Skipped' }
 
   return (
-    <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', fontFamily: 'Barlow Condensed, sans-serif' }}>
+    <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', fontFamily: 'Outfit, sans-serif' }}>
       <style>{`
         @keyframes starIn     { 0%{opacity:0;transform:translateY(22px)} 100%{opacity:1;transform:translateY(0)} }
         @keyframes actionPop  { 0%{opacity:0;transform:translateY(5px)} 15%{opacity:1;transform:translateY(0)} 80%{opacity:1} 100%{opacity:0} }
@@ -438,10 +411,13 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                 const amt = nextBid + inc - BID_INCREMENT
                 const ok  = !bidding && !isLeader && purse >= amt
                 return (
-                  <button key={inc} className="bid-btn" disabled={!ok} onClick={e => placeBid(amt, e)}
-                    style={{ ...btnPurple, padding:'0.85rem 0.4rem', borderRadius:12, fontFamily:'Bebas Neue', fontSize:'1.05rem' }}>
-                    +₹{inc >= 1000 ? `${inc/1000}k` : inc}
-                  </button>
+                  <div key={inc} className="glow-wrap glow-wrap-full">
+                    <div className="glow-layer" style={{ opacity: ok ? 0.35 : 0 }} />
+                    <button className="glow-inner bid-btn" disabled={!ok} onClick={e => placeBid(amt, e)}
+                      style={{ padding:'0.85rem 0.4rem', borderRadius:12, fontFamily:'Bebas Neue', fontSize:'1.05rem', width:'100%' }}>
+                      +₹{inc >= 1000 ? `${inc/1000}k` : inc}
+                    </button>
+                  </div>
                 )
               })}
             </div>
@@ -453,10 +429,13 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                 <div style={{ fontFamily:'Bebas Neue', fontSize:'1.2rem', letterSpacing:'0.1em', color:pc(player) }}>You're winning — hold tight!</div>
               </div>
             ) : (
-              <button className="bid-btn" disabled={bidding || !canAfford} onClick={e => placeBid(nextBid, e)}
-                style={{ ...btnPrimary, padding:'1.05rem', borderRadius:14, fontFamily:'Bebas Neue', fontSize:'1.4rem', letterSpacing:'0.15em', opacity: canAfford ? 1 : 0.25 }}>
-                BID ₹{nextBid.toLocaleString()}
-              </button>
+              <div className="glow-wrap glow-wrap-full">
+                <div className="glow-layer" />
+                <button className="glow-inner bid-btn" disabled={bidding || !canAfford} onClick={e => placeBid(nextBid, e)}
+                  style={{ padding:'1.05rem', borderRadius:14, fontFamily:'Bebas Neue', fontSize:'1.4rem', letterSpacing:'0.15em', width:'100%' }}>
+                  BID ₹{nextBid.toLocaleString()}
+                </button>
+              </div>
             )}
 
             {/* Custom amount */}
@@ -465,18 +444,21 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                 onChange={e => setCustomBid(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleCustomBid(e)}
                 placeholder={`Custom (min ₹${nextBid.toLocaleString()})`}
-                style={{ flex:1, padding:'0.75rem 1rem', background:'rgba(139,92,246,0.08)', boxShadow:'inset 0 0 0 1px rgba(139,92,246,0.18)', borderRadius:12, border:'none', color:'#e2e8f0', fontFamily:'Barlow Condensed', fontSize:'0.95rem', letterSpacing:'0.05em', transition:'box-shadow 0.2s' }} />
-              <button className="bid-btn" onClick={handleCustomBid}
-                disabled={!customBid || parseInt(customBid) <= currentBid || parseInt(customBid) > purse}
-                style={{ ...btnPurple, padding:'0.75rem 1.1rem', borderRadius:12, fontSize:'0.9rem' }}>
-                Place
-              </button>
+                style={{ flex:1, padding:'0.75rem 1rem', background:'rgba(139,92,246,0.08)', boxShadow:'inset 0 0 0 1px rgba(139,92,246,0.18)', borderRadius:12, border:'none', color:'#e2e8f0', fontFamily:'Outfit', fontSize:'0.95rem', letterSpacing:'0.05em', transition:'box-shadow 0.2s' }} />
+              <div className="glow-wrap">
+                <div className="glow-layer" style={{ borderRadius:12 }} />
+                <button className="glow-inner bid-btn" onClick={handleCustomBid}
+                  disabled={!customBid || parseInt(customBid) <= currentBid || parseInt(customBid) > purse}
+                  style={{ padding:'0.75rem 1.1rem', borderRadius:12, fontSize:'0.9rem' }}>
+                  Place
+                </button>
+              </div>
             </div>
 
             {/* Un-bid */}
             {isLeader && bidHistory.length > 0 && (
               <button className="bid-btn" onClick={e => undoBid(e)} disabled={bidding}
-                style={{ ...btnDanger, padding:'0.65rem', borderRadius:12, fontSize:'0.85rem', letterSpacing:'0.2em', textTransform:'uppercase' }}>
+                style={{ ...btnDanger, padding:'0.65rem', borderRadius:12, fontSize:'0.85rem', letterSpacing:'0.1em' }}>
                 ↩ Remove my last bid
               </button>
             )}
@@ -485,13 +467,16 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           {/* Admin controls */}
           {isAdmin && (
             <div style={{ display:'flex', gap:'0.6rem', marginBottom:'1.25rem' }}>
-              <button className="bid-btn" onClick={e => sellSuperstar(e)} disabled={!leader || bidding}
-                style={{ ...btnGreen, flex:1, padding:'0.95rem', borderRadius:14, fontFamily:'Bebas Neue', fontSize:'1.15rem', letterSpacing:'0.15em', opacity: leader ? 1 : 0.22 }}>
-                🔨 Sold — {leader ? pFirst(leader) : 'no bids'}
-              </button>
+              <div className="glow-wrap" style={{ flex:1 }}>
+                <div className="glow-layer" style={{ background:'linear-gradient(90deg,#10b981,#34d399,#6ee7b7)', opacity: leader ? 0.55 : 0.15 }} />
+                <button className="glow-inner bid-btn" onClick={e => sellSuperstar(e)} disabled={!leader || bidding}
+                  style={{ padding:'0.95rem', borderRadius:14, fontFamily:'Bebas Neue', fontSize:'1.15rem', letterSpacing:'0.15em', width:'100%' }}>
+                  🔨 Sold — {leader ? pFirst(leader) : 'no bids'}
+                </button>
+              </div>
               {!confirmSkip ? (
                 <button className="bid-btn" onClick={() => setConfirmSkip(true)}
-                  style={{ ...btnGhost, padding:'0.95rem 1.1rem', borderRadius:14, fontSize:'0.85rem', letterSpacing:'0.15em', whiteSpace:'nowrap' }}>
+                  style={{ ...btnGhost, padding:'0.95rem 1.1rem', borderRadius:14, fontSize:'0.85rem', letterSpacing:'0.1em', whiteSpace:'nowrap' }}>
                   Skip
                 </button>
               ) : (
@@ -514,14 +499,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <div style={{ textAlign:'center', paddingBottom:'2.5rem', marginTop:'auto' }}>
               {!confirmReset ? (
                 <button onClick={() => setConfirmReset(true)}
-                  style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.25em', color:'rgba(167,139,250,0.18)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Barlow Condensed' }}>
+                  style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.25em', color:'rgba(167,139,250,0.18)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Outfit' }}>
                   Reset entire auction
                 </button>
               ) : (
                 <div style={{ display:'flex', gap:'0.75rem', justifyContent:'center', alignItems:'center' }}>
                   <span style={{ fontSize:'0.75rem', color:'rgba(167,139,250,0.4)', letterSpacing:'0.1em' }}>Wipes everything.</span>
-                  <button onClick={onReset} style={{ ...btnDanger, padding:'0.35rem 0.9rem', borderRadius:8, fontSize:'0.75rem', letterSpacing:'0.15em', fontFamily:'Barlow Condensed' }}>Yes, reset</button>
-                  <button onClick={() => setConfirmReset(false)} style={{ background:'none', border:'none', fontSize:'0.75rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Barlow Condensed' }}>Cancel</button>
+                  <button onClick={onReset} style={{ ...btnDanger, padding:'0.35rem 0.9rem', borderRadius:8, fontSize:'0.75rem', letterSpacing:'0.15em', fontFamily:'Outfit' }}>Yes, reset</button>
+                  <button onClick={() => setConfirmReset(false)} style={{ background:'none', border:'none', fontSize:'0.75rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Outfit' }}>Cancel</button>
                 </div>
               )}
             </div>
@@ -620,7 +605,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
 function SidebarDivider({ label }) {
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'1rem', fontFamily:'Barlow Condensed', fontSize:'0.58rem', letterSpacing:'0.38em', color:'rgba(167,139,250,0.4)', textTransform:'uppercase' }}>
+    <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'1rem', fontFamily:'Outfit', fontSize:'0.58rem', letterSpacing:'0.38em', color:'rgba(167,139,250,0.4)', textTransform:'uppercase' }}>
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />
       {label}
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />

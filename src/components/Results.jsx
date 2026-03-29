@@ -44,7 +44,7 @@ export default function Results({ gameState, player, onReset }) {
   const topSale    = sold.reduce((top, s) => s.price > (top?.price ?? 0) ? s : top, null)
 
   return (
-    <div style={{ position:'relative', zIndex:1, minHeight:'100vh', fontFamily:'Barlow Condensed, sans-serif' }}>
+    <div style={{ position:'relative', zIndex:1, minHeight:'100vh', fontFamily:'Outfit, sans-serif' }}>
       <style>{`
         @keyframes shimmer  { 0%{background-position:200% center} 100%{background-position:-200% center} }
         @keyframes fadeUp   { 0%{opacity:0;transform:translateY(14px)} 100%{opacity:1;transform:translateY(0)} }
@@ -166,15 +166,18 @@ export default function Results({ gameState, player, onReset }) {
         {player === PLAYERS[0] && (
           <div style={{ textAlign:'center', marginTop:'1rem' }}>
             {!confirmReset ? (
-              <button className="reset-btn" onClick={() => setConfirmReset(true)}
-                style={{ padding:'1rem 2.5rem', background:'rgba(139,92,246,0.13)', boxShadow:'inset 0 0 0 1px rgba(167,139,250,0.3), 0 4px 24px rgba(139,92,246,0.12)', borderRadius:14, border:'none', fontFamily:'Bebas Neue', fontSize:'1.15rem', letterSpacing:'0.2em', color:'#a78bfa', cursor:'pointer' }}>
-                ✦ Start New Auction
-              </button>
+              <div className="glow-wrap">
+                <div className="glow-layer" />
+                <button className="glow-inner reset-btn" onClick={() => setConfirmReset(true)}
+                  style={{ padding:'1rem 2.5rem', borderRadius:14, fontFamily:'Bebas Neue', fontSize:'1.15rem', letterSpacing:'0.2em' }}>
+                  ✦ Start New Auction
+                </button>
+              </div>
             ) : (
               <div style={{ display:'flex', gap:'0.75rem', justifyContent:'center', alignItems:'center' }}>
-                <span style={{ fontSize:'0.85rem', color:'rgba(167,139,250,0.5)', letterSpacing:'0.1em' }}>Resets everything.</span>
-                <button onClick={onReset} style={{ background:'rgba(239,68,68,0.1)', boxShadow:'inset 0 0 0 1px rgba(239,68,68,0.2)', borderRadius:9, padding:'0.4rem 1rem', border:'none', fontSize:'0.82rem', letterSpacing:'0.15em', color:'#f87171', cursor:'pointer', fontFamily:'Barlow Condensed' }}>Yes, reset</button>
-                <button onClick={() => setConfirmReset(false)} style={{ background:'none', border:'none', fontSize:'0.82rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Barlow Condensed' }}>Cancel</button>
+                <span style={{ fontSize:'0.85rem', color:'rgba(167,139,250,0.5)', letterSpacing:'0.1em', fontFamily:'Outfit' }}>Resets everything.</span>
+                <button onClick={onReset} style={{ background:'rgba(239,68,68,0.1)', boxShadow:'inset 0 0 0 1px rgba(239,68,68,0.2)', borderRadius:9, padding:'0.4rem 1rem', border:'none', fontSize:'0.82rem', letterSpacing:'0.1em', color:'#f87171', cursor:'pointer', fontFamily:'Outfit' }}>Yes, reset</button>
+                <button onClick={() => setConfirmReset(false)} style={{ background:'none', border:'none', fontSize:'0.82rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Outfit' }}>Cancel</button>
               </div>
             )}
           </div>
@@ -186,7 +189,7 @@ export default function Results({ gameState, player, onReset }) {
 
 function Divider({ label }) {
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.9rem', fontFamily:'Barlow Condensed', fontSize:'0.6rem', letterSpacing:'0.38em', color:'rgba(167,139,250,0.4)', textTransform:'uppercase' }}>
+    <div style={{ display:'flex', alignItems:'center', gap:'0.6rem', marginBottom:'0.9rem', fontFamily:'Outfit', fontSize:'0.6rem', letterSpacing:'0.38em', color:'rgba(167,139,250,0.4)', textTransform:'uppercase' }}>
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />
       {label}
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />

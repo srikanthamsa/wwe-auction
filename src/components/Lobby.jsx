@@ -47,7 +47,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
   }
 
   return (
-    <div style={{ position:'relative', zIndex:1, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'2rem 1.5rem', fontFamily:'Barlow Condensed, sans-serif' }}>
+    <div style={{ position:'relative', zIndex:1, minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'2rem 1.5rem', fontFamily:'Outfit, sans-serif' }}>
       <style>{`
         @keyframes shimmer  { 0%{background-position:200% center} 100%{background-position:-200% center} }
         @keyframes fadeUp   { 0%{opacity:0;transform:translateY(18px)} 100%{opacity:1;transform:translateY(0)} }
@@ -128,15 +128,21 @@ export default function Lobby({ onSelect, gameState, onReset }) {
 
         {/* CTA */}
         {isActive ? (
-          <button className="start-btn" onClick={() => selected && onSelect(selected)} disabled={!selected}
-            style={{ width:'100%', padding:'1.1rem', background: selected ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.04)', boxShadow: selected ? 'inset 0 0 0 1px rgba(167,139,250,0.4), 0 4px 28px rgba(139,92,246,0.2)' : 'inset 0 0 0 1px rgba(255,255,255,0.07)', borderRadius:16, border:'none', fontFamily:'Bebas Neue', fontSize:'1.25rem', letterSpacing:'0.2em', color: selected ? '#a78bfa' : 'rgba(167,139,250,0.2)' }}>
-            Rejoin Auction →
-          </button>
+          <div className="glow-wrap glow-wrap-full">
+            <div className="glow-layer" style={{ opacity: selected ? 0.55 : 0.1 }} />
+            <button className="glow-inner start-btn" onClick={() => selected && onSelect(selected)} disabled={!selected}
+              style={{ padding:'1.1rem', borderRadius:16, fontFamily:'Bebas Neue', fontSize:'1.25rem', letterSpacing:'0.2em', width:'100%' }}>
+              Rejoin Auction →
+            </button>
+          </div>
         ) : isAdmin ? (
-          <button className="start-btn" onClick={startAuction} disabled={!selected || starting}
-            style={{ width:'100%', padding:'1.15rem', background:'linear-gradient(135deg,#7c3aed,#a21caf)', border:'none', borderRadius:16, fontFamily:'Bebas Neue', fontSize:'1.35rem', letterSpacing:'0.2em', color:'#fff', boxShadow:'0 6px 32px rgba(124,58,237,0.38), inset 0 1px 0 rgba(255,255,255,0.18)', textShadow:'0 0 20px rgba(255,255,255,0.35)', opacity: starting ? 0.7 : 1 }}>
-            {starting ? '✦ Shuffling roster...' : '✦ Start Auction'}
-          </button>
+          <div className="glow-wrap glow-wrap-full">
+            <div className="glow-layer" />
+            <button className="glow-inner start-btn" onClick={startAuction} disabled={!selected || starting}
+              style={{ padding:'1.15rem', borderRadius:16, fontFamily:'Bebas Neue', fontSize:'1.35rem', letterSpacing:'0.2em', width:'100%' }}>
+              {starting ? '✦ Shuffling roster...' : '✦ Start Auction'}
+            </button>
+          </div>
         ) : (
           <div style={{ textAlign:'center', padding:'1rem', fontSize:'0.9rem', color:'rgba(167,139,250,0.35)', letterSpacing:'0.15em' }}>
             {selected ? 'Waiting for Srikant to start...' : 'Select your name above'}
@@ -148,18 +154,18 @@ export default function Lobby({ onSelect, gameState, onReset }) {
           <div style={{ marginTop:'1.5rem', textAlign:'center' }}>
             {!confirmReset ? (
               <button onClick={() => setConfirmReset(true)}
-                style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.2em', color:'rgba(167,139,250,0.2)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Barlow Condensed' }}>
+                style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.2em', color:'rgba(167,139,250,0.2)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Outfit' }}>
                 Reset Auction
               </button>
             ) : (
               <div style={{ display:'flex', gap:'0.75rem', justifyContent:'center', alignItems:'center' }}>
                 <span style={{ fontSize:'0.8rem', color:'rgba(167,139,250,0.45)', letterSpacing:'0.1em' }}>Sure? Wipes everything.</span>
                 <button onClick={doReset} disabled={resetting}
-                  style={{ background:'rgba(239,68,68,0.1)', boxShadow:'inset 0 0 0 1px rgba(239,68,68,0.2)', borderRadius:8, padding:'0.35rem 0.8rem', border:'none', fontSize:'0.78rem', letterSpacing:'0.15em', color:'#f87171', cursor:'pointer', fontFamily:'Barlow Condensed' }}>
+                  style={{ background:'rgba(239,68,68,0.1)', boxShadow:'inset 0 0 0 1px rgba(239,68,68,0.2)', borderRadius:8, padding:'0.35rem 0.8rem', border:'none', fontSize:'0.78rem', letterSpacing:'0.15em', color:'#f87171', cursor:'pointer', fontFamily:'Outfit' }}>
                   {resetting ? 'Resetting...' : 'Yes, reset'}
                 </button>
                 <button onClick={() => setConfirmReset(false)}
-                  style={{ background:'none', border:'none', fontSize:'0.78rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Barlow Condensed' }}>
+                  style={{ background:'none', border:'none', fontSize:'0.78rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Outfit' }}>
                   Cancel
                 </button>
               </div>

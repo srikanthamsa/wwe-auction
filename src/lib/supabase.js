@@ -35,7 +35,7 @@ export const ROSTER = [
 export const PLAYERS = ["Srikant", "Ashpak", "KVD", "Ekansh", "Debu"]
 export const STARTING_PURSE = 50000
 export const BID_INCREMENT = 500
-export const ROUND_DURATION = 30
+// no timer — Srikant manually advances rounds
 
 export function getBaseBid(ovr) {
   if (ovr >= 90) return 3000

@@ -1,94 +1,17 @@
 import React, { useState } from 'react'
 import { supabase, PLAYERS, ROSTER, STARTING_PURSE, shuffle, getBaseBid } from '../lib/supabase.js'
 
-const styles = {
-  root: {
-    minHeight: '100vh',
-    background: '#0a0a0a',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '2rem 1rem',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  scanlines: {
-    position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
-    background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)',
-  },
-  vignette: {
-    position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
-    background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.8) 100%)',
-  },
-  content: { position: 'relative', zIndex: 1, width: '100%', maxWidth: '480px', textAlign: 'center' },
-  logo: {
-    fontFamily: 'Bebas Neue', fontSize: 'clamp(3.5rem, 12vw, 5.5rem)',
-    color: '#c8a84b', letterSpacing: '0.05em', lineHeight: 1,
-    textShadow: '0 0 60px rgba(200,168,75,0.4)',
-  },
-  subtitle: {
-    fontFamily: 'Barlow Condensed', fontSize: '1rem', letterSpacing: '0.4em',
-    color: '#555', marginTop: '0.25rem', marginBottom: '3rem', textTransform: 'uppercase',
-  },
-  sectionLabel: {
-    fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.3em',
-    color: '#c8a84b', textTransform: 'uppercase', marginBottom: '1rem',
-  },
-  playerGrid: {
-    display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', marginBottom: '2rem',
-  },
-  playerBtn: {
-    padding: '1.25rem 1rem',
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontFamily: 'Barlow Condensed',
-    fontSize: '1.2rem',
-    fontWeight: 600,
-    letterSpacing: '0.1em',
-    color: '#aaa',
-    transition: 'all 0.2s',
-    textTransform: 'uppercase',
-  },
-  playerBtnActive: {
-    background: 'rgba(200,168,75,0.15)',
-    border: '1px solid #c8a84b',
-    color: '#c8a84b',
-    textShadow: '0 0 20px rgba(200,168,75,0.5)',
-  },
-  divider: { height: '1px', background: 'rgba(255,255,255,0.07)', margin: '2rem 0' },
-  startBtn: {
-    width: '100%', padding: '1.1rem',
-    background: 'linear-gradient(135deg, #c8a84b, #9a7a2a)',
-    border: 'none', borderRadius: '4px',
-    fontFamily: 'Bebas Neue', fontSize: '1.4rem', letterSpacing: '0.15em',
-    color: '#0a0a0a', cursor: 'pointer',
-    transition: 'opacity 0.2s, transform 0.1s',
-  },
-  joinBtn: {
-    width: '100%', padding: '1.1rem',
-    background: 'transparent',
-    border: '1px solid rgba(200,168,75,0.4)',
-    borderRadius: '4px',
-    fontFamily: 'Bebas Neue', fontSize: '1.4rem', letterSpacing: '0.15em',
-    color: '#c8a84b', cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  statusBox: {
-    background: 'rgba(200,168,75,0.08)', border: '1px solid rgba(200,168,75,0.2)',
-    borderRadius: '4px', padding: '1rem', marginBottom: '1.5rem',
-    fontFamily: 'Barlow Condensed', fontSize: '0.95rem', color: '#888',
-    letterSpacing: '0.05em',
-  },
+const PLAYER_COLORS = {
+  Srikant: '#6c8ebf', Ashpak: '#82b366', KVD: '#d6a94a', Ekansh: '#ae6aaf', Debu: '#bf6060'
 }
 
-export default function Lobby({ onSelect, gameState }) {
+export default function Lobby({ onSelect, gameState, onReset }) {
   const [selected, setSelected] = useState(null)
   const [starting, setStarting] = useState(false)
+  const [resetting, setResetting] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
 
-  const isActive = gameState?.phase === 'bidding' || gameState?.phase === 'sold'
+  const isActive = gameState?.phase === 'bidding'
   const isAdmin = selected === 'Srikant'
 
   async function startAuction() {
@@ -97,84 +20,124 @@ export default function Lobby({ onSelect, gameState }) {
     const shuffled = shuffle(ROSTER)
     const purses = {}
     PLAYERS.forEach(p => purses[p] = STARTING_PURSE)
-    const firstStar = shuffled[0]
-
+    const first = shuffled[0]
     await supabase.from('auction_state').upsert({
-      id: 1,
-      phase: 'bidding',
-      roster: shuffled,
-      roster_index: 0,
-      current_superstar: firstStar[0],
-      current_ovr: firstStar[1],
-      current_bid: getBaseBid(firstStar[1]),
-      current_leader: null,
-      timer_end: new Date(Date.now() + 30000).toISOString(),
-      purses,
-      sold_log: [],
+      id: 1, phase: 'bidding',
+      roster: shuffled, roster_index: 0,
+      current_superstar: first[0], current_ovr: first[1],
+      current_bid: getBaseBid(first[1]), current_leader: null,
+      bid_history: [], purses, sold_log: [],
     })
     onSelect(selected)
   }
 
-  async function joinAuction() {
-    if (!selected) return
-    onSelect(selected)
+  async function doReset() {
+    setResetting(true)
+    await onReset()
+    setResetting(false)
+    setConfirmReset(false)
+    setSelected(null)
   }
 
   return (
-    <div style={styles.root}>
-      <div style={styles.scanlines} />
-      <div style={styles.vignette} />
-      <div style={styles.content}>
-        <div style={styles.logo}>WWE 2K25</div>
-        <div style={styles.subtitle}>Superstar Auction</div>
+    <div style={{ minHeight: '100vh', background: '#06040a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
 
+      {/* background glow */}
+      <div style={{ position: 'fixed', top: '30%', left: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(100,60,180,0.12) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px)' }} />
+
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '500px' }}>
+
+        {/* wordmark */}
+        <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(3rem, 12vw, 5rem)', color: '#c8a84b', letterSpacing: '0.08em', lineHeight: 1, textShadow: '0 0 80px rgba(200,168,75,0.3)' }}>WWE 2K25</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.45em', color: '#3a3028', marginTop: '0.4rem', textTransform: 'uppercase' }}>Superstar Auction House</div>
+        </div>
+
+        {/* status */}
         {isActive && (
-          <div style={styles.statusBox}>
-            Auction in progress — pick your name to jump in
+          <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '0.6rem 1rem', background: 'rgba(200,168,75,0.06)', border: '1px solid rgba(200,168,75,0.15)', borderRadius: '2px' }}>
+            <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.25em', color: '#7a6535' }}>AUCTION IN PROGRESS — SELECT YOUR NAME TO JOIN</span>
           </div>
         )}
 
-        <div style={styles.sectionLabel}>Select Your Name</div>
-        <div style={styles.playerGrid}>
-          {PLAYERS.map(p => (
-            <button
-              key={p}
-              style={{ ...styles.playerBtn, ...(selected === p ? styles.playerBtnActive : {}) }}
-              onClick={() => setSelected(p)}
-            >
-              {p}
-            </button>
-          ))}
+        {/* player selection */}
+        <div style={{ marginBottom: '0.75rem' }}>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.35em', color: '#3a3028', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Who are you?</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.6rem' }}>
+            {PLAYERS.map(p => {
+              const col = PLAYER_COLORS[p]
+              const active = selected === p
+              return (
+                <button key={p} onClick={() => setSelected(p)}
+                  style={{
+                    padding: '1.1rem 1rem',
+                    background: active ? `rgba(${hexToRgb(col)}, 0.12)` : 'rgba(255,255,255,0.02)',
+                    border: active ? `1px solid ${col}` : '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: '2px', cursor: 'pointer',
+                    fontFamily: 'Barlow Condensed', fontSize: '1.15rem', fontWeight: 700,
+                    letterSpacing: '0.15em', color: active ? col : '#3a3028',
+                    textTransform: 'uppercase', transition: 'all 0.2s',
+                    textShadow: active ? `0 0 20px rgba(${hexToRgb(col)}, 0.5)` : 'none',
+                  }}>
+                  {p}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
-        <div style={styles.divider} />
+        <div style={{ height: '1px', background: 'rgba(255,255,255,0.04)', margin: '1.75rem 0' }} />
 
+        {/* action button */}
         {isActive ? (
-          <button
-            style={{ ...styles.joinBtn, opacity: selected ? 1 : 0.4 }}
-            onClick={joinAuction}
-            disabled={!selected}
-          >
+          <button onClick={() => onSelect(selected)} disabled={!selected}
+            style={{ width: '100%', padding: '1.1rem', background: selected ? 'transparent' : 'transparent', border: `1px solid ${selected ? 'rgba(200,168,75,0.5)' : 'rgba(255,255,255,0.06)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.2rem', letterSpacing: '0.2em', color: selected ? '#c8a84b' : '#2a2a2a', cursor: selected ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
             Join Auction →
           </button>
+        ) : isAdmin ? (
+          <button onClick={startAuction} disabled={!selected || starting}
+            style={{ width: '100%', padding: '1.15rem', background: 'linear-gradient(135deg, #c8a84b 0%, #9a7a2a 100%)', border: 'none', borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.3rem', letterSpacing: '0.2em', color: '#06040a', cursor: starting ? 'wait' : 'pointer', opacity: starting ? 0.7 : 1, transition: 'opacity 0.2s', boxShadow: '0 0 40px rgba(200,168,75,0.2)' }}>
+            {starting ? 'Shuffling roster...' : 'Start Auction'}
+          </button>
         ) : (
-          <div>
-            {isAdmin ? (
-              <button
-                style={{ ...styles.startBtn, opacity: selected && !starting ? 1 : 0.5 }}
-                onClick={startAuction}
-                disabled={!selected || starting}
-              >
-                {starting ? 'Starting...' : 'Start Auction'}
+          <div style={{ textAlign: 'center', padding: '1rem', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#333', letterSpacing: '0.15em' }}>
+            {selected ? `Waiting for Srikant to start...` : 'Select your name above'}
+          </div>
+        )}
+
+        {/* reset — admin only, confirm flow */}
+        {isAdmin && (
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            {!confirmReset ? (
+              <button onClick={() => setConfirmReset(true)}
+                style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.2em', color: '#2a2020', cursor: 'pointer', textTransform: 'uppercase' }}>
+                Reset Auction
               </button>
             ) : (
-              <div style={{ ...styles.statusBox, textAlign: 'center' }}>
-                Waiting for Srikant to start the auction...
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
+                <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#555', letterSpacing: '0.1em' }}>Sure? This wipes everything.</span>
+                <button onClick={doReset} disabled={resetting}
+                  style={{ background: 'none', border: '1px solid rgba(200,60,60,0.4)', borderRadius: '2px', padding: '0.3rem 0.75rem', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.15em', color: '#a03030', cursor: 'pointer' }}>
+                  {resetting ? 'Resetting...' : 'Yes, reset'}
+                </button>
+                <button onClick={() => setConfirmReset(false)}
+                  style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#333', cursor: 'pointer', letterSpacing: '0.1em' }}>
+                  Cancel
+                </button>
               </div>
             )}
           </div>
         )}
+
       </div>
     </div>
   )
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `${r},${g},${b}`
 }

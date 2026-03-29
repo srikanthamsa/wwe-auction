@@ -1,12 +1,11 @@
 import React from 'react'
 import { PLAYERS } from '../lib/supabase.js'
-import { supabase } from '../lib/supabase.js'
 
 const PLAYER_COLORS = {
   Srikant: '#6c8ebf', Ashpak: '#82b366', KVD: '#d6a94a', Ekansh: '#ae6aaf', Debu: '#bf6060'
 }
 
-export default function Results({ gameState, player, onBack }) {
+export default function Results({ gameState, player, onReset }) {
   const sold = gameState?.sold_log ?? []
   const purses = gameState?.purses ?? {}
 
@@ -14,59 +13,61 @@ export default function Results({ gameState, player, onBack }) {
   PLAYERS.forEach(p => byPlayer[p] = [])
   sold.forEach(s => { if (s.winner) byPlayer[s.winner]?.push(s) })
 
-  const totals = PLAYERS.map(p => ({
+  const standings = PLAYERS.map(p => ({
     name: p,
-    spent: sold.filter(s => s.winner === p).reduce((a, s) => a + s.price, 0),
+    spent: byPlayer[p].reduce((a, s) => a + s.price, 0),
     count: byPlayer[p].length,
     remaining: purses[p] ?? 50000,
-  })).sort((a, b) => b.spent - a.spent)
-
-  async function resetAuction() {
-    await supabase.from('auction_state').update({ phase: 'lobby' }).eq('id', 1)
-    onBack()
-  }
+  })).sort((a, b) => b.count - a.count || b.spent - a.spent)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0a', padding: '1.5rem 1rem', overflowY: 'auto' }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ minHeight: '100vh', background: '#06040a', padding: '2rem 1.25rem', overflowY: 'auto' }}>
+      <div style={{ maxWidth: '580px', margin: '0 auto' }}>
 
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2.5rem, 10vw, 4rem)', color: '#c8a84b', letterSpacing: '0.05em' }}>Auction Complete</div>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#555', letterSpacing: '0.2em' }}>{sold.length} SUPERSTARS SOLD</div>
+        <div style={{ textAlign: 'center', marginBottom: '3rem', paddingTop: '1rem' }}>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.4em', color: '#3a3028', marginBottom: '0.5rem' }}>AUCTION COMPLETE</div>
+          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(3rem, 12vw, 5rem)', color: '#c8a84b', letterSpacing: '0.05em', textShadow: '0 0 60px rgba(200,168,75,0.2)' }}>WWE 2K25</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#2a2020', letterSpacing: '0.2em', marginTop: '0.25rem' }}>{sold.length} superstars sold</div>
         </div>
 
-        {/* summary table */}
-        <div style={{ marginBottom: '2rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.25em', color: '#444', marginBottom: '0.75rem' }}>FINAL STANDINGS</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            {totals.map((p, i) => (
-              <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.9rem 1rem', background: p.name === player ? 'rgba(200,168,75,0.07)' : 'rgba(255,255,255,0.02)', border: `1px solid ${p.name === player ? 'rgba(200,168,75,0.2)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '4px' }}>
-                <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.3rem', color: '#333', minWidth: '1.5rem' }}>{i + 1}</div>
-                <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.2rem', color: PLAYER_COLORS[p.name], flex: 1, letterSpacing: '0.05em' }}>{p.name}</div>
+        {/* standings */}
+        <div style={{ marginBottom: '2.5rem' }}>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.35em', color: '#252525', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Final Standings</div>
+          {standings.map((p, i) => {
+            const col = PLAYER_COLORS[p.name]
+            const isMe = p.name === player
+            return (
+              <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.85rem 1rem', marginBottom: '0.4rem', background: isMe ? `rgba(200,168,75,0.06)` : 'rgba(255,255,255,0.015)', border: `1px solid ${isMe ? 'rgba(200,168,75,0.18)' : 'rgba(255,255,255,0.04)'}`, borderRadius: '2px' }}>
+                <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.5rem', color: i === 0 ? '#c8a84b' : '#1e1e1e', minWidth: '1.5rem' }}>{i + 1}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.15rem', color: col, letterSpacing: '0.06em' }}>{p.name}</div>
+                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#2a2020', letterSpacing: '0.1em' }}>{p.count} superstars · ₹{p.remaining.toLocaleString()} remaining</div>
+                </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: '#c8a84b' }}>₹{p.spent.toLocaleString()} spent</div>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#555' }}>{p.count} superstars · ₹{p.remaining.toLocaleString()} left</div>
+                  <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: '#7a6535', letterSpacing: '0.05em' }}>₹{p.spent.toLocaleString()}</div>
+                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#252525' }}>spent</div>
                 </div>
               </div>
-            ))}
-          </div>
+            )
+          })}
         </div>
 
-        {/* per player rosters */}
+        {/* per-player rosters */}
         {PLAYERS.map(p => {
           const roster = byPlayer[p]
           if (!roster.length) return null
+          const col = PLAYER_COLORS[p]
           return (
-            <div key={p} style={{ marginBottom: '1.5rem' }}>
-              <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: PLAYER_COLORS[p], letterSpacing: '0.1em', marginBottom: '0.5rem', borderBottom: `1px solid rgba(255,255,255,0.06)`, paddingBottom: '0.4rem' }}>
-                {p}'s Roster ({roster.length})
+            <div key={p} style={{ marginBottom: '2rem' }}>
+              <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: col, letterSpacing: '0.1em', marginBottom: '0.5rem', paddingBottom: '0.4rem', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                {p} · {roster.length} superstars
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
                 {roster.sort((a, b) => b.ovr - a.ovr).map((s, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '0.4rem 0.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '3px' }}>
-                    <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#444', minWidth: '2rem' }}>{s.ovr}</div>
-                    <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.9rem', color: '#ccc', fontWeight: 600 }}>{s.superstar}</div>
-                    <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.85rem', color: '#c8a84b' }}>₹{s.price.toLocaleString()}</div>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '0.4rem 0.5rem', background: 'rgba(255,255,255,0.015)', borderRadius: '2px' }}>
+                    <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#252525', minWidth: '2.2rem' }}>{s.ovr}</div>
+                    <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.9rem', fontWeight: 700, color: '#3a3a3a' }}>{s.superstar}</div>
+                    <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.85rem', color: '#7a6535' }}>₹{s.price.toLocaleString()}</div>
                   </div>
                 ))}
               </div>
@@ -74,15 +75,13 @@ export default function Results({ gameState, player, onBack }) {
           )
         })}
 
+        {/* reset — Srikant only */}
         {player === 'Srikant' && (
-          <button
-            onClick={resetAuction}
-            style={{ width: '100%', padding: '1rem', marginTop: '1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '4px', color: '#888', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.1em', cursor: 'pointer' }}
-          >
+          <button onClick={onReset}
+            style={{ width: '100%', padding: '1rem', marginTop: '1rem', marginBottom: '3rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '2px', color: '#2a2020', fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.15em', cursor: 'pointer', transition: 'border-color 0.2s' }}>
             Reset & Start New Auction
           </button>
         )}
-
       </div>
     </div>
   )

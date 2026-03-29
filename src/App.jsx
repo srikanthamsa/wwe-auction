@@ -25,19 +25,19 @@ function LiquidBackground() {
         /* ── Blob animations ── */
         @keyframes blob1 {
           0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(3%,4%) scale(1.05); }
+          50%     { transform: translate(8%,12%) scale(1.1); }
         }
         @keyframes blob2 {
           0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(-3%,-4%) scale(1.05); }
+          50%     { transform: translate(-10%,-12%) scale(1.12); }
         }
         @keyframes blob3 {
           0%,100% { transform: translate(0,0) scale(1); }
-          50%     { transform: translate(-2%,5%) scale(1.03); }
+          50%     { transform: translate(-12%,9%) scale(1.08); }
         }
         @keyframes blob4 {
           0%,100% { transform: translate(0,0) scale(1) rotate(0deg); }
-          50%     { transform: translate(5%,-3%) scale(0.97) rotate(2deg); }
+          50%     { transform: translate(14%,-8%) scale(0.97) rotate(6deg); }
         }
         @keyframes arcGlow  { 0%,100%{opacity:0.3} 50%{opacity:0.65} }
         @keyframes sparkle  { 0%,100%{opacity:0;transform:scale(0.3)} 50%{opacity:0.6;transform:scale(1)} }
@@ -109,16 +109,16 @@ function LiquidBackground() {
 
         {/* Blurry colorful gooey liquids */}
         {/* Blue */}
-        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '80%', height: '80%', background: 'radial-gradient(ellipse, rgba(59,130,246,0.3) 0%, transparent 60%)', filter: 'blur(90px)', animation: 'blob1 35s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '80%', height: '80%', background: 'radial-gradient(ellipse, rgba(37,99,235,0.45) 0%, transparent 60%)', filter: 'blur(90px)', animation: 'blob1 30s ease-in-out infinite' }} />
         
         {/* Purple/Violet */}
-        <div style={{ position: 'absolute', top: '15%', right: '-15%', width: '75%', height: '75%', background: 'radial-gradient(ellipse, rgba(147,51,234,0.2) 0%, rgba(30,41,59,0.15) 50%, transparent 70%)', filter: 'blur(100px)', animation: 'blob2 40s ease-in-out infinite reverse' }} />
+        <div style={{ position: 'absolute', top: '15%', right: '-15%', width: '75%', height: '75%', background: 'radial-gradient(ellipse, rgba(147,51,234,0.35) 0%, rgba(30,41,59,0.2) 50%, transparent 70%)', filter: 'blur(100px)', animation: 'blob2 35s ease-in-out infinite reverse' }} />
         
         {/* Red */}
-        <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(239,68,68,0.2) 0%, transparent 60%)', filter: 'blur(80px)', animation: 'blob3 38s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', bottom: '-20%', left: '10%', width: '70%', height: '70%', background: 'radial-gradient(ellipse, rgba(220,38,38,0.35) 0%, transparent 60%)', filter: 'blur(80px)', animation: 'blob3 32s ease-in-out infinite' }} />
         
         {/* Black/Charcoal gooey accent */}
-        <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.05) 50%, transparent 70%)', filter: 'blur(80px)', animation: 'blob4 42s ease-in-out infinite reverse' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '10%', width: '60%', height: '60%', background: 'radial-gradient(ellipse, rgba(15,23,42,0.25) 0%, rgba(15,23,42,0.1) 50%, transparent 70%)', filter: 'blur(80px)', animation: 'blob4 38s ease-in-out infinite reverse' }} />
 
         {/* Central unifying bloom */}
         <div style={{ position: 'absolute', top: '25%', left: '25%', width: '50%', height: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 60%)', filter: 'blur(70px)', animation: 'blob1 25s ease-in-out infinite' }} />

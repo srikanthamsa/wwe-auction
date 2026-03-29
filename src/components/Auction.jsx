@@ -326,11 +326,11 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
       )}
 
       {/* ── TOP BAR ── */}
-      <div style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', background:'rgba(15,23,42,0.6)', backdropFilter:'blur(24px)', borderBottom:'1px solid rgba(15,23,42,0.6)', boxShadow:'0 1px 0 rgba(0,0,0,0.03), 0 4px 32px rgba(0,0,0,0.05)' }}>
+      <div style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', background:'rgba(255,255,255,0.6)', backdropFilter:'blur(24px)', borderBottom:'1px solid rgba(255,255,255,0.6)', boxShadow:'0 1px 0 rgba(0,0,0,0.03), 0 4px 32px rgba(0,0,0,0.05)' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'1.25rem' }}>
           <div style={{ fontFamily:'Bebas Neue', fontSize:'1.75rem', letterSpacing:'0.08em', background:'linear-gradient(135deg,#a78bfa,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>WWE 2K25</div>
           <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
-            <div style={{ fontSize:'0.7rem', color:'rgba(30,41,59,0.45)', letterSpacing:'0.2em' }}>{doneIdx + 1} / {total} SUPERSTARS</div>
+            <div style={{ fontSize:'0.7rem', color:'rgba(255,255,255,0.45)', letterSpacing:'0.2em' }}>{doneIdx + 1} / {total} SUPERSTARS</div>
             <div style={{ height:3, width:100, background:'rgba(139,92,246,0.15)', borderRadius:2, overflow:'hidden' }}>
               <div style={{ height:'100%', width:`${progressPct}%`, background:'linear-gradient(90deg,#7c3aed,#ec4899)', borderRadius:2, transition:'width 0.5s ease' }} />
             </div>
@@ -338,11 +338,11 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'2rem' }}>
           <div style={{ textAlign:'center' }}>
-            <div style={{ fontSize:'0.6rem', color:'rgba(30,41,59,0.35)', letterSpacing:'0.25em', marginBottom:2 }}>PLAYING AS</div>
+            <div style={{ fontSize:'0.6rem', color:'rgba(255,255,255,0.35)', letterSpacing:'0.25em', marginBottom:2 }}>PLAYING AS</div>
             <div style={{ fontFamily:'Bebas Neue', fontSize:'1.15rem', color:pc(player), letterSpacing:'0.08em', textShadow:`0 0 16px rgba(${hexToRgb(pc(player))},0.55)` }}>{pFirst(player)}</div>
           </div>
           <div style={{ textAlign:'right' }}>
-            <div style={{ fontSize:'0.6rem', color:'rgba(30,41,59,0.35)', letterSpacing:'0.25em', marginBottom:2 }}>PURSE</div>
+            <div style={{ fontSize:'0.6rem', color:'rgba(255,255,255,0.35)', letterSpacing:'0.25em', marginBottom:2 }}>PURSE</div>
             <div style={{ fontFamily:'Bebas Neue', fontSize:'1.15rem', color:'#fbbf24', letterSpacing:'0.05em', textShadow:'0 0 14px rgba(251,191,36,0.4)' }}>₹{purse.toLocaleString()}</div>
           </div>
         </div>
@@ -532,7 +532,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               const pct   = Math.max(0, Math.min(100, (a.remaining / STARTING_PURSE) * 100))
               return (
                 <div key={a.name}
-                  style={{ padding:'0.85rem', background: isWin ? `rgba(${rgb},0.1)` : isMe ? `rgba(${rgb},0.06)` : 'rgba(15,23,42,0.03)', boxShadow: isWin ? `inset 0 0 0 1px rgba(${rgb},0.35), 0 0 20px rgba(${rgb},0.1)` : isMe ? `inset 0 0 0 1px rgba(${rgb},0.18)` : 'inset 0 0 0 1px rgba(15,23,42,0.05)', borderRadius:14, transition:'all 0.3s' }}>
+                  style={{ padding:'0.85rem', background: isWin ? `rgba(${rgb},0.1)` : isMe ? `rgba(${rgb},0.06)` : 'rgba(255,255,255,0.03)', boxShadow: isWin ? `inset 0 0 0 1px rgba(${rgb},0.35), 0 0 20px rgba(${rgb},0.1)` : isMe ? `inset 0 0 0 1px rgba(${rgb},0.18)` : 'inset 0 0 0 1px rgba(255,255,255,0.08)', borderRadius:14, transition:'all 0.3s' }}>
 
                   <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.55rem' }}>
                     <div style={{ display:'flex', alignItems:'center', gap:'0.45rem' }}>
@@ -546,10 +546,10 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                   {/* Purse bar */}
                   <div style={{ marginBottom:'0.55rem' }}>
                     <div style={{ display:'flex', justifyContent:'space-between', marginBottom:3 }}>
-                      <span style={{ fontSize:'0.58rem', color:'rgba(30,41,59,0.4)', letterSpacing:'0.1em' }}>PURSE</span>
+                      <span style={{ fontSize:'0.58rem', color:'rgba(255,255,255,0.4)', letterSpacing:'0.1em' }}>PURSE</span>
                       <span style={{ fontFamily:'Bebas Neue', fontSize:'0.78rem', color:col }}>₹{a.remaining.toLocaleString()}</span>
                     </div>
-                    <div style={{ height:5, background:'rgba(15,23,42,0.05)', borderRadius:3, overflow:'hidden' }}>
+                    <div style={{ height:5, background:'rgba(255,255,255,0.08)', borderRadius:3, overflow:'hidden' }}>
                       <div style={{ height:'100%', width:`${pct}%`, background:`linear-gradient(90deg,${col},rgba(${rgb},0.55))`, borderRadius:3, transition:'width 0.6s ease', boxShadow:`0 0 8px rgba(${rgb},0.4)` }} />
                     </div>
                   </div>
@@ -561,9 +561,9 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                       { val: `~${a.estMore}`, label:'Est. More' },
                       { val: a.bought.length>0 ? `₹${a.avgPrice>=1000?`${(a.avgPrice/1000).toFixed(1)}k`:a.avgPrice}` : '—', label:'Avg/Star' },
                     ].map(({ val, label }) => (
-                      <div key={label} style={{ textAlign:'center', padding:'0.3rem 0.2rem', background:'rgba(15,23,42,0.04)', borderRadius:8 }}>
+                      <div key={label} style={{ textAlign:'center', padding:'0.3rem 0.2rem', background:'rgba(0,0,0,0.2)', borderRadius:8 }}>
                         <div style={{ fontFamily:'Bebas Neue', fontSize:'1rem', color:col }}>{val}</div>
-                        <div style={{ fontSize:'0.48rem', color:'rgba(30,41,59,0.4)', textTransform:'uppercase', letterSpacing:'0.1em' }}>{label}</div>
+                        <div style={{ fontSize:'0.48rem', color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.1em' }}>{label}</div>
                       </div>
                     ))}
                   </div>
@@ -572,12 +572,12 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                   {a.bought.length > 0 && (
                     <div style={{ display:'flex', flexDirection:'column', gap:'0.18rem' }}>
                       {a.bought.slice(-2).reverse().map((s, i) => (
-                        <div key={i} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.22rem 0.45rem', background:'rgba(15,23,42,0.03)', borderRadius:6 }}>
-                          <span style={{ flex:1, fontSize:'0.67rem', color:'rgba(15,23,42,0.65)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.superstar}</span>
-                          <span style={{ fontFamily:'Bebas Neue', fontSize:'0.62rem', color:'rgba(30,41,59,0.45)', whiteSpace:'nowrap' }}>₹{s.price>=1000?`${(s.price/1000).toFixed(1)}k`:s.price}</span>
+                        <div key={i} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.22rem 0.45rem', background:'rgba(0,0,0,0.2)', borderRadius:6 }}>
+                          <span style={{ flex:1, fontSize:'0.67rem', color:'rgba(255,255,255,0.65)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.superstar}</span>
+                          <span style={{ fontFamily:'Bebas Neue', fontSize:'0.62rem', color:'rgba(255,255,255,0.45)', whiteSpace:'nowrap' }}>₹{s.price>=1000?`${(s.price/1000).toFixed(1)}k`:s.price}</span>
                         </div>
                       ))}
-                      {a.bought.length > 2 && <div style={{ fontSize:'0.52rem', color:'rgba(30,41,59,0.3)', textAlign:'center', letterSpacing:'0.1em' }}>+{a.bought.length-2} more</div>}
+                      {a.bought.length > 2 && <div style={{ fontSize:'0.52rem', color:'rgba(255,255,255,0.3)', textAlign:'center', letterSpacing:'0.1em' }}>+{a.bought.length-2} more</div>}
                     </div>
                   )}
                 </div>
@@ -589,15 +589,15 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           <SidebarDivider label={`Sold (${sold.length})`} />
           <div style={{ display:'flex', flexDirection:'column', gap:'0.2rem', paddingBottom:'1.5rem' }}>
             {sold.length === 0 ? (
-              <div style={{ fontSize:'0.8rem', color:'rgba(30,41,59,0.2)', textAlign:'center', padding:'0.75rem', letterSpacing:'0.1em' }}>No sales yet</div>
+              <div style={{ fontSize:'0.8rem', color:'rgba(255,255,255,0.2)', textAlign:'center', padding:'0.75rem', letterSpacing:'0.1em' }}>No sales yet</div>
             ) : [...sold].reverse().slice(0, 12).map((s, i) => (
-              <div key={i} style={{ display:'flex', alignItems:'center', gap:'0.4rem', padding:'0.38rem 0.55rem', background:'rgba(15,23,42,0.03)', boxShadow:'inset 0 0 0 1px rgba(15,23,42,0.05)', borderRadius:8 }}>
-                <div style={{ flex:1, fontSize:'0.72rem', color:'rgba(15,23,42,0.65)', fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.superstar}</div>
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:'0.4rem', padding:'0.38rem 0.55rem', background:'rgba(0,0,0,0.2)', boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.08)', borderRadius:8 }}>
+                <div style={{ flex:1, fontSize:'0.72rem', color:'rgba(255,255,255,0.65)', fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.superstar}</div>
                 <div style={{ fontSize:'0.68rem', color:pc(s.winner), fontWeight:700, whiteSpace:'nowrap' }}>{pFirst(s.winner)}</div>
-                <div style={{ fontFamily:'Bebas Neue', fontSize:'0.7rem', color:'rgba(30,41,59,0.45)', whiteSpace:'nowrap' }}>₹{s.price>=1000?`${(s.price/1000).toFixed(1)}k`:s.price}</div>
+                <div style={{ fontFamily:'Bebas Neue', fontSize:'0.7rem', color:'rgba(255,255,255,0.45)', whiteSpace:'nowrap' }}>₹{s.price>=1000?`${(s.price/1000).toFixed(1)}k`:s.price}</div>
               </div>
             ))}
-            {sold.length > 12 && <div style={{ fontSize:'0.6rem', color:'rgba(30,41,59,0.3)', textAlign:'center', padding:'0.3rem', letterSpacing:'0.1em' }}>+{sold.length-12} more</div>}
+            {sold.length > 12 && <div style={{ fontSize:'0.6rem', color:'rgba(255,255,255,0.3)', textAlign:'center', padding:'0.3rem', letterSpacing:'0.1em' }}>+{sold.length-12} more</div>}
           </div>
         </div>
       </div>
@@ -607,7 +607,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
 function SidebarDivider({ label }) {
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'1rem', fontFamily:'Outfit', fontSize:'0.58rem', letterSpacing:'0.38em', color:'rgba(30,41,59,0.4)', textTransform:'uppercase' }}>
+    <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'1rem', fontFamily:'Outfit', fontSize:'0.58rem', letterSpacing:'0.38em', color:'rgba(255,255,255,0.4)', textTransform:'uppercase' }}>
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />
       {label}
       <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />

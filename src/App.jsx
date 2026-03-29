@@ -61,9 +61,9 @@ function LiquidBackground() {
 
         .glow-inner, .minimal-btn {
           position: relative;
-          background: #ffffff;
+          background: #f8fafc;
           color: #0f172a;
-          border: 1px solid rgba(0,0,0,0.06) !important;
+          border: 1px solid rgba(0,0,0,0.15) !important;
           border-radius: 12px !important;
           font-family: 'Outfit', sans-serif;
           font-weight: 600;

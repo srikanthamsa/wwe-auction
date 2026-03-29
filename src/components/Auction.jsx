@@ -1,23 +1,94 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import { supabase, PLAYERS, BID_INCREMENT, getBaseBid, getTier, STARTING_PURSE } from '../lib/supabase.js'
+import { supabase, PLAYERS, ADMIN_PLAYER, PLAYER_DISPLAY, BID_INCREMENT, getBaseBid, getTier, STARTING_PURSE } from '../lib/supabase.js'
 
+// ── Player colours ───────────────────────────────────────────────────────────
 const PLAYER_COLORS = {
-  Srikant: '#818cf8',
-  Ashpak: '#34d399',
-  KVD:     '#fbbf24',
-  Ekansh:  '#e879f9',
-  Debu:    '#fb7185',
+  "Srikant Freakin' Hamsa":    '#818cf8',
+  'Ashpak "KVD\'s Nightmare"': '#34d399',
+  'KVD "The Never Seen 17"':   '#fbbf24',
+  'Ekansh "The Beast" Tiwari': '#e879f9',
+  'Debu "The Tribal Chief"':   '#fb7185',
 }
 
 function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16)
   return `${r},${g},${b}`
 }
-
 function pc(name) { return PLAYER_COLORS[name] || '#a78bfa' }
+function pFirst(name) { return PLAYER_DISPLAY[name]?.first || name }
 
+// ── Superstar signature colours ──────────────────────────────────────────────
+function getStarColors(name) {
+  const n = name.toLowerCase()
+  const m = (keys, cols) => keys.some(k => n.includes(k)) ? cols : null
+  return (
+    m(['seth rollins','freakin'],          ['#ff006e','#fb5607','#ffbe0b','#8338ec','#3a86ff']) ||
+    m(['cody rhodes','el grande americano'],['#dc2626','#f8fafc','#1e40af']) ||
+    m(['roman reigns'],                    ['#1d4ed8','#60a5fa','#e2e8f0','#94a3b8']) ||
+    m(['brock lesnar'],                    ['#dc2626','#fbbf24','#1c1917']) ||
+    m(['kofi kingston'],                   ['#16a34a','#22c55e','#fbbf24']) ||
+    m(['john cena','super cena'],          ['#f97316','#1e40af','#10b981']) ||
+    m(['randy orton'],                     ['#dc2626','#7f1d1d','#991b1b']) ||
+    m(['cm punk'],                         ['#dc2626','#f8fafc','#1c1917']) ||
+    m(['fiend','bray wyatt'],              ['#9333ea','#7c3aed','#dc2626','#1c1917']) ||
+    m(['undertaker'],                      ['#6d28d9','#4c1d95','#a78bfa','#1c1917']) ||
+    m(['triple h','jean-paul'],            ['#ca8a04','#fbbf24','#92400e']) ||
+    m(['the rock',"rock '"],              ['#ca8a04','#dc2626','#78350f']) ||
+    m(['hulk hogan','hollywood hogan'],    ['#facc15','#dc2626','#ea580c']) ||
+    m(['goldberg'],                        ['#dc2626','#fbbf24','#1c1917']) ||
+    m(['aj styles'],                       ['#1d4ed8','#dc2626','#f8fafc']) ||
+    m(['finn bálor demon','demon'],        ['#dc2626','#1c1917','#991b1b']) ||
+    m(['finn bálor'],                      ['#f8fafc','#3b82f6','#ec4899']) ||
+    m(['shawn michaels'],                  ['#f472b6','#f8fafc','#ec4899']) ||
+    m(['batista'],                         ['#1d4ed8','#60a5fa','#94a3b8']) ||
+    m(['eddie guerrero'],                  ['#7c3aed','#ea580c','#facc15']) ||
+    m(['kurt angle'],                      ['#dc2626','#f8fafc','#1e40af']) ||
+    m(['sami zayn'],                       ['#ea580c','#dc2626','#f97316']) ||
+    m(['kevin owens'],                     ['#15803d','#22c55e','#1c1917']) ||
+    m(['drew mcintyre'],                   ['#1e40af','#60a5fa','#e2e8f0']) ||
+    m(['gunther'],                         ['#1d4ed8','#ca8a04','#1e3a8a']) ||
+    m(['damian priest'],                   ['#7c3aed','#6d28d9','#4c1d95']) ||
+    m(['la knight'],                       ['#ca8a04','#fbbf24','#1c1917']) ||
+    m(['jey uso'],                         ['#84cc16','#a3e635','#fbbf24']) ||
+    m(['jimmy uso'],                       ['#f97316','#ea580c','#dc2626']) ||
+    m(['solo sikoa'],                      ['#1d4ed8','#1e3a8a','#60a5fa']) ||
+    m(['jacob fatu'],                      ['#dc2626','#7f1d1d','#1c1917']) ||
+    m(['logan paul'],                      ['#ca8a04','#fbbf24','#0ea5e9']) ||
+    m(['stone cold','steve austin'],       ['#94a3b8','#334155','#cbd5e1']) ||
+    m(['randy savage','macho man'],        ['#ec4899','#facc15','#a855f7']) ||
+    m(['bret hart'],                       ['#ec4899','#f472b6','#1c1917']) ||
+    m(['razor ramon','scott hall'],        ['#ca8a04','#fbbf24','#1c1917']) ||
+    m(['ultimate warrior'],               ['#7c3aed','#db2777','#dc2626','#ea580c']) ||
+    m(['rey mysterio'],                    ['#16a34a','#7c3aed','#dc2626']) ||
+    m(['shinsuke nakamura'],              ['#7c3aed','#dc2626','#f8fafc']) ||
+    m(['sheamus'],                        ['#16a34a','#f8fafc','#15803d']) ||
+    m(['braun strowman'],                 ['#dc2626','#9ca3af','#374151']) ||
+    m(['rob van dam'],                    ['#16a34a','#ca8a04','#22c55e']) ||
+    m(['bron breakker'],                  ['#1d4ed8','#dc2626','#3b82f6']) ||
+    m(['carmelo hayes'],                  ['#7c3aed','#ca8a04','#a855f7']) ||
+    m(['dominik mysterio'],               ['#15803d','#1c1917','#22c55e']) ||
+    m(['kevin nash','diesel'],            ['#1e293b','#1d4ed8','#334155']) ||
+    m(['elite'],                          ['#fbbf24','#f59e0b','#a78bfa']) ||
+    ['#a78bfa','#e879f9','#818cf8']
+  )
+}
+
+// Injects a dynamic @keyframes into the document for the current superstar
+function useStarColorAnim(name) {
+  const colors = useMemo(() => getStarColors(name), [name])
+  useEffect(() => {
+    let el = document.getElementById('star-color-anim')
+    if (!el) { el = document.createElement('style'); el.id = 'star-color-anim'; document.head.appendChild(el) }
+    const steps = colors.map((c, i) =>
+      `${Math.round((i / colors.length) * 100)}% { color:${c}; text-shadow: 0 0 60px ${c}99, 0 0 120px ${c}44; }`
+    ).join('\n')
+    el.textContent = `@keyframes starColor {\n${steps}\n100%{color:${colors[0]};text-shadow:0 0 60px ${colors[0]}99,0 0 120px ${colors[0]}44;}}`
+  }, [name, colors])
+  const dur = `${Math.max(1.4, colors.length * 0.65)}s`
+  return { animation: `starColor ${dur} ease-in-out infinite`, color: colors[0] }
+}
+
+// ── Ripple ────────────────────────────────────────────────────────────────────
 function useRipple() {
   const [ripples, setRipples] = useState([])
   function trigger(x, y, color) {
@@ -28,65 +99,81 @@ function useRipple() {
   return [ripples, trigger]
 }
 
-// Static sparkle positions — deterministic so no re-randomise on render
-const SPARKS = Array.from({ length: 30 }, (_, i) => ({
-  id: i,
-  x: (i * 13.7 + 7) % 100,
-  y: (i * 19.3 + 11) % 100,
-  size: (i % 3) + 1,
-  delay: ((i * 0.37) % 3).toFixed(2),
-  dur:   (1.4 + (i % 5) * 0.4).toFixed(1),
-  color: ['#a78bfa', '#e879f9', '#fbbf24', '#818cf8'][i % 4],
-}))
-
-function SparkleField() {
-  return (
-    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-      {SPARKS.map(s => (
-        <div key={s.id} style={{
-          position: 'absolute', left: `${s.x}%`, top: `${s.y}%`,
-          width: s.size, height: s.size, borderRadius: '50%',
-          background: s.color,
-          animation: `sparkle ${s.dur}s ${s.delay}s ease-in-out infinite`,
-        }} />
-      ))}
-    </div>
-  )
+// ── Button helpers ────────────────────────────────────────────────────────────
+// All buttons use box-shadow for depth instead of explicit borders
+const btnBase = {
+  cursor: 'pointer',
+  fontFamily: 'Barlow Condensed, sans-serif',
+  letterSpacing: '0.12em',
+  transition: 'transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease',
+  userSelect: 'none',
+}
+const btnPrimary = {
+  ...btnBase,
+  background: 'linear-gradient(155deg, #7c3aed 0%, #9333ea 55%, #a21caf 100%)',
+  boxShadow: '0 6px 28px rgba(124,58,237,0.42), inset 0 1px 0 rgba(255,255,255,0.18)',
+  color: '#fff',
+  textShadow: '0 1px 8px rgba(0,0,0,0.4)',
+}
+const btnGhost = {
+  ...btnBase,
+  background: 'rgba(255,255,255,0.055)',
+  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08), 0 1px 3px rgba(0,0,0,0.3)',
+  color: 'rgba(255,255,255,0.65)',
+}
+const btnPurple = {
+  ...btnBase,
+  background: 'rgba(139,92,246,0.13)',
+  boxShadow: 'inset 0 0 0 1px rgba(167,139,250,0.18), 0 1px 3px rgba(0,0,0,0.25)',
+  color: '#c4b5fd',
+}
+const btnGreen = {
+  ...btnBase,
+  background: 'linear-gradient(155deg, rgba(52,211,153,0.22), rgba(16,185,129,0.14))',
+  boxShadow: '0 4px 20px rgba(52,211,153,0.18), inset 0 1px 0 rgba(255,255,255,0.1)',
+  color: '#34d399',
+}
+const btnDanger = {
+  ...btnBase,
+  background: 'rgba(239,68,68,0.1)',
+  boxShadow: 'inset 0 0 0 1px rgba(239,68,68,0.18)',
+  color: '#f87171',
 }
 
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function Auction({ player, gameState, onRefresh, onReset }) {
-  const [customBid, setCustomBid] = useState('')
-  const [bidding, setBidding] = useState(false)
-  const [lastAction, setLastAction] = useState(null)
-  const [actionKey, setActionKey] = useState(0)
+  const [customBid, setCustomBid]     = useState('')
+  const [bidding, setBidding]         = useState(false)
+  const [lastAction, setLastAction]   = useState(null)
+  const [actionKey, setActionKey]     = useState(0)
   const [confirmReset, setConfirmReset] = useState(false)
-  const [confirmSkip, setConfirmSkip] = useState(false)
-  const [soldFlash, setSoldFlash] = useState(null)
-  const [prevStar, setPrevStar] = useState(null)
-  const [ripples, triggerRipple] = useRipple()
-  const inputRef = useRef(null)
+  const [confirmSkip, setConfirmSkip]   = useState(false)
+  const [flash, setFlash]             = useState(null)   // { type:'sold'|'skip', ... }
+  const [prevStar, setPrevStar]       = useState(null)
+  const prevSoldCountRef              = useRef(0)
+  const [ripples, triggerRipple]      = useRipple()
+  const inputRef                      = useRef(null)
 
-  const gs = gameState
+  const gs         = gameState
   const purse      = gs?.purses?.[player] ?? STARTING_PURSE
   const currentBid = gs?.current_bid ?? 0
   const leader     = gs?.current_leader
   const isLeader   = leader === player
-  const isAdmin    = player === 'Srikant'
+  const isAdmin    = player === ADMIN_PLAYER
   const bidHistory = gs?.bid_history ?? []
   const sold       = gs?.sold_log ?? []
   const total      = gs?.roster?.length ?? 0
   const doneIdx    = gs?.roster_index ?? 0
-  const tier       = gs ? getTier(gs.current_ovr) : { label: 'B', color: '#cd7f32' }
+  const tier       = gs ? getTier(gs.current_ovr) : { label: 'B' }
   const nextBid    = currentBid + BID_INCREMENT
   const canAfford  = purse >= nextBid
+  const progressPct = total > 0 ? ((doneIdx + 1) / total) * 100 : 0
 
-  const tierStyle = {
-    S: { from: '#fbbf24', to: '#f59e0b', label: 'S-TIER' },
-    A: { from: '#c0c0c0', to: '#94a3b8', label: 'A-TIER' },
-    B: { from: '#cd7f32', to: '#92400e', label: 'B-TIER' },
-  }[tier.label] || { from: '#cd7f32', to: '#92400e', label: 'B-TIER' }
+  const tierStyle = { S: { from:'#fbbf24', to:'#f59e0b', label:'S-TIER' }, A: { from:'#c0c0c0', to:'#94a3b8', label:'A-TIER' }, B: { from:'#cd7f32', to:'#92400e', label:'B-TIER' } }[tier.label] || { from:'#cd7f32', to:'#92400e', label:'B-TIER' }
 
-  // Per-player analytics
+  const starAnimStyle = useStarColorAnim(gs?.current_superstar || '')
+
+  // Analytics per player
   const analytics = useMemo(() => PLAYERS.map(p => {
     const bought    = sold.filter(s => s.winner === p)
     const spent     = bought.reduce((a, s) => a + s.price, 0)
@@ -96,38 +183,40 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     return { name: p, bought, spent, remaining, avgPrice, estMore }
   }), [sold, gs?.purses])
 
-  // Sold flash on superstar change
+  // Sold/skip flash — differentiate by whether sold count increased
   useEffect(() => {
     if (!gs) return
-    if (prevStar && prevStar !== gs.current_superstar && sold.length > 0) {
-      setSoldFlash(sold[sold.length - 1])
-      setTimeout(() => setSoldFlash(null), 2800)
+    if (prevStar && prevStar !== gs.current_superstar) {
+      const newCount = sold.length
+      if (newCount > prevSoldCountRef.current) {
+        setFlash({ type: 'sold', ...sold[sold.length - 1] })
+      } else {
+        setFlash({ type: 'skip', superstar: prevStar })
+      }
+      prevSoldCountRef.current = newCount
+      setTimeout(() => setFlash(null), 2400)
     }
     setPrevStar(gs.current_superstar)
   }, [gs?.current_superstar])
 
-  // Realtime subscription
+  // Realtime
   useEffect(() => {
     const ch = supabase.channel('auction_live')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'auction_state' }, () => {
-        onRefresh()
-        setBidding(false)
-      })
-      .subscribe()
+        onRefresh(); setBidding(false)
+      }).subscribe()
     return () => supabase.removeChannel(ch)
   }, [])
 
-  function flash(action) {
-    setLastAction(action)
-    setActionKey(k => k + 1)
+  function triggerAction(action) {
+    setLastAction(action); setActionKey(k => k + 1)
     setTimeout(() => setLastAction(null), 1300)
   }
 
   const placeBid = useCallback(async (amount, e) => {
     if (bidding || purse < amount) return
     if (e) triggerRipple(e.clientX, e.clientY, '#8b5cf6')
-    setBidding(true)
-    flash('bid')
+    setBidding(true); triggerAction('bid')
     await supabase.from('auction_state').update({
       current_bid: amount, current_leader: player,
       bid_history: [...bidHistory, { bidder: leader, bid: currentBid }],
@@ -138,14 +227,11 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
   async function undoBid(e) {
     if (bidding || !isLeader || bidHistory.length === 0) return
     if (e) triggerRipple(e.clientX, e.clientY, '#fb7185')
-    setBidding(true)
-    flash('unbid')
-    const newHist = [...bidHistory]
-    const prev = newHist.pop()
+    setBidding(true); triggerAction('unbid')
+    const newHist = [...bidHistory]; const prev = newHist.pop()
     await supabase.from('auction_state').update({
       current_bid: prev?.bid ?? getBaseBid(gs.current_ovr),
-      current_leader: prev?.bidder ?? null,
-      bid_history: newHist,
+      current_leader: prev?.bidder ?? null, bid_history: newHist,
     }).eq('id', 1)
     setBidding(false)
   }
@@ -153,11 +239,10 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
   async function sellSuperstar(e) {
     if (!isAdmin || !leader) return
     if (e) triggerRipple(e.clientX, e.clientY, '#34d399')
-    flash('sold')
+    triggerAction('sold')
     const newLog    = [...sold, { superstar: gs.current_superstar, ovr: gs.current_ovr, winner: leader, price: currentBid }]
-    const newPurses = { ...gs.purses }
-    newPurses[leader] = (newPurses[leader] ?? 0) - currentBid
-    const nextIdx = doneIdx + 1
+    const newPurses = { ...gs.purses }; newPurses[leader] = (newPurses[leader] ?? 0) - currentBid
+    const nextIdx   = doneIdx + 1
     if (nextIdx >= total) {
       await supabase.from('auction_state').update({ phase: 'results', sold_log: newLog, purses: newPurses }).eq('id', 1)
       return
@@ -172,13 +257,9 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
   async function skipSuperstar() {
     if (!isAdmin) return
-    flash('skip')
-    setConfirmSkip(false)
+    triggerAction('skip'); setConfirmSkip(false)
     const nextIdx = doneIdx + 1
-    if (nextIdx >= total) {
-      await supabase.from('auction_state').update({ phase: 'results' }).eq('id', 1)
-      return
-    }
+    if (nextIdx >= total) { await supabase.from('auction_state').update({ phase: 'results' }).eq('id', 1); return }
     const next = gs.roster[nextIdx]
     await supabase.from('auction_state').update({
       roster_index: nextIdx, current_superstar: next[0], current_ovr: next[1],
@@ -189,212 +270,205 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
   function handleCustomBid(e) {
     const val = parseInt(customBid, 10)
     if (isNaN(val) || val <= currentBid || val > purse) return
-    placeBid(val, e)
-    setCustomBid('')
+    placeBid(val, e); setCustomBid('')
   }
 
   if (!gs) return null
 
-  const actionLabel = { bid: '✓ Bid placed', unbid: '↩ Bid removed', sold: '🔨 Sold!', skip: '→ Skipped' }
-  const progressPct = total > 0 ? ((doneIdx + 1) / total) * 100 : 0
+  const actionLabel = { bid:'✓ Bid placed', unbid:'↩ Bid removed', sold:'🔨 Sold!', skip:'→ Skipped' }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#07040f', fontFamily: 'Barlow Condensed, sans-serif', position: 'relative', overflow: 'hidden' }}>
-
+    <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', fontFamily: 'Barlow Condensed, sans-serif' }}>
       <style>{`
-        @keyframes sparkle    { 0%,100%{opacity:0;transform:scale(0.3)} 50%{opacity:1;transform:scale(1)} }
-        @keyframes starIn     { 0%{opacity:0;transform:translateY(28px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes starIn     { 0%{opacity:0;transform:translateY(22px)} 100%{opacity:1;transform:translateY(0)} }
         @keyframes actionPop  { 0%{opacity:0;transform:translateY(5px)} 15%{opacity:1;transform:translateY(0)} 80%{opacity:1} 100%{opacity:0} }
         @keyframes rippleOut  { 0%{transform:translate(-50%,-50%) scale(0);opacity:0.8} 100%{transform:translate(-50%,-50%) scale(10);opacity:0} }
-        @keyframes glowPulse  { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
         @keyframes shimmer    { 0%{background-position:200% center} 100%{background-position:-200% center} }
-        @keyframes soldPop    { 0%{opacity:0;transform:scale(0.8)} 12%{opacity:1;transform:scale(1.04)} 20%{transform:scale(1)} 80%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(1.05)} }
-        @keyframes leaderPulse{ 0%,100%{box-shadow:0 0 12px rgba(139,92,246,0.2)} 50%{box-shadow:0 0 28px rgba(139,92,246,0.5)} }
-        @keyframes float      { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes flashIn    { 0%{opacity:0;transform:scale(0.85) translateY(10px)} 12%{opacity:1;transform:scale(1.02) translateY(0)} 18%{transform:scale(1)} 80%{opacity:1} 100%{opacity:0;transform:scale(1.03)} }
+        @keyframes leaderPulse{ 0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,0.06) inset} 50%{box-shadow:0 0 0 1px rgba(255,255,255,0.1) inset, 0 0 20px rgba(139,92,246,0.2)} }
+        @keyframes glowPulse  { 0%,100%{opacity:0.4} 50%{opacity:0.85} }
 
-        .bid-btn { transition: transform 0.12s ease, filter 0.12s ease, box-shadow 0.12s ease; cursor: pointer; }
-        .bid-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
-        .bid-btn:active:not(:disabled) { transform: translateY(1px) scale(0.97); }
-        .bid-btn:disabled { opacity: 0.25; cursor: not-allowed; }
-
-        .player-card { transition: border-color 0.3s, background 0.3s, box-shadow 0.3s; }
+        .bid-btn:hover:not(:disabled) { transform: translateY(-2px) !important; filter: brightness(1.18); }
+        .bid-btn:active:not(:disabled){ transform: translateY(1px) scale(0.97) !important; }
+        .bid-btn:disabled { opacity: 0.25 !important; cursor: not-allowed !important; }
 
         .auction-layout {
           display: grid;
-          grid-template-columns: 1fr 300px;
-          min-height: calc(100vh - 60px);
+          grid-template-columns: 1fr 310px;
+          min-height: calc(100vh - 72px);
         }
         .sidebar {
-          border-left: 1px solid rgba(139,92,246,0.12);
-          background: rgba(8,4,18,0.7);
-          backdrop-filter: blur(12px);
+          background: rgba(6,2,14,0.55);
+          backdrop-filter: blur(24px);
           overflow-y: auto;
           position: sticky;
-          top: 60px;
-          max-height: calc(100vh - 60px);
+          top: 72px;
+          max-height: calc(100vh - 72px);
+          /* Arc glow left edge */
+          box-shadow: -1px 0 0 rgba(167,139,250,0.12), -8px 0 40px rgba(109,40,217,0.1);
         }
         @media (max-width: 820px) {
           .auction-layout { grid-template-columns: 1fr; }
-          .sidebar { position: static; max-height: none; border-left: none; border-top: 1px solid rgba(139,92,246,0.12); }
+          .sidebar { position:static; max-height:none; box-shadow: 0 -1px 0 rgba(167,139,250,0.12); }
         }
-
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
         input[type=number] { -moz-appearance: textfield; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.25); border-radius: 2px; }
-
-        .custom-input:focus { border-color: rgba(139,92,246,0.5) !important; outline: none; }
+        .bid-input:focus { box-shadow: inset 0 0 0 1px rgba(167,139,250,0.4) !important; outline: none; }
       `}</style>
 
-      <SparkleField />
-
-      {/* Ambient background glows */}
-      <div style={{ position: 'fixed', top: '25%', left: '35%', transform: 'translate(-50%,-50%)', width: 700, height: 700, background: 'radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0, animation: 'glowPulse 6s ease-in-out infinite' }} />
-      <div style={{ position: 'fixed', top: '65%', left: '65%', transform: 'translate(-50%,-50%)', width: 500, height: 500, background: 'radial-gradient(circle, rgba(236,72,153,0.05) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0, animation: 'glowPulse 8s ease-in-out infinite reverse' }} />
-
-      {/* Ripple layer */}
+      {/* Ripples */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 200, overflow: 'hidden' }}>
         {ripples.map(rp => (
-          <div key={rp.id} style={{ position: 'absolute', left: rp.x, top: rp.y, width: 80, height: 80, borderRadius: '50%', background: `radial-gradient(circle, ${rp.color}60 0%, transparent 70%)`, animation: 'rippleOut 0.8s ease-out forwards', pointerEvents: 'none' }} />
+          <div key={rp.id} style={{ position:'absolute', left:rp.x, top:rp.y, width:80, height:80, borderRadius:'50%', background:`radial-gradient(circle,${rp.color}55 0%,transparent 70%)`, animation:'rippleOut 0.8s ease-out forwards', pointerEvents:'none' }} />
         ))}
       </div>
 
-      {/* SOLD overlay */}
-      {soldFlash && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 150, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(7,4,15,0.93)', animation: 'soldPop 2.8s ease forwards', pointerEvents: 'none', backdropFilter: 'blur(16px)' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.5em', color: 'rgba(167,139,250,0.5)', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Sold to</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(4rem, 15vw, 8rem)', letterSpacing: '0.04em', lineHeight: 1, color: pc(soldFlash.winner), textShadow: `0 0 80px rgba(${hexToRgb(pc(soldFlash.winner))},0.6), 0 0 160px rgba(${hexToRgb(pc(soldFlash.winner))},0.3)`, animation: 'float 2.5s ease-in-out infinite' }}>
-            {soldFlash.winner}
-          </div>
-          <div style={{ marginTop: '0.6rem', fontFamily: 'Bebas Neue', fontSize: '2.5rem', letterSpacing: '0.08em', background: 'linear-gradient(135deg, #a78bfa, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            ₹{soldFlash.price.toLocaleString()}
-          </div>
-          <div style={{ marginTop: '0.35rem', fontFamily: 'Barlow Condensed', fontSize: '0.9rem', color: 'rgba(167,139,250,0.45)', letterSpacing: '0.2em' }}>{soldFlash.superstar}</div>
+      {/* Flash overlay — SOLD or SKIPPED */}
+      {flash && (
+        <div style={{ position:'fixed', inset:0, zIndex:150, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'rgba(6,2,14,0.92)', animation:'flashIn 2.4s ease forwards', pointerEvents:'none', backdropFilter:'blur(20px)' }}>
+          {flash.type === 'sold' ? (
+            <>
+              <div style={{ fontSize:'0.7rem', letterSpacing:'0.5em', color:'rgba(167,139,250,0.5)', marginBottom:'0.6rem', textTransform:'uppercase' }}>Sold to</div>
+              <div style={{ fontFamily:'Bebas Neue', fontSize:'clamp(4rem,15vw,8rem)', letterSpacing:'0.04em', lineHeight:1, color:pc(flash.winner), textShadow:`0 0 80px rgba(${hexToRgb(pc(flash.winner))},0.6),0 0 160px rgba(${hexToRgb(pc(flash.winner))},0.3)` }}>
+                {pFirst(flash.winner)}
+              </div>
+              <div style={{ marginTop:'0.6rem', fontFamily:'Bebas Neue', fontSize:'2.5rem', background:'linear-gradient(135deg,#a78bfa,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', letterSpacing:'0.08em' }}>
+                ₹{flash.price.toLocaleString()}
+              </div>
+              <div style={{ marginTop:'0.35rem', fontSize:'0.9rem', color:'rgba(167,139,250,0.45)', letterSpacing:'0.2em' }}>{flash.superstar}</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontFamily:'Bebas Neue', fontSize:'clamp(3rem,12vw,6rem)', letterSpacing:'0.08em', color:'rgba(167,139,250,0.5)', lineHeight:1 }}>SKIPPED</div>
+              <div style={{ marginTop:'0.5rem', fontSize:'1rem', color:'rgba(167,139,250,0.3)', letterSpacing:'0.2em' }}>{flash.superstar}</div>
+            </>
+          )}
         </div>
       )}
 
       {/* ── TOP BAR ── */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 100, height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 1.5rem', background: 'rgba(7,4,15,0.92)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(139,92,246,0.12)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.2rem', background: 'linear-gradient(135deg, #a78bfa, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', letterSpacing: '0.08em' }}>WWE 2K25</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <div style={{ fontSize: '0.55rem', color: 'rgba(167,139,250,0.4)', letterSpacing: '0.25em' }}>{doneIdx + 1} / {total} SUPERSTARS</div>
-            <div style={{ height: 3, width: 90, background: 'rgba(139,92,246,0.15)', borderRadius: 2, overflow: 'hidden' }}>
-              <div style={{ height: '100%', width: `${progressPct}%`, background: 'linear-gradient(90deg, #7c3aed, #ec4899)', borderRadius: 2, transition: 'width 0.5s ease' }} />
+      <div style={{ position:'sticky', top:0, zIndex:100, height:72, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 2rem', background:'rgba(6,2,14,0.88)', backdropFilter:'blur(24px)', boxShadow:'0 1px 0 rgba(139,92,246,0.1), 0 4px 32px rgba(0,0,0,0.4)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:'1.25rem' }}>
+          <div style={{ fontFamily:'Bebas Neue', fontSize:'1.75rem', letterSpacing:'0.08em', background:'linear-gradient(135deg,#a78bfa,#ec4899)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>WWE 2K25</div>
+          <div style={{ display:'flex', flexDirection:'column', gap:3 }}>
+            <div style={{ fontSize:'0.7rem', color:'rgba(167,139,250,0.45)', letterSpacing:'0.2em' }}>{doneIdx + 1} / {total} SUPERSTARS</div>
+            <div style={{ height:3, width:100, background:'rgba(139,92,246,0.15)', borderRadius:2, overflow:'hidden' }}>
+              <div style={{ height:'100%', width:`${progressPct}%`, background:'linear-gradient(90deg,#7c3aed,#ec4899)', borderRadius:2, transition:'width 0.5s ease' }} />
             </div>
           </div>
         </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '0.5rem', color: 'rgba(167,139,250,0.35)', letterSpacing: '0.25em', marginBottom: 1 }}>PLAYING AS</div>
-            <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: pc(player), letterSpacing: '0.08em', textShadow: `0 0 16px rgba(${hexToRgb(pc(player))},0.5)` }}>{player}</div>
+        <div style={{ display:'flex', alignItems:'center', gap:'2rem' }}>
+          <div style={{ textAlign:'center' }}>
+            <div style={{ fontSize:'0.6rem', color:'rgba(167,139,250,0.35)', letterSpacing:'0.25em', marginBottom:2 }}>PLAYING AS</div>
+            <div style={{ fontFamily:'Bebas Neue', fontSize:'1.15rem', color:pc(player), letterSpacing:'0.08em', textShadow:`0 0 16px rgba(${hexToRgb(pc(player))},0.55)` }}>{pFirst(player)}</div>
           </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '0.5rem', color: 'rgba(167,139,250,0.35)', letterSpacing: '0.25em', marginBottom: 1 }}>PURSE</div>
-            <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: '#fbbf24', letterSpacing: '0.05em', textShadow: '0 0 12px rgba(251,191,36,0.4)' }}>₹{purse.toLocaleString()}</div>
+          <div style={{ textAlign:'right' }}>
+            <div style={{ fontSize:'0.6rem', color:'rgba(167,139,250,0.35)', letterSpacing:'0.25em', marginBottom:2 }}>PURSE</div>
+            <div style={{ fontFamily:'Bebas Neue', fontSize:'1.15rem', color:'#fbbf24', letterSpacing:'0.05em', textShadow:'0 0 14px rgba(251,191,36,0.4)' }}>₹{purse.toLocaleString()}</div>
           </div>
         </div>
       </div>
 
-      {/* ── MAIN LAYOUT ── */}
-      <div className="auction-layout" style={{ position: 'relative', zIndex: 1 }}>
+      {/* ── MAIN GRID ── */}
+      <div className="auction-layout">
 
-        {/* ── LEFT: Bidding area ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', padding: '0 1.5rem', maxWidth: 560, margin: '0 auto', width: '100%' }}>
+        {/* ── LEFT: Bidding ── */}
+        <div style={{ display:'flex', flexDirection:'column', padding:'0 2rem', maxWidth:580, margin:'0 auto', width:'100%' }}>
 
           {/* Superstar hero */}
-          <div key={gs.current_superstar} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '2.5rem 0 1.75rem', textAlign: 'center' }}>
+          <div key={gs.current_superstar} style={{ display:'flex', flexDirection:'column', alignItems:'center', padding:'2.5rem 0 2rem', textAlign:'center' }}>
             {/* Tier badge */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.25rem 0.9rem', background: `linear-gradient(135deg, ${tierStyle.from}20, ${tierStyle.to}10)`, border: `1px solid ${tierStyle.from}50`, borderRadius: 20, marginBottom: '1rem', animation: 'starIn 0.4s ease' }}>
-              <span style={{ fontFamily: 'Bebas Neue', fontSize: '0.9rem', color: tierStyle.from, letterSpacing: '0.08em' }}>{tierStyle.label}</span>
-              <span style={{ fontSize: '0.6rem', color: `${tierStyle.from}aa`, letterSpacing: '0.2em' }}>· OVR {gs.current_ovr}</span>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.3rem 1rem', background:`linear-gradient(135deg,${tierStyle.from}1a,${tierStyle.to}0d)`, boxShadow:`inset 0 0 0 1px ${tierStyle.from}44`, borderRadius:20, marginBottom:'1.1rem', animation:'starIn 0.4s ease' }}>
+              <span style={{ fontFamily:'Bebas Neue', fontSize:'1rem', color:tierStyle.from, letterSpacing:'0.1em' }}>{tierStyle.label}</span>
+              <span style={{ fontSize:'0.7rem', color:`${tierStyle.from}99`, letterSpacing:'0.2em' }}>· OVR {gs.current_ovr}</span>
             </div>
 
-            {/* Name with aura */}
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <div style={{ position: 'absolute', inset: '-30px -20px', background: 'radial-gradient(ellipse, rgba(139,92,246,0.15) 0%, transparent 70%)', pointerEvents: 'none', animation: 'glowPulse 3s ease-in-out infinite', borderRadius: '50%' }} />
-              <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2.4rem, 8.5vw, 4.8rem)', letterSpacing: '0.02em', lineHeight: 0.92, animation: 'starIn 0.35s ease', background: 'linear-gradient(180deg, #ffffff 0%, #c4b5fd 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', position: 'relative', textAlign: 'center' }}>
+            {/* Name */}
+            <div style={{ position:'relative', display:'inline-block' }}>
+              <div style={{ position:'absolute', inset:'-35px -20px', background:'radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)', pointerEvents:'none', animation:'glowPulse 3s ease-in-out infinite', borderRadius:'50%' }} />
+              <div style={{ fontFamily:'Bebas Neue', fontSize:'clamp(2.6rem,8.5vw,5.2rem)', letterSpacing:'0.02em', lineHeight:0.9, animation:'starIn 0.35s ease', position:'relative', textAlign:'center', ...starAnimStyle }}>
                 {gs.current_superstar}
               </div>
             </div>
 
-            <div style={{ fontSize: '0.65rem', color: 'rgba(167,139,250,0.3)', letterSpacing: '0.25em', marginTop: '0.7rem', animation: 'starIn 0.5s ease' }}>
+            <div style={{ fontSize:'0.7rem', color:'rgba(167,139,250,0.3)', letterSpacing:'0.25em', marginTop:'0.8rem', animation:'starIn 0.5s ease' }}>
               BASE ₹{getBaseBid(gs.current_ovr).toLocaleString()}
             </div>
           </div>
 
           {/* Current bid */}
-          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-            <div style={{ fontSize: '0.55rem', letterSpacing: '0.4em', color: 'rgba(167,139,250,0.35)', marginBottom: '0.3rem' }}>CURRENT BID</div>
-            <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2rem, 7vw, 3.5rem)', letterSpacing: '0.05em', lineHeight: 1, background: 'linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #fbbf24 100%)', backgroundSize: '200% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'shimmer 5s linear infinite' }}>
+          <div style={{ textAlign:'center', marginBottom:'1.5rem' }}>
+            <div style={{ fontSize:'0.65rem', letterSpacing:'0.4em', color:'rgba(167,139,250,0.35)', marginBottom:'0.3rem' }}>CURRENT BID</div>
+            <div style={{ fontFamily:'Bebas Neue', fontSize:'clamp(2.2rem,7vw,3.8rem)', letterSpacing:'0.05em', lineHeight:1, background:'linear-gradient(135deg,#a78bfa 0%,#ec4899 50%,#fbbf24 100%)', backgroundSize:'200% auto', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', animation:'shimmer 5s linear infinite' }}>
               ₹{currentBid.toLocaleString()}
             </div>
-            <div style={{ marginTop: '0.5rem' }}>
+            <div style={{ marginTop:'0.5rem' }}>
               {leader ? (
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.2rem 0.8rem', background: `rgba(${hexToRgb(pc(leader))}, 0.1)`, border: `1px solid rgba(${hexToRgb(pc(leader))}, 0.3)`, borderRadius: 20 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: pc(leader), boxShadow: `0 0 8px rgba(${hexToRgb(pc(leader))}, 0.8)` }} />
-                  <span style={{ fontSize: '0.8rem', color: pc(leader), letterSpacing: '0.1em', fontWeight: 700 }}>
-                    {isLeader ? 'YOU ARE WINNING' : `${leader} is leading`}
+                <div style={{ display:'inline-flex', alignItems:'center', gap:'0.4rem', padding:'0.25rem 0.9rem', background:`rgba(${hexToRgb(pc(leader))},0.1)`, boxShadow:`inset 0 0 0 1px rgba(${hexToRgb(pc(leader))},0.28)`, borderRadius:20 }}>
+                  <div style={{ width:7, height:7, borderRadius:'50%', background:pc(leader), boxShadow:`0 0 10px rgba(${hexToRgb(pc(leader))},0.8)` }} />
+                  <span style={{ fontSize:'0.85rem', color:pc(leader), letterSpacing:'0.1em', fontWeight:700 }}>
+                    {isLeader ? 'YOU ARE WINNING' : `${pFirst(leader)} is leading`}
                   </span>
                 </div>
               ) : (
-                <div style={{ fontSize: '0.75rem', color: 'rgba(167,139,250,0.25)', letterSpacing: '0.15em' }}>No bids yet — be the first!</div>
+                <div style={{ fontSize:'0.8rem', color:'rgba(167,139,250,0.25)', letterSpacing:'0.15em' }}>No bids yet — be first!</div>
               )}
             </div>
           </div>
 
           {/* Action feedback */}
-          <div style={{ height: '1.4rem', marginBottom: '0.6rem', position: 'relative', textAlign: 'center' }}>
+          <div style={{ height:'1.5rem', marginBottom:'0.7rem', position:'relative', textAlign:'center' }}>
             {lastAction && (
-              <div key={actionKey} style={{ position: 'absolute', inset: 0, fontSize: '0.8rem', letterSpacing: '0.2em', animation: 'actionPop 1.3s ease forwards', color: lastAction === 'unbid' ? '#fb7185' : lastAction === 'sold' ? '#34d399' : '#a78bfa' }}>
+              <div key={actionKey} style={{ position:'absolute', inset:0, fontSize:'0.9rem', letterSpacing:'0.2em', animation:'actionPop 1.3s ease forwards', color: lastAction==='unbid'?'#fb7185':lastAction==='sold'?'#34d399':'#a78bfa' }}>
                 {actionLabel[lastAction]}
               </div>
             )}
           </div>
 
-          {/* Bid controls */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem', marginBottom: '0.9rem' }}>
+          {/* ── BID CONTROLS ── */}
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.6rem', marginBottom:'1rem' }}>
 
             {/* Quick raise */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.5rem' }}>
               {[BID_INCREMENT, 1000, 2000].map(inc => {
                 const amt = nextBid + inc - BID_INCREMENT
                 const ok  = !bidding && !isLeader && purse >= amt
                 return (
                   <button key={inc} className="bid-btn" disabled={!ok} onClick={e => placeBid(amt, e)}
-                    style={{ padding: '0.8rem 0.4rem', background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 10, fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.1em', color: '#a78bfa' }}>
-                    +₹{inc >= 1000 ? `${inc / 1000}k` : inc}
+                    style={{ ...btnPurple, padding:'0.85rem 0.4rem', borderRadius:12, fontFamily:'Bebas Neue', fontSize:'1.05rem' }}>
+                    +₹{inc >= 1000 ? `${inc/1000}k` : inc}
                   </button>
                 )
               })}
             </div>
 
-            {/* Primary bid / leading state */}
+            {/* Primary bid / leading */}
             {isLeader ? (
-              <div style={{ padding: '1rem', background: `rgba(${hexToRgb(pc(player))}, 0.07)`, border: `1px solid rgba(${hexToRgb(pc(player))}, 0.25)`, borderRadius: 12, textAlign: 'center', animation: 'leaderPulse 2.5s ease-in-out infinite' }}>
-                <div style={{ fontSize: '0.6rem', letterSpacing: '0.3em', color: `rgba(${hexToRgb(pc(player))}, 0.6)`, marginBottom: '0.2rem' }}>CURRENT LEADER</div>
-                <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.15rem', letterSpacing: '0.1em', color: pc(player) }}>You're winning — hold tight!</div>
+              <div style={{ padding:'1.1rem', background:`rgba(${hexToRgb(pc(player))},0.07)`, boxShadow:`inset 0 0 0 1px rgba(${hexToRgb(pc(player))},0.22)`, borderRadius:14, textAlign:'center', animation:'leaderPulse 2.5s ease-in-out infinite' }}>
+                <div style={{ fontSize:'0.65rem', letterSpacing:'0.3em', color:`rgba(${hexToRgb(pc(player))},0.6)`, marginBottom:'0.2rem' }}>CURRENT LEADER</div>
+                <div style={{ fontFamily:'Bebas Neue', fontSize:'1.2rem', letterSpacing:'0.1em', color:pc(player) }}>You're winning — hold tight!</div>
               </div>
             ) : (
               <button className="bid-btn" disabled={bidding || !canAfford} onClick={e => placeBid(nextBid, e)}
-                style={{ padding: '1rem', background: canAfford ? 'linear-gradient(135deg, rgba(139,92,246,0.22), rgba(236,72,153,0.16))' : 'rgba(255,255,255,0.02)', border: `1px solid ${canAfford ? 'rgba(139,92,246,0.5)' : 'rgba(255,255,255,0.05)'}`, borderRadius: 12, fontFamily: 'Bebas Neue', fontSize: '1.3rem', letterSpacing: '0.15em', color: canAfford ? '#a78bfa' : 'rgba(167,139,250,0.18)', boxShadow: canAfford ? '0 4px 24px rgba(139,92,246,0.18)' : 'none' }}>
+                style={{ ...btnPrimary, padding:'1.05rem', borderRadius:14, fontFamily:'Bebas Neue', fontSize:'1.4rem', letterSpacing:'0.15em', opacity: canAfford ? 1 : 0.25 }}>
                 BID ₹{nextBid.toLocaleString()}
               </button>
             )}
 
             {/* Custom amount */}
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input ref={inputRef} className="custom-input" type="number" value={customBid}
+            <div style={{ display:'flex', gap:'0.5rem' }}>
+              <input ref={inputRef} className="bid-input" type="number" value={customBid}
                 onChange={e => setCustomBid(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleCustomBid(e)}
                 placeholder={`Custom (min ₹${nextBid.toLocaleString()})`}
-                style={{ flex: 1, padding: '0.7rem 0.9rem', background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.18)', borderRadius: 10, color: '#e2e8f0', fontFamily: 'Barlow Condensed', fontSize: '0.9rem', letterSpacing: '0.05em', transition: 'border-color 0.2s' }} />
+                style={{ flex:1, padding:'0.75rem 1rem', background:'rgba(139,92,246,0.08)', boxShadow:'inset 0 0 0 1px rgba(139,92,246,0.18)', borderRadius:12, border:'none', color:'#e2e8f0', fontFamily:'Barlow Condensed', fontSize:'0.95rem', letterSpacing:'0.05em', transition:'box-shadow 0.2s' }} />
               <button className="bid-btn" onClick={handleCustomBid}
                 disabled={!customBid || parseInt(customBid) <= currentBid || parseInt(customBid) > purse}
-                style={{ padding: '0.7rem 1rem', background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.2)', borderRadius: 10, fontFamily: 'Barlow Condensed', fontSize: '0.85rem', letterSpacing: '0.1em', color: '#a78bfa' }}>
+                style={{ ...btnPurple, padding:'0.75rem 1.1rem', borderRadius:12, fontSize:'0.9rem' }}>
                 Place
               </button>
             </div>
@@ -402,7 +476,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             {/* Un-bid */}
             {isLeader && bidHistory.length > 0 && (
               <button className="bid-btn" onClick={e => undoBid(e)} disabled={bidding}
-                style={{ padding: '0.6rem', background: 'rgba(251,113,133,0.07)', border: '1px solid rgba(251,113,133,0.22)', borderRadius: 10, fontSize: '0.8rem', letterSpacing: '0.2em', color: '#fb7185', textTransform: 'uppercase' }}>
+                style={{ ...btnDanger, padding:'0.65rem', borderRadius:12, fontSize:'0.85rem', letterSpacing:'0.2em', textTransform:'uppercase' }}>
                 ↩ Remove my last bid
               </button>
             )}
@@ -410,24 +484,24 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
           {/* Admin controls */}
           {isAdmin && (
-            <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.25rem' }}>
+            <div style={{ display:'flex', gap:'0.6rem', marginBottom:'1.25rem' }}>
               <button className="bid-btn" onClick={e => sellSuperstar(e)} disabled={!leader || bidding}
-                style={{ flex: 1, padding: '0.9rem', background: leader ? 'linear-gradient(135deg, rgba(52,211,153,0.18), rgba(16,185,129,0.1))' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(52,211,153,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: 12, fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: leader ? '#34d399' : 'rgba(52,211,153,0.2)', boxShadow: leader ? '0 4px 20px rgba(52,211,153,0.12)' : 'none' }}>
-                🔨 Sold — {leader || 'no bids'}
+                style={{ ...btnGreen, flex:1, padding:'0.95rem', borderRadius:14, fontFamily:'Bebas Neue', fontSize:'1.15rem', letterSpacing:'0.15em', opacity: leader ? 1 : 0.22 }}>
+                🔨 Sold — {leader ? pFirst(leader) : 'no bids'}
               </button>
               {!confirmSkip ? (
                 <button className="bid-btn" onClick={() => setConfirmSkip(true)}
-                  style={{ padding: '0.9rem 1rem', background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)', borderRadius: 12, fontSize: '0.8rem', letterSpacing: '0.15em', color: 'rgba(167,139,250,0.45)', whiteSpace: 'nowrap' }}>
+                  style={{ ...btnGhost, padding:'0.95rem 1.1rem', borderRadius:14, fontSize:'0.85rem', letterSpacing:'0.15em', whiteSpace:'nowrap' }}>
                   Skip
                 </button>
               ) : (
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <div style={{ display:'flex', gap:'0.4rem' }}>
                   <button className="bid-btn" onClick={skipSuperstar}
-                    style={{ padding: '0.75rem', background: 'rgba(251,113,133,0.1)', border: '1px solid rgba(251,113,133,0.3)', borderRadius: 10, fontSize: '0.75rem', color: '#fb7185', whiteSpace: 'nowrap' }}>
+                    style={{ ...btnDanger, padding:'0.8rem', borderRadius:12, fontSize:'0.8rem', whiteSpace:'nowrap' }}>
                     Confirm
                   </button>
                   <button className="bid-btn" onClick={() => setConfirmSkip(false)}
-                    style={{ padding: '0.75rem', background: 'transparent', border: '1px solid rgba(139,92,246,0.15)', borderRadius: 10, fontSize: '0.75rem', color: 'rgba(167,139,250,0.4)' }}>
+                    style={{ ...btnGhost, padding:'0.8rem', borderRadius:12, fontSize:'0.8rem' }}>
                     Cancel
                   </button>
                 </div>
@@ -435,92 +509,88 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             </div>
           )}
 
-          {/* Reset — Srikant only, subtle */}
+          {/* Subtle reset */}
           {isAdmin && (
-            <div style={{ textAlign: 'center', paddingBottom: '2.5rem', marginTop: 'auto' }}>
+            <div style={{ textAlign:'center', paddingBottom:'2.5rem', marginTop:'auto' }}>
               {!confirmReset ? (
                 <button onClick={() => setConfirmReset(true)}
-                  style={{ background: 'none', border: 'none', fontSize: '0.6rem', letterSpacing: '0.25em', color: 'rgba(167,139,250,0.18)', cursor: 'pointer', textTransform: 'uppercase' }}>
+                  style={{ background:'none', border:'none', fontSize:'0.65rem', letterSpacing:'0.25em', color:'rgba(167,139,250,0.18)', cursor:'pointer', textTransform:'uppercase', fontFamily:'Barlow Condensed' }}>
                   Reset entire auction
                 </button>
               ) : (
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'rgba(167,139,250,0.4)', letterSpacing: '0.1em' }}>Wipes everything.</span>
-                  <button onClick={onReset} style={{ background: 'none', border: '1px solid rgba(251,113,133,0.35)', borderRadius: 6, padding: '0.3rem 0.8rem', fontSize: '0.7rem', letterSpacing: '0.15em', color: '#fb7185', cursor: 'pointer', fontFamily: 'Barlow Condensed' }}>Yes, reset</button>
-                  <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: 'none', fontSize: '0.7rem', color: 'rgba(167,139,250,0.25)', cursor: 'pointer', fontFamily: 'Barlow Condensed' }}>Cancel</button>
+                <div style={{ display:'flex', gap:'0.75rem', justifyContent:'center', alignItems:'center' }}>
+                  <span style={{ fontSize:'0.75rem', color:'rgba(167,139,250,0.4)', letterSpacing:'0.1em' }}>Wipes everything.</span>
+                  <button onClick={onReset} style={{ ...btnDanger, padding:'0.35rem 0.9rem', borderRadius:8, fontSize:'0.75rem', letterSpacing:'0.15em', fontFamily:'Barlow Condensed' }}>Yes, reset</button>
+                  <button onClick={() => setConfirmReset(false)} style={{ background:'none', border:'none', fontSize:'0.75rem', color:'rgba(167,139,250,0.25)', cursor:'pointer', fontFamily:'Barlow Condensed' }}>Cancel</button>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* ── RIGHT: Analytics Sidebar ── */}
-        <div className="sidebar" style={{ padding: '1.25rem 1rem' }}>
+        {/* ── RIGHT: Sidebar ── */}
+        <div className="sidebar" style={{ padding:'1.5rem 1.1rem', position:'relative' }}>
+
+          {/* Arc glow bulge on left edge */}
+          <div style={{ position:'absolute', left:-50, top:'25%', bottom:'25%', width:100, background:'radial-gradient(ellipse, rgba(139,92,246,0.18) 0%, transparent 70%)', filter:'blur(18px)', pointerEvents:'none' }} />
 
           <SidebarDivider label="Live Analytics" />
 
-          {/* Player analytics cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '1.5rem' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.7rem', marginBottom:'1.75rem' }}>
             {analytics.map(a => {
-              const col    = pc(a.name)
-              const rgb    = hexToRgb(col)
-              const isMe   = a.name === player
-              const isWin  = a.name === leader
-              const pct    = Math.max(0, Math.min(100, (a.remaining / STARTING_PURSE) * 100))
-
+              const col   = pc(a.name)
+              const rgb   = hexToRgb(col)
+              const isMe  = a.name === player
+              const isWin = a.name === leader
+              const pct   = Math.max(0, Math.min(100, (a.remaining / STARTING_PURSE) * 100))
               return (
-                <div key={a.name} className="player-card"
-                  style={{ padding: '0.8rem', background: isWin ? `rgba(${rgb},0.1)` : isMe ? `rgba(${rgb},0.06)` : 'rgba(139,92,246,0.04)', border: `1px solid ${isWin ? `rgba(${rgb},0.4)` : isMe ? `rgba(${rgb},0.22)` : 'rgba(139,92,246,0.1)'}`, borderRadius: 12, boxShadow: isWin ? `0 0 20px rgba(${rgb},0.12)` : 'none' }}>
+                <div key={a.name}
+                  style={{ padding:'0.85rem', background: isWin ? `rgba(${rgb},0.1)` : isMe ? `rgba(${rgb},0.06)` : 'rgba(255,255,255,0.03)', boxShadow: isWin ? `inset 0 0 0 1px rgba(${rgb},0.35), 0 0 20px rgba(${rgb},0.1)` : isMe ? `inset 0 0 0 1px rgba(${rgb},0.18)` : 'inset 0 0 0 1px rgba(255,255,255,0.05)', borderRadius:14, transition:'all 0.3s' }}>
 
-                  {/* Name row */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.55rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <div style={{ width: 7, height: 7, borderRadius: '50%', background: col, boxShadow: `0 0 8px rgba(${rgb},0.7)` }} />
-                      <span style={{ fontFamily: 'Bebas Neue', fontSize: '0.95rem', color: col, letterSpacing: '0.08em' }}>{a.name}</span>
-                      {isMe && <span style={{ fontSize: '0.5rem', color: `rgba(${rgb},0.55)`, letterSpacing: '0.12em', background: `rgba(${rgb},0.1)`, padding: '1px 5px', borderRadius: 6 }}>YOU</span>}
+                  <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'0.55rem' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:'0.45rem' }}>
+                      <div style={{ width:8, height:8, borderRadius:'50%', background:col, boxShadow:`0 0 8px rgba(${rgb},0.8)` }} />
+                      <span style={{ fontFamily:'Bebas Neue', fontSize:'1.05rem', color:col, letterSpacing:'0.08em' }}>{pFirst(a.name)}</span>
+                      {isMe && <span style={{ fontSize:'0.52rem', color:`rgba(${rgb},0.6)`, background:`rgba(${rgb},0.12)`, padding:'1px 5px', borderRadius:6, letterSpacing:'0.1em' }}>YOU</span>}
                     </div>
-                    {isWin && (
-                      <span style={{ fontSize: '0.55rem', color: col, letterSpacing: '0.1em', padding: '0.1rem 0.45rem', background: `rgba(${rgb},0.15)`, borderRadius: 10, border: `1px solid rgba(${rgb},0.3)` }}>LEADING</span>
-                    )}
+                    {isWin && <span style={{ fontSize:'0.58rem', color:col, padding:'0.1rem 0.5rem', background:`rgba(${rgb},0.15)`, boxShadow:`inset 0 0 0 1px rgba(${rgb},0.3)`, borderRadius:10, letterSpacing:'0.1em' }}>LEADING</span>}
                   </div>
 
                   {/* Purse bar */}
-                  <div style={{ marginBottom: '0.55rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: '0.55rem', color: 'rgba(167,139,250,0.4)', letterSpacing: '0.12em' }}>PURSE REMAINING</span>
-                      <span style={{ fontFamily: 'Bebas Neue', fontSize: '0.75rem', color: col, letterSpacing: '0.04em' }}>₹{a.remaining.toLocaleString()}</span>
+                  <div style={{ marginBottom:'0.55rem' }}>
+                    <div style={{ display:'flex', justifyContent:'space-between', marginBottom:3 }}>
+                      <span style={{ fontSize:'0.58rem', color:'rgba(167,139,250,0.4)', letterSpacing:'0.1em' }}>PURSE</span>
+                      <span style={{ fontFamily:'Bebas Neue', fontSize:'0.78rem', color:col }}>₹{a.remaining.toLocaleString()}</span>
                     </div>
-                    <div style={{ height: 5, background: 'rgba(139,92,246,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: `linear-gradient(90deg, ${col}, rgba(${rgb},0.55))`, borderRadius: 3, transition: 'width 0.6s ease', boxShadow: `0 0 6px rgba(${rgb},0.4)` }} />
+                    <div style={{ height:5, background:'rgba(255,255,255,0.05)', borderRadius:3, overflow:'hidden' }}>
+                      <div style={{ height:'100%', width:`${pct}%`, background:`linear-gradient(90deg,${col},rgba(${rgb},0.55))`, borderRadius:3, transition:'width 0.6s ease', boxShadow:`0 0 8px rgba(${rgb},0.4)` }} />
                     </div>
                   </div>
 
-                  {/* Stats grid */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.3rem', marginBottom: a.bought.length > 0 ? '0.5rem' : 0 }}>
+                  {/* Stats */}
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'0.3rem', marginBottom: a.bought.length>0 ? '0.5rem' : 0 }}>
                     {[
-                      { val: a.bought.length, label: 'Bought' },
-                      { val: `~${a.estMore}`, label: 'Est. More' },
-                      { val: a.bought.length > 0 ? `₹${a.avgPrice >= 1000 ? `${(a.avgPrice / 1000).toFixed(1)}k` : a.avgPrice}` : '—', label: 'Avg/Star' },
+                      { val: a.bought.length, label:'Bought' },
+                      { val: `~${a.estMore}`, label:'Est. More' },
+                      { val: a.bought.length>0 ? `₹${a.avgPrice>=1000?`${(a.avgPrice/1000).toFixed(1)}k`:a.avgPrice}` : '—', label:'Avg/Star' },
                     ].map(({ val, label }) => (
-                      <div key={label} style={{ textAlign: 'center', padding: '0.3rem 0.2rem', background: 'rgba(139,92,246,0.06)', borderRadius: 7 }}>
-                        <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.95rem', color: col, letterSpacing: '0.04em' }}>{val}</div>
-                        <div style={{ fontSize: '0.48rem', color: 'rgba(167,139,250,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{label}</div>
+                      <div key={label} style={{ textAlign:'center', padding:'0.3rem 0.2rem', background:'rgba(255,255,255,0.04)', borderRadius:8 }}>
+                        <div style={{ fontFamily:'Bebas Neue', fontSize:'1rem', color:col }}>{val}</div>
+                        <div style={{ fontSize:'0.48rem', color:'rgba(167,139,250,0.4)', textTransform:'uppercase', letterSpacing:'0.1em' }}>{label}</div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Last 2 acquired */}
+                  {/* Last 2 superstars */}
                   {a.bought.length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.18rem' }}>
+                    <div style={{ display:'flex', flexDirection:'column', gap:'0.18rem' }}>
                       {a.bought.slice(-2).reverse().map((s, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '0.2rem 0.4rem', background: 'rgba(139,92,246,0.05)', borderRadius: 5, gap: '0.3rem' }}>
-                          <span style={{ flex: 1, fontSize: '0.65rem', color: 'rgba(226,232,240,0.65)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.superstar}</span>
-                          <span style={{ fontFamily: 'Bebas Neue', fontSize: '0.62rem', color: 'rgba(167,139,250,0.45)', whiteSpace: 'nowrap' }}>₹{s.price >= 1000 ? `${(s.price / 1000).toFixed(1)}k` : s.price}</span>
+                        <div key={i} style={{ display:'flex', alignItems:'center', gap:'0.3rem', padding:'0.22rem 0.45rem', background:'rgba(255,255,255,0.03)', borderRadius:6 }}>
+                          <span style={{ flex:1, fontSize:'0.67rem', color:'rgba(226,232,240,0.65)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.superstar}</span>
+                          <span style={{ fontFamily:'Bebas Neue', fontSize:'0.62rem', color:'rgba(167,139,250,0.45)', whiteSpace:'nowrap' }}>₹{s.price>=1000?`${(s.price/1000).toFixed(1)}k`:s.price}</span>
                         </div>
                       ))}
-                      {a.bought.length > 2 && (
-                        <div style={{ fontSize: '0.52rem', color: 'rgba(167,139,250,0.3)', letterSpacing: '0.1em', textAlign: 'center' }}>+{a.bought.length - 2} more</div>
-                      )}
+                      {a.bought.length > 2 && <div style={{ fontSize:'0.52rem', color:'rgba(167,139,250,0.3)', textAlign:'center', letterSpacing:'0.1em' }}>+{a.bought.length-2} more</div>}
                     </div>
                   )}
                 </div>
@@ -528,26 +598,21 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             })}
           </div>
 
-          {/* Recent sold log */}
+          {/* Sold log */}
           <SidebarDivider label={`Sold (${sold.length})`} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', paddingBottom: '1.5rem' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:'0.2rem', paddingBottom:'1.5rem' }}>
             {sold.length === 0 ? (
-              <div style={{ fontSize: '0.75rem', color: 'rgba(167,139,250,0.2)', letterSpacing: '0.1em', textAlign: 'center', padding: '0.75rem' }}>No sales yet</div>
-            ) : (
-              [...sold].reverse().slice(0, 12).map((s, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.35rem 0.5rem', background: 'rgba(139,92,246,0.04)', borderRadius: 7, border: '1px solid rgba(139,92,246,0.08)' }}>
-                  <div style={{ flex: 1, fontSize: '0.7rem', color: 'rgba(226,232,240,0.65)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600 }}>{s.superstar}</div>
-                  <div style={{ fontSize: '0.65rem', color: pc(s.winner), fontWeight: 700, whiteSpace: 'nowrap' }}>{s.winner}</div>
-                  <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.68rem', color: 'rgba(167,139,250,0.45)', whiteSpace: 'nowrap' }}>₹{s.price >= 1000 ? `${(s.price / 1000).toFixed(1)}k` : s.price}</div>
-                </div>
-              ))
-            )}
-            {sold.length > 12 && (
-              <div style={{ fontSize: '0.58rem', color: 'rgba(167,139,250,0.3)', letterSpacing: '0.1em', textAlign: 'center', padding: '0.3rem' }}>+{sold.length - 12} more</div>
-            )}
+              <div style={{ fontSize:'0.8rem', color:'rgba(167,139,250,0.2)', textAlign:'center', padding:'0.75rem', letterSpacing:'0.1em' }}>No sales yet</div>
+            ) : [...sold].reverse().slice(0, 12).map((s, i) => (
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:'0.4rem', padding:'0.38rem 0.55rem', background:'rgba(255,255,255,0.03)', boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.05)', borderRadius:8 }}>
+                <div style={{ flex:1, fontSize:'0.72rem', color:'rgba(226,232,240,0.65)', fontWeight:600, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{s.superstar}</div>
+                <div style={{ fontSize:'0.68rem', color:pc(s.winner), fontWeight:700, whiteSpace:'nowrap' }}>{pFirst(s.winner)}</div>
+                <div style={{ fontFamily:'Bebas Neue', fontSize:'0.7rem', color:'rgba(167,139,250,0.45)', whiteSpace:'nowrap' }}>₹{s.price>=1000?`${(s.price/1000).toFixed(1)}k`:s.price}</div>
+              </div>
+            ))}
+            {sold.length > 12 && <div style={{ fontSize:'0.6rem', color:'rgba(167,139,250,0.3)', textAlign:'center', padding:'0.3rem', letterSpacing:'0.1em' }}>+{sold.length-12} more</div>}
           </div>
         </div>
-
       </div>
     </div>
   )
@@ -555,10 +620,10 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
 function SidebarDivider({ label }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.85rem', fontFamily: 'Barlow Condensed', fontSize: '0.55rem', letterSpacing: '0.35em', color: 'rgba(167,139,250,0.4)', textTransform: 'uppercase' }}>
-      <div style={{ flex: 1, height: 1, background: 'rgba(139,92,246,0.15)' }} />
+    <div style={{ display:'flex', alignItems:'center', gap:'0.5rem', marginBottom:'1rem', fontFamily:'Barlow Condensed', fontSize:'0.58rem', letterSpacing:'0.38em', color:'rgba(167,139,250,0.4)', textTransform:'uppercase' }}>
+      <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />
       {label}
-      <div style={{ flex: 1, height: 1, background: 'rgba(139,92,246,0.15)' }} />
+      <div style={{ flex:1, height:1, background:'rgba(139,92,246,0.15)' }} />
     </div>
   )
 }

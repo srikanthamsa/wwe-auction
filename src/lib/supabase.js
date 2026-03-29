@@ -32,8 +32,25 @@ export const ROSTER = [
   ["Yokozuna",87]
 ].filter(([, r]) => r >= 80)
 
-export const PLAYERS = ["Srikant", "Ashpak", "KVD", "Ekansh", "Debu"]
-export const STARTING_PURSE = 50000
+export const PLAYERS = [
+  "Srikant Freakin' Hamsa",
+  'Ashpak "KVD\'s Nightmare"',
+  'KVD "The Never Seen 17"',
+  'Ekansh "The Beast" Tiwari',
+  'Debu "The Tribal Chief"',
+]
+
+export const ADMIN_PLAYER = PLAYERS[0]
+
+export const PLAYER_DISPLAY = {
+  "Srikant Freakin' Hamsa":    { first: 'Srikant',  gimmick: "Freakin' Hamsa" },
+  'Ashpak "KVD\'s Nightmare"': { first: 'Ashpak',   gimmick: '"KVD\'s Nightmare"' },
+  'KVD "The Never Seen 17"':   { first: 'KVD',      gimmick: '"The Never Seen 17"' },
+  'Ekansh "The Beast" Tiwari': { first: 'Ekansh',   gimmick: '"The Beast" Tiwari' },
+  'Debu "The Tribal Chief"':   { first: 'Debu',     gimmick: '"The Tribal Chief"' },
+}
+
+export const STARTING_PURSE = 100000
 export const BID_INCREMENT = 500
 // no timer — Srikant manually advances rounds
 

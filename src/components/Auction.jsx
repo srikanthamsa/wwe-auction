@@ -5,7 +5,7 @@ import { supabase, PLAYERS, ADMIN_PLAYER, PLAYER_DISPLAY, BID_INCREMENT, getBase
 const PLAYER_COLORS = {
   "Srikant Freakin' Hamsa": '#818cf8',
   'Ashpak "KVD\'s Nightmare"': '#34d399',
-  'KVD "The Never Seen 17"': '#fbbf24',
+  'KVD "The Best In The World"': '#fbbf24',
   'Ekansh "The Beast" Tiwari': '#e879f9',
   'Debu "The Tribal Chief"': '#fb7185',
 }

@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { PLAYERS, PLAYER_DISPLAY, STARTING_PURSE } from '../lib/supabase.js'
 
 const PLAYER_COLORS = {
-  "Srikant Freakin' Hamsa":    '#818cf8',
+  "Srikant Freakin' Hamsa": '#818cf8',
   'Ashpak "KVD\'s Nightmare"': '#34d399',
-  'KVD "The Never Seen 17"':   '#fbbf24',
+  'KVD "The Best In The World"': '#fbbf24',
   'Ekansh "The Beast" Tiwari': '#e879f9',
-  'Debu "The Tribal Chief"':   '#fb7185',
+  'Debu "The Tribal Chief"': '#fb7185',
 }
 const TIER_COLORS = { S:'#fbbf24', A:'#c0c0c0', B:'#cd7f32' }
 const RANK_ICONS  = ['🥇','🥈','🥉','4️⃣','5️⃣']

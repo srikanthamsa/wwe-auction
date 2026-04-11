@@ -1,96 +1,83 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase, PLAYERS, PLAYER_TEAMS, BID_INCREMENT, STARTING_PURSE, getBaseBid, getTier } from '../lib/supabase.js'
 import { MARQUEE_PLAYERS } from '../lib/roster.js'
+import Atmosphere from './Atmosphere.jsx'
+import { PLAYER_COLORS, getPlayerTheme, hexToRgb, formatLakhs } from '../lib/ui.js'
 
-const PLAYER_COLORS = {
-  Srikant: '#e60026',  // RCB
-  Ashpak: '#f96a17',   // SRH
-  KVD: '#f0c040',      // CSK
-  Ekansh: '#6a3fa0',   // KKR
-  Debu: '#005da0',     // MI
-}
-
-function hexToRgb(hex) {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `${r},${g},${b}`
-}
-
-function PlayerColor(name) { return PLAYER_COLORS[name] || '#888' }
-
-// Ripple feedback hook
 function useRipple() {
   const [ripples, setRipples] = useState([])
+
   function trigger(x, y, color) {
-    const id = Date.now()
-    setRipples(r => [...r, { id, x, y, color }])
-    setTimeout(() => setRipples(r => r.filter(rp => rp.id !== id)), 700)
+    const id = Date.now() + Math.random()
+    setRipples(prev => [...prev, { id, x, y, color }])
+    setTimeout(() => setRipples(prev => prev.filter(item => item.id !== id)), 700)
   }
+
   return [ripples, trigger]
 }
 
 export default function Auction({ player, gameState, onRefresh, onReset }) {
   const [customBid, setCustomBid] = useState('')
   const [bidding, setBidding] = useState(false)
-  const [lastAction, setLastAction] = useState(null) // 'bid' | 'unbid' | 'sold' | 'skip'
-  const [actionKey, setActionKey] = useState(0)
+  const [lastAction, setLastAction] = useState(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const [confirmSkip, setConfirmSkip] = useState(false)
-  const [soldFlash, setSoldFlash] = useState(null) // { winner, price }
-  const [prevPlayer, setPrevPlayer] = useState(null)
+  const [soldFlash, setSoldFlash] = useState(null)
   const [ripples, triggerRipple] = useRipple()
-  const inputRef = useRef(null)
+  const soldCountRef = useRef(gameState?.sold_log?.length ?? 0)
 
   const gs = gameState
-  const purse = gs?.purses?.[player] ?? STARTING_PURSE
+  const theme = getPlayerTheme(player)
   const currentBid = gs?.current_bid ?? 0
   const leader = gs?.current_leader
+  const purse = gs?.purses?.[player] ?? STARTING_PURSE
   const isLeader = leader === player
   const isAdmin = player === 'Srikant'
   const bidHistory = gs?.bid_history ?? []
   const sold = gs?.sold_log ?? []
   const total = gs?.roster?.length ?? 0
   const doneIdx = gs?.roster_index ?? 0
-  const tier = gs ? getTier(gs.current_ovr) : { label: 'B', color: '#cd7f32' }
   const openingBid = gs ? getBaseBid(gs.current_ovr) : 100
   const minimumBid = leader ? currentBid + BID_INCREMENT : currentBid
   const canAfford = purse >= minimumBid
+  const tier = gs ? getTier(gs.current_ovr) : { label: 'B', color: '#c8a84b' }
   const isMarquee = MARQUEE_PLAYERS.has(gs?.current_player)
-  const quickRaiseOptions = [BID_INCREMENT, 500, 1000]
+  const quickRaiseOptions = [100, 500, 1000]
+  const soldFlashMarquee = soldFlash ? MARQUEE_PLAYERS.has(soldFlash.player) : false
 
-  // detect player change → show sold flash
   useEffect(() => {
-    if (!gs) return
-    if (prevPlayer && prevPlayer !== gs.current_player && sold.length > 0) {
-      const last = sold[sold.length - 1]
-      setSoldFlash(last)
-      setTimeout(() => setSoldFlash(null), 2500)
-    }
-    setPrevPlayer(gs.current_player)
-  }, [gs?.current_player])
-
-  // realtime
-  useEffect(() => {
-    const ch = supabase.channel('auction_live')
+    const channel = supabase
+      .channel('auction_live')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'auction_state' }, () => {
         onRefresh()
         setBidding(false)
       })
       .subscribe()
-    return () => supabase.removeChannel(ch)
+
+    return () => supabase.removeChannel(channel)
   }, [])
+
+  useEffect(() => {
+    if (sold.length > soldCountRef.current) {
+      const latestSale = sold[sold.length - 1]
+      setSoldFlash(latestSale)
+      const timer = setTimeout(() => setSoldFlash(null), 2400)
+      soldCountRef.current = sold.length
+      return () => clearTimeout(timer)
+    }
+
+    soldCountRef.current = sold.length
+  }, [sold])
 
   function flash(action) {
     setLastAction(action)
-    setActionKey(k => k + 1)
     setTimeout(() => setLastAction(null), 1200)
   }
 
-  const placeBid = useCallback(async (amount, e) => {
+  const placeBid = useCallback(async (amount, event) => {
     const floor = leader ? currentBid + BID_INCREMENT : currentBid
     if (bidding || purse < amount || amount < floor) return
-    if (e) triggerRipple(e.clientX, e.clientY, '#c8a84b')
+    if (event) triggerRipple(event.clientX, event.clientY, theme.accent)
     setBidding(true)
     flash('bid')
     const newHistory = [...bidHistory, { bidder: leader, bid: currentBid }]
@@ -100,44 +87,55 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
       bid_history: newHistory,
     }).eq('id', 1)
     setBidding(false)
-  }, [bidding, purse, player, leader, currentBid, bidHistory])
+  }, [bidding, purse, leader, currentBid, bidHistory, player, theme.accent])
 
-  async function undoBid(e) {
+  async function undoBid(event) {
     if (bidding || !isLeader || bidHistory.length === 0) return
-    if (e) triggerRipple(e.clientX, e.clientY, '#bf6060')
+    if (event) triggerRipple(event.clientX, event.clientY, '#ff7f7f')
     setBidding(true)
     flash('unbid')
     const newHistory = [...bidHistory]
-    const prev = newHistory.pop()
+    const previous = newHistory.pop()
     await supabase.from('auction_state').update({
-      current_bid: prev?.bid ?? openingBid,
-      current_leader: prev?.bidder ?? null,
+      current_bid: previous?.bid ?? openingBid,
+      current_leader: previous?.bidder ?? null,
       bid_history: newHistory,
     }).eq('id', 1)
     setBidding(false)
   }
 
-  async function sellPlayer(e) {
+  async function sellPlayer(event) {
     if (!isAdmin || !leader) return
-    if (e) triggerRipple(e.clientX, e.clientY, '#82b366')
+    if (event) triggerRipple(event.clientX, event.clientY, '#79d9a2')
     flash('sold')
     const bidTrail = [
       ...bidHistory.filter(entry => entry?.bidder),
       { bidder: leader, bid: currentBid },
     ]
     const newLog = [...sold, { player: gs.current_player, ovr: gs.current_ovr, winner: leader, price: currentBid, bidTrail }]
-    const newPurses = { ...gs.purses }
-    newPurses[leader] = (newPurses[leader] ?? 0) - currentBid
+    const newPurses = { ...gs.purses, [leader]: (gs.purses?.[leader] ?? 0) - currentBid }
     const nextIdx = doneIdx + 1
+
     if (nextIdx >= total) {
-      await supabase.from('auction_state').update({ phase: 'results', sold_log: newLog, purses: newPurses }).eq('id', 1)
+      await supabase.from('auction_state').update({
+        phase: 'results',
+        sold_log: newLog,
+        purses: newPurses,
+      }).eq('id', 1)
       return
     }
+
     const next = gs.roster[nextIdx]
     await supabase.from('auction_state').update({
-      roster_index: nextIdx, current_player: next[0], current_ovr: next[1],
-      current_bid: getBaseBid(next[1]), current_leader: null,
-      bid_history: [], sold_log: newLog, purses: newPurses, phase: 'bidding',
+      roster_index: nextIdx,
+      current_player: next[0],
+      current_ovr: next[1],
+      current_bid: getBaseBid(next[1]),
+      current_leader: null,
+      bid_history: [],
+      sold_log: newLog,
+      purses: newPurses,
+      phase: 'bidding',
     }).eq('id', 1)
   }
 
@@ -145,327 +143,304 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     if (!isAdmin) return
     flash('skip')
     setConfirmSkip(false)
+    setSoldFlash(null)
     const nextIdx = doneIdx + 1
+
     if (nextIdx >= total) {
       await supabase.from('auction_state').update({ phase: 'results' }).eq('id', 1)
       return
     }
+
     const next = gs.roster[nextIdx]
     await supabase.from('auction_state').update({
-      roster_index: nextIdx, current_player: next[0], current_ovr: next[1],
-      current_bid: getBaseBid(next[1]), current_leader: null, bid_history: [],
+      roster_index: nextIdx,
+      current_player: next[0],
+      current_ovr: next[1],
+      current_bid: getBaseBid(next[1]),
+      current_leader: null,
+      bid_history: [],
     }).eq('id', 1)
   }
 
-  function handleCustomBid(e) {
-    const val = parseInt(customBid, 10)
-    if (isNaN(val) || val < minimumBid || val > purse) return
-    placeBid(val, e)
+  function handleCustomBid(event) {
+    const value = parseInt(customBid, 10)
+    if (Number.isNaN(value) || value < minimumBid || value > purse) return
+    placeBid(value, event)
     setCustomBid('')
-  }
-
-  const actionLabel = {
-    bid: '✓ Bid placed',
-    unbid: '↩ Bid removed',
-    sold: '🔨 Sold!',
-    skip: '→ Skipped',
   }
 
   if (!gs) return null
 
   return (
-    <div style={{ minHeight: '100vh', background: '#06040a', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+    <div className="app-shell">
+      <Atmosphere accent={theme.accent} secondary={theme.secondary} />
 
-      {/* global keyframes */}
       <style>{`
-        @keyframes soldIn { 0%{opacity:0;transform:translateY(20px) scale(0.9)} 20%{opacity:1;transform:translateY(0) scale(1)} 80%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-10px) scale(0.95)} }
-        @keyframes starIn { 0%{opacity:0;transform:translateY(32px)} 100%{opacity:1;transform:translateY(0)} }
-        @keyframes actionPop { 0%{opacity:0;transform:translateY(6px)} 15%{opacity:1;transform:translateY(0)} 80%{opacity:1} 100%{opacity:0} }
-        @keyframes rippleOut { 0%{transform:translate(-50%,-50%) scale(0);opacity:0.6} 100%{transform:translate(-50%,-50%) scale(6);opacity:0} }
-        @keyframes glowPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
-        @keyframes premiumShimmer { 0%{transform:translateX(-130%) skewX(-20deg)} 100%{transform:translateX(130%) skewX(-20deg)} }
-        @keyframes premiumHalo { 0%,100%{opacity:0.45;transform:scale(0.98)} 50%{opacity:0.85;transform:scale(1.02)} }
-        .bid-btn { transition: all 0.15s; }
-        .bid-btn:hover:not(:disabled) { filter: brightness(1.2); transform: scale(1.03); }
-        .bid-btn:active:not(:disabled) { transform: scale(0.96); }
-        .bid-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        @keyframes soldIn {
+          0% { opacity: 0; transform: translateY(20px) scale(0.96); }
+          18% { opacity: 1; transform: translateY(0) scale(1); }
+          82% { opacity: 1; transform: translateY(0) scale(1); }
+          100% { opacity: 0; transform: translateY(-14px) scale(0.98); }
+        }
+        @keyframes rippleOut {
+          0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0.5; }
+          100% { transform: translate(-50%, -50%) scale(5.8); opacity: 0; }
+        }
       `}</style>
 
-      {/* ripple layer */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 200, overflow: 'hidden' }}>
-        {ripples.map(rp => (
-          <div key={rp.id} style={{ position: 'absolute', left: rp.x, top: rp.y, width: '120px', height: '120px', borderRadius: '50%', background: `radial-gradient(circle, ${rp.color}33 0%, transparent 70%)`, animation: 'rippleOut 0.7s ease-out forwards', pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 3, overflow: 'hidden' }}>
+        {ripples.map(ripple => (
+          <div
+            key={ripple.id}
+            style={{
+              position: 'absolute',
+              left: ripple.x,
+              top: ripple.y,
+              width: 120,
+              height: 120,
+              borderRadius: '999px',
+              background: `radial-gradient(circle, ${ripple.color}55 0%, transparent 68%)`,
+              animation: 'rippleOut 700ms ease-out forwards',
+            }}
+          />
         ))}
       </div>
 
-      {/* SOLD flash overlay */}
       {soldFlash && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 150, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(6,4,10,0.88)', animation: 'soldIn 2.5s ease forwards', pointerEvents: 'none' }}>
-          {MARQUEE_PLAYERS.has(soldFlash.player) && (
-            <>
-              <div style={{ position: 'absolute', inset: '18% 24%', borderRadius: '28px', background: 'radial-gradient(circle, rgba(255,222,125,0.18), transparent 68%)', animation: 'premiumHalo 2.2s ease-in-out infinite' }} />
-              <div style={{ position: 'absolute', inset: '18% 24%', overflow: 'hidden', borderRadius: '28px' }}>
-                <div style={{ position: 'absolute', inset: '-20%', background: 'linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.06) 48%, rgba(255,231,160,0.35) 52%, transparent 70%)', animation: 'premiumShimmer 2.4s linear infinite' }} />
-              </div>
-            </>
-          )}
-          {MARQUEE_PLAYERS.has(soldFlash.player) && (
-            <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.5em', color: '#f4d27a', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-              Premium Marquee Player
+        <div style={{ position: 'fixed', inset: 0, zIndex: 4, display: 'grid', placeItems: 'center', background: 'rgba(3, 8, 16, 0.72)', backdropFilter: 'blur(18px)', animation: 'soldIn 2.4s ease forwards', pointerEvents: 'none' }}>
+          <div className="glass-panel-strong" style={{ width: 'min(640px, calc(100vw - 2rem))', borderRadius: '36px', padding: '2rem', textAlign: 'center', borderColor: soldFlashMarquee ? 'rgba(242,198,109,0.28)' : 'rgba(255,255,255,0.1)' }}>
+            <div className="pill" style={{ marginBottom: '1rem', background: soldFlashMarquee ? 'rgba(242,198,109,0.14)' : 'rgba(255,255,255,0.08)', color: soldFlashMarquee ? '#ffe0a2' : 'var(--soft)' }}>
+              {soldFlashMarquee ? 'Marquee Sold' : 'Player Sold'}
             </div>
-          )}
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.85rem', letterSpacing: '0.4em', color: '#555', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Sold to</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(3rem, 12vw, 6rem)', color: PlayerColor(soldFlash.winner), letterSpacing: '0.05em', lineHeight: 1, textShadow: `0 0 60px rgba(${hexToRgb(PlayerColor(soldFlash.winner))}, 0.5)` }}>{soldFlash.winner}</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2.2rem, 9vw, 4rem)', color: MARQUEE_PLAYERS.has(soldFlash.player) ? '#f8e6a0' : '#fff', letterSpacing: '0.05em', lineHeight: 0.95, marginTop: '0.65rem', textAlign: 'center', textShadow: MARQUEE_PLAYERS.has(soldFlash.player) ? '0 0 45px rgba(248,230,160,0.4)' : 'none' }}>
-            {soldFlash.player}
+            <div style={{ fontSize: 'clamp(2rem, 5vw, 3.6rem)', fontWeight: 800, marginBottom: '0.5rem', color: soldFlashMarquee ? '#ffe0a2' : 'var(--text)' }}>{soldFlash.player}</div>
+            <div style={{ color: 'var(--muted)', marginBottom: '0.9rem' }}>Won by {soldFlash.winner} • {PLAYER_TEAMS[soldFlash.winner]}</div>
+            <div style={{ fontSize: '2rem', fontWeight: 800, color: PLAYER_COLORS[soldFlash.winner] }}>₹{soldFlash.price.toLocaleString()}</div>
           </div>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.3em', color: '#555', marginTop: '0.25rem' }}>{PLAYER_TEAMS[soldFlash.winner]}</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: '2rem', color: '#c8a84b', letterSpacing: '0.1em', marginTop: '0.25rem' }}>₹{soldFlash.price.toLocaleString()}</div>
         </div>
       )}
 
-      {/* scanlines */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.05) 3px, rgba(0,0,0,0.05) 4px)' }} />
-
-      {/* ambient glow */}
-      <div style={{ position: 'fixed', top: '35%', left: '50%', transform: 'translate(-50%, -50%)', width: '800px', height: '400px', background: 'radial-gradient(ellipse, rgba(200,168,75,0.06) 0%, transparent 65%)', pointerEvents: 'none', zIndex: 0, animation: 'glowPulse 4s ease-in-out infinite' }} />
-
-      {/* ── TOP BAR ── */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '0.8rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        <div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: '#c8a84b', letterSpacing: '0.08em' }}>IPL Mega Auction</div>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#2a2020', letterSpacing: '0.25em' }}>{doneIdx + 1} / {total}</div>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#2a2020', letterSpacing: '0.2em', marginBottom: '1px' }}>YOU</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: PlayerColor(player), letterSpacing: '0.08em' }}>{player} <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{PLAYER_TEAMS[player]}</span></div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#2a2020', letterSpacing: '0.2em', marginBottom: '1px' }}>PURSE</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: '#c8a84b', letterSpacing: '0.05em' }}>₹{purse.toLocaleString()}</div>
-        </div>
-      </div>
-
-      {/* ── MAIN CONTENT ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', maxWidth: '560px', margin: '0 auto', width: '100%', padding: '0 1.25rem', position: 'relative', zIndex: 1 }}>
-
-        {/* ── PLAYER NAME — huge, centered, cinematic ── */}
-        <div style={{ flex: '0 0 auto', padding: '3rem 0 2rem' }} key={gs.current_player}>
-          <div
-            style={{
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              textAlign: 'center',
-              overflow: 'hidden',
-              padding: isMarquee ? '2rem 1.25rem' : 0,
-              borderRadius: isMarquee ? '28px' : 0,
-              border: isMarquee ? '1px solid rgba(248,214,128,0.35)' : 'none',
-              background: isMarquee ? 'linear-gradient(135deg, rgba(200,168,75,0.16), rgba(255,255,255,0.03) 45%, rgba(200,168,75,0.08))' : 'transparent',
-              boxShadow: isMarquee ? '0 0 80px rgba(200,168,75,0.18), inset 0 0 30px rgba(255,240,190,0.05)' : 'none',
-            }}
-          >
-            {isMarquee && (
-              <>
-                <div style={{ position: 'absolute', inset: '-20%', background: 'radial-gradient(circle, rgba(255,223,120,0.18), transparent 60%)', animation: 'premiumHalo 2.3s ease-in-out infinite' }} />
-                <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', inset: '-25%', background: 'linear-gradient(110deg, transparent 35%, rgba(255,255,255,0.08) 48%, rgba(255,225,135,0.4) 52%, transparent 68%)', animation: 'premiumShimmer 2.8s linear infinite' }} />
+      <div className="page-content" style={{ minHeight: '100vh', padding: '1rem' }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+          <section className="glass-panel-strong" style={{ borderRadius: '36px', padding: '1.3rem 1.3rem 1.6rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+              <div>
+                <div className="pill" style={{ marginBottom: '0.8rem', background: `rgba(${hexToRgb(theme.accent)}, 0.12)`, color: theme.secondary }}>
+                  {player} • {PLAYER_TEAMS[player]}
                 </div>
-              </>
-            )}
-            {isMarquee && (
-              <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.78rem', letterSpacing: '0.45em', color: '#f6d57c', marginBottom: '0.75rem', textTransform: 'uppercase', fontWeight: 700, animation: 'starIn 0.4s ease' }}>
-                Marquee Player
+                <div style={{ fontSize: '2.2rem', fontWeight: 800, letterSpacing: '-0.04em', marginBottom: '0.4rem' }}>Live Auction Room</div>
+                <div style={{ color: 'var(--muted)' }}>{doneIdx + 1} of {total} players • your purse {formatLakhs(purse)}</div>
               </div>
-            )}
-            <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.4em', color: tier.color, marginBottom: '0.75rem', textTransform: 'uppercase', fontWeight: 700, animation: 'starIn 0.5s ease' }}>
-              {tier.label}-TIER · OVR {gs.current_ovr}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(120px, 1fr))', gap: '0.7rem' }}>
+                <MetricCard label="Current Bid" value={`₹${currentBid.toLocaleString()}`} accent="var(--gold)" />
+                <MetricCard label="Leader" value={leader ? `${leader}` : 'Open'} accent={leader ? PLAYER_COLORS[leader] : 'var(--soft)'} />
+              </div>
             </div>
-            <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: 'clamp(2.8rem, 10vw, 5.5rem)', color: isMarquee ? '#f8e6a0' : '#fff', letterSpacing: '0.02em', lineHeight: 0.95, textAlign: 'center', animation: 'starIn 0.45s ease', textShadow: isMarquee ? '0 0 45px rgba(248,230,160,0.42)' : '0 4px 60px rgba(255,255,255,0.06)' }}>
-              {gs.current_player}
+
+            <div
+              className="glass-panel"
+              style={{
+                borderRadius: '34px',
+                padding: '1.5rem',
+                marginBottom: '1rem',
+                position: 'relative',
+                overflow: 'hidden',
+                borderColor: isMarquee ? 'rgba(242,198,109,0.28)' : `rgba(${hexToRgb(theme.accent)}, 0.18)`,
+                background: isMarquee
+                  ? 'linear-gradient(135deg, rgba(242,198,109,0.16), rgba(255,255,255,0.05) 38%, rgba(255,255,255,0.03))'
+                  : `linear-gradient(135deg, rgba(${hexToRgb(theme.accent)}, 0.14), rgba(255,255,255,0.04))`,
+              }}
+            >
+              {isMarquee && (
+                <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                  <div style={{ position: 'absolute', inset: '-20%', background: 'linear-gradient(110deg, transparent 32%, rgba(255,255,255,0.12) 48%, rgba(255,224,162,0.3) 52%, transparent 68%)', animation: 'shimmerSweep 3.2s linear infinite' }} />
+                </div>
+              )}
+              <div className="section-label" style={{ marginBottom: '0.7rem', color: isMarquee ? '#ffe0a2' : 'var(--muted)' }}>
+                {isMarquee ? 'Premium Marquee Player' : `${tier.label}-Tier Player • OVR ${gs.current_ovr}`}
+              </div>
+              <div style={{ fontSize: 'clamp(2.8rem, 7vw, 5rem)', lineHeight: 0.92, letterSpacing: '-0.06em', fontWeight: 800, marginBottom: '0.65rem', color: isMarquee ? '#fff1c9' : 'var(--text)' }}>
+                {gs.current_player}
+              </div>
+              <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+                <div className="pill">Base Price ₹{openingBid.toLocaleString()}</div>
+                <div className="pill">Minimum Bid ₹{minimumBid.toLocaleString()}</div>
+                <div className="pill">Rating {gs.current_ovr}</div>
+              </div>
             </div>
-            <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: isMarquee ? '#d3b568' : '#2a2020', letterSpacing: '0.2em', marginTop: '0.6rem', animation: 'starIn 0.55s ease' }}>
-              BASE ₹{openingBid.toLocaleString()}
-            </div>
-          </div>
-        </div>
 
-        {/* ── CURRENT BID ── */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.3em', color: '#2a2020', marginBottom: '0.3rem' }}>CURRENT BID</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2.5rem, 8vw, 4rem)', color: '#c8a84b', letterSpacing: '0.05em', lineHeight: 1, textShadow: '0 0 40px rgba(200,168,75,0.25)' }}>
-            ₹{currentBid.toLocaleString()}
-          </div>
-          {leader ? (
-            <div style={{ marginTop: '0.4rem', fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: PlayerColor(leader), letterSpacing: '0.1em', textShadow: `0 0 30px rgba(${hexToRgb(PlayerColor(leader))}, 0.4)` }}>
-              {isLeader ? '← YOU ARE WINNING' : `↑ ${leader} (${PLAYER_TEAMS[leader]})`}
-            </div>
-          ) : (
-            <div style={{ marginTop: '0.4rem', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#2a2020', letterSpacing: '0.15em' }}>Open for base-price purchase</div>
-          )}
-        </div>
+            <div className="glass-panel" style={{ borderRadius: '28px', padding: '1rem', marginBottom: '1rem' }}>
+              <div className="section-label" style={{ marginBottom: '0.75rem' }}>Bid Controls</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.65rem', marginBottom: '0.7rem' }}>
+                {quickRaiseOptions.map(increment => {
+                  const amount = currentBid + increment
+                  return (
+                    <button
+                      key={increment}
+                      className="btn btn-ghost"
+                      disabled={bidding || isLeader || purse < amount}
+                      onClick={event => placeBid(amount, event)}
+                    >
+                      +₹{increment.toLocaleString()}
+                    </button>
+                  )
+                })}
+              </div>
 
-        {/* ── ACTION FEEDBACK ── */}
-        <div style={{ textAlign: 'center', height: '1.5rem', marginBottom: '0.75rem', position: 'relative' }}>
-          {lastAction && (
-            <div key={actionKey} style={{ position: 'absolute', left: 0, right: 0, fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.2em', color: lastAction === 'unbid' ? '#bf6060' : lastAction === 'sold' ? '#82b366' : '#c8a84b', animation: 'actionPop 1.2s ease forwards' }}>
-              {actionLabel[lastAction]}
-            </div>
-          )}
-        </div>
-
-        {/* ── BID CONTROLS ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1rem' }}>
-
-          {/* quick raise buttons */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-            {quickRaiseOptions.map(inc => {
-              const amount = currentBid + inc
-              return (
-              <button key={inc} className="bid-btn"
-                disabled={bidding || isLeader || purse < amount}
-                onClick={e => placeBid(amount, e)}
-                style={{ padding: '0.85rem 0.5rem', background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)', borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.1em', color: '#c8a84b', cursor: 'pointer' }}>
-                +₹{inc.toLocaleString()}
-              </button>
-            )})}
-          </div>
-
-          {/* primary bid button OR winning state */}
-          {isLeader ? (
-            <div style={{ padding: '1rem', background: `rgba(${hexToRgb(PlayerColor(player))}, 0.08)`, border: `1px solid rgba(${hexToRgb(PlayerColor(player))}, 0.25)`, borderRadius: '2px', textAlign: 'center', fontFamily: 'Barlow Condensed', fontSize: '0.9rem', letterSpacing: '0.2em', color: PlayerColor(player) }}>
-              You're leading — wait for someone to outbid
-            </div>
-          ) : (
-            <button className="bid-btn"
-              disabled={bidding || !canAfford}
-              onClick={e => placeBid(minimumBid, e)}
-              style={{ padding: '1.1rem', background: canAfford ? 'rgba(200,168,75,0.13)' : 'rgba(255,255,255,0.02)', border: `1px solid ${canAfford ? 'rgba(200,168,75,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.25rem', letterSpacing: '0.15em', color: canAfford ? '#c8a84b' : '#2a2020', cursor: canAfford ? 'pointer' : 'not-allowed' }}>
-              {leader ? `BID ₹${minimumBid.toLocaleString()}` : `BUY AT BASE ₹${minimumBid.toLocaleString()}`}
-            </button>
-          )}
-
-          {/* custom amount */}
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <input ref={inputRef} type="number" value={customBid}
-              onChange={e => setCustomBid(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleCustomBid(e)}
-              placeholder={`Custom (min ₹${minimumBid.toLocaleString()})`}
-              style={{ flex: 1, padding: '0.75rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '2px', color: '#fff', fontFamily: 'Barlow Condensed', fontSize: '0.95rem', outline: 'none', letterSpacing: '0.05em' }} />
-            <button className="bid-btn" onClick={handleCustomBid}
-              disabled={!customBid || parseInt(customBid, 10) < minimumBid || parseInt(customBid, 10) > purse}
-              style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.9rem', letterSpacing: '0.1em', color: '#888', cursor: 'pointer' }}>
-              Place
-            </button>
-          </div>
-
-          {/* un-bid */}
-          {isLeader && bidHistory.length > 0 && (
-            <button className="bid-btn" onClick={e => undoBid(e)}
-              disabled={bidding}
-              style={{ padding: '0.65rem', background: 'rgba(191,96,96,0.06)', border: '1px solid rgba(191,96,96,0.2)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.2em', color: '#bf6060', cursor: 'pointer', textTransform: 'uppercase' }}>
-              ↩ Remove my last bid
-            </button>
-          )}
-        </div>
-
-        {/* ── AUCTIONEER CONTROLS (Srikant only) ── */}
-        {isAdmin && (
-          <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.25rem' }}>
-            <button className="bid-btn"
-              onClick={e => sellPlayer(e)}
-              disabled={!leader || bidding}
-              style={{ flex: 1, padding: '1rem', background: leader ? 'rgba(130,179,102,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(130,179,102,0.4)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: leader ? '#82b366' : '#2a2020', cursor: leader ? 'pointer' : 'not-allowed' }}>
-              🔨 Sold — {leader ? `${leader} (${PLAYER_TEAMS[leader]})` : 'no bids'}
-            </button>
-            {!confirmSkip ? (
-              <button className="bid-btn" onClick={() => setConfirmSkip(true)}
-                style={{ padding: '1rem 1.1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.15em', color: '#333', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                Skip
-              </button>
-            ) : (
-              <div style={{ display: 'flex', gap: '0.4rem' }}>
-                <button className="bid-btn" onClick={skipPlayer}
-                  style={{ padding: '0.75rem 0.75rem', background: 'rgba(160,80,80,0.1)', border: '1px solid rgba(160,80,80,0.3)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#a05050', cursor: 'pointer' }}>
-                  Confirm skip
+              {isLeader ? (
+                <div style={{ padding: '1rem', borderRadius: '22px', background: `rgba(${hexToRgb(theme.accent)}, 0.14)`, border: `1px solid rgba(${hexToRgb(theme.accent)}, 0.24)`, color: theme.secondary, fontWeight: 700, marginBottom: '0.7rem' }}>
+                  You are currently leading. Wait for a counter or ask the auctioneer to mark the player sold.
+                </div>
+              ) : (
+                <button className="btn btn-primary" disabled={bidding || !canAfford} onClick={event => placeBid(minimumBid, event)} style={{ width: '100%', marginBottom: '0.7rem' }}>
+                  {leader ? `Bid ₹${minimumBid.toLocaleString()}` : `Buy At Base ₹${minimumBid.toLocaleString()}`}
                 </button>
-                <button className="bid-btn" onClick={() => setConfirmSkip(false)}
-                  style={{ padding: '0.75rem 0.6rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#333', cursor: 'pointer' }}>
-                  Cancel
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.65rem' }}>
+                <input
+                  className="input"
+                  type="number"
+                  value={customBid}
+                  onChange={event => setCustomBid(event.target.value)}
+                  onKeyDown={event => event.key === 'Enter' && handleCustomBid(event)}
+                  placeholder={`Custom bid (min ₹${minimumBid.toLocaleString()})`}
+                />
+                <button className="btn btn-ghost" onClick={handleCustomBid} disabled={!customBid || parseInt(customBid, 10) < minimumBid || parseInt(customBid, 10) > purse}>
+                  Place
                 </button>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* ── PURSE BARS ── */}
-        <div style={{ marginBottom: '1.25rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.3em', color: '#222', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Purses</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.4rem' }}>
-            {PLAYERS.map(p => {
-              const amt = gs.purses?.[p] ?? STARTING_PURSE
-              const pct = (amt / STARTING_PURSE) * 100
-              const col = PlayerColor(p)
-              const isMe = p === player
-              const isWinner = p === leader
-              return (
-                <div key={p} style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', letterSpacing: '0.03em', color: isMe ? col : isWinner ? '#c8a84b' : '#252525', fontWeight: isMe || isWinner ? 700 : 400, marginBottom: '3px', transition: 'color 0.3s' }}>
-                    {p}{isWinner ? ' ★' : ''}<br />
-                    <span style={{ opacity: 0.6, fontSize: '0.5rem' }}>{PLAYER_TEAMS[p]}</span>
-                  </div>
-                  <div style={{ height: '36px', background: 'rgba(255,255,255,0.03)', borderRadius: '1px', overflow: 'hidden', position: 'relative' }}>
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: `${pct}%`, background: col, opacity: isMe ? 0.65 : 0.25, transition: 'height 0.5s ease, opacity 0.3s', borderRadius: '1px 1px 0 0' }} />
-                  </div>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', color: '#252525', marginTop: '2px' }}>₹{(amt / 100000).toFixed(1)}L</div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* ── SOLD LOG ── */}
-        <div style={{ paddingBottom: '2rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.3em', color: '#222', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Sold log ({sold.length})</div>
-          {sold.length === 0 ? (
-            <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#1e1e1e', letterSpacing: '0.1em' }}>No sales yet</div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              {[...sold].reverse().map((s, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0.6rem', background: MARQUEE_PLAYERS.has(s.player) ? 'linear-gradient(135deg, rgba(200,168,75,0.12), rgba(255,255,255,0.02))' : s.winner === player ? `rgba(${hexToRgb(PlayerColor(player))}, 0.06)` : 'rgba(255,255,255,0.015)', borderRadius: '2px', border: `1px solid ${MARQUEE_PLAYERS.has(s.player) ? 'rgba(248,214,128,0.28)' : 'rgba(255,255,255,0.03)'}` }}>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#252525', minWidth: '1.2rem' }}>{sold.length - i}</div>
-                  <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.85rem', fontWeight: 700, color: MARQUEE_PLAYERS.has(s.player) ? '#f1d88b' : '#3a3a3a', letterSpacing: '0.02em' }}>
-                    {s.player}{MARQUEE_PLAYERS.has(s.player) ? ' ✦' : ''}
-                  </div>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: PlayerColor(s.winner), fontWeight: 700, minWidth: '3.5rem', textAlign: 'right' }}>{s.winner}</div>
-                  <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.9rem', color: '#7a6535', minWidth: '3.5rem', textAlign: 'right' }}>₹{s.price.toLocaleString()}</div>
-                </div>
-              ))}
+              {isLeader && bidHistory.length > 0 && (
+                <button className="btn btn-danger" onClick={undoBid} disabled={bidding} style={{ width: '100%', marginTop: '0.7rem' }}>
+                  Remove My Last Bid
+                </button>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* ── ADMIN RESET ── */}
-        {isAdmin && (
-          <div style={{ textAlign: 'center', paddingBottom: '3rem' }}>
-            {!confirmReset ? (
-              <button onClick={() => setConfirmReset(true)}
-                style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.25em', color: '#1e1414', cursor: 'pointer', textTransform: 'uppercase' }}>
-                Reset entire auction
-              </button>
-            ) : (
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
-                <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#3a3028', letterSpacing: '0.1em' }}>Wipes everything.</span>
-                <button onClick={onReset} style={{ background: 'none', border: '1px solid rgba(160,48,48,0.35)', borderRadius: '2px', padding: '0.3rem 0.8rem', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.15em', color: '#802020', cursor: 'pointer' }}>Yes, reset</button>
-                <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#252525', cursor: 'pointer' }}>Cancel</button>
+            <div className="glass-panel" style={{ borderRadius: '28px', padding: '1rem' }}>
+              <div className="section-label" style={{ marginBottom: '0.75rem' }}>Live Team Purses</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(132px, 1fr))', gap: '0.65rem' }}>
+                {PLAYERS.map(name => {
+                  const amount = gs.purses?.[name] ?? STARTING_PURSE
+                  const color = PLAYER_COLORS[name]
+                  const active = name === player
+                  const leading = name === leader
+                  return (
+                    <div key={name} style={{ padding: '0.8rem 0.6rem', borderRadius: '22px', background: active ? `linear-gradient(180deg, rgba(${hexToRgb(color)}, 0.18), rgba(255,255,255,0.04))` : 'rgba(255,255,255,0.035)', border: `1px solid ${active || leading ? `rgba(${hexToRgb(color)}, 0.26)` : 'rgba(255,255,255,0.06)'}` }}>
+                      <div style={{ color, fontWeight: 800, marginBottom: '0.18rem', fontSize: '0.9rem' }}>{name}</div>
+                      <div style={{ color: 'var(--muted)', fontSize: '0.72rem', marginBottom: '0.65rem' }}>{PLAYER_TEAMS[name]}</div>
+                      <div style={{ height: 7, borderRadius: 999, background: 'rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: '0.5rem' }}>
+                        <div style={{ width: `${(amount / STARTING_PURSE) * 100}%`, height: '100%', borderRadius: 999, background: `linear-gradient(90deg, ${color}, ${color}bb)` }} />
+                      </div>
+                      <div style={{ color: 'var(--soft)', fontSize: '0.8rem', fontWeight: 700 }}>{formatLakhs(amount)}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
+
+          <aside style={{ display: 'grid', gap: '1rem', alignSelf: 'start' }}>
+            {isAdmin && (
+              <div className="glass-panel" style={{ borderRadius: '32px', padding: '1rem' }}>
+                <div className="section-label" style={{ marginBottom: '0.75rem' }}>Auctioneer Controls</div>
+                <button className="btn" onClick={sellPlayer} disabled={!leader || bidding} style={{ width: '100%', marginBottom: '0.65rem', background: leader ? 'rgba(121,217,162,0.12)' : 'rgba(255,255,255,0.04)', color: leader ? '#b9ffd7' : 'var(--muted)', borderColor: leader ? 'rgba(121,217,162,0.22)' : 'rgba(255,255,255,0.06)' }}>
+                  Mark Sold {leader ? `• ${leader}` : ''}
+                </button>
+                {!confirmSkip ? (
+                  <button className="btn btn-ghost" onClick={() => setConfirmSkip(true)} style={{ width: '100%' }}>
+                    Skip Player
+                  </button>
+                ) : (
+                  <div style={{ display: 'grid', gap: '0.6rem' }}>
+                    <div style={{ color: 'var(--muted)', fontSize: '0.88rem' }}>Skip moves to the next player without sale.</div>
+                    <button className="btn btn-danger" onClick={skipPlayer}>Confirm Skip</button>
+                    <button className="btn btn-ghost" onClick={() => setConfirmSkip(false)}>Cancel</button>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
 
+            <div className="glass-panel" style={{ borderRadius: '32px', padding: '1rem' }}>
+              <div className="section-label" style={{ marginBottom: '0.75rem' }}>Round Status</div>
+              <div style={{ display: 'grid', gap: '0.65rem' }}>
+                <InfoRow label="Current leader" value={leader ? `${leader} • ${PLAYER_TEAMS[leader]}` : 'No bids yet'} valueColor={leader ? PLAYER_COLORS[leader] : 'var(--soft)'} />
+                <InfoRow label="Last action" value={lastAction ? actionCopy(lastAction) : 'Waiting for input'} valueColor="var(--text)" />
+                <InfoRow label="Bid history stack" value={`${bidHistory.filter(entry => entry?.bidder).length} entries`} valueColor="var(--text)" />
+              </div>
+            </div>
+
+            <div className="glass-panel" style={{ borderRadius: '32px', padding: '1rem' }}>
+              <div className="section-label" style={{ marginBottom: '0.75rem' }}>Recent Sales</div>
+              <div style={{ display: 'grid', gap: '0.55rem', maxHeight: '48vh', overflow: 'auto', paddingRight: '0.1rem' }}>
+                {sold.length === 0 ? (
+                  <div style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>No completed sales yet.</div>
+                ) : (
+                  [...sold].reverse().map((sale, index) => {
+                    const marquee = MARQUEE_PLAYERS.has(sale.player)
+                    return (
+                      <div key={`${sale.player}-${index}`} style={{ padding: '0.85rem', borderRadius: '22px', background: marquee ? 'linear-gradient(135deg, rgba(242,198,109,0.13), rgba(255,255,255,0.05))' : sale.winner === player ? `linear-gradient(135deg, rgba(${hexToRgb(theme.accent)}, 0.16), rgba(255,255,255,0.04))` : 'rgba(255,255,255,0.035)', border: `1px solid ${marquee ? 'rgba(242,198,109,0.22)' : 'rgba(255,255,255,0.06)'}` }}>
+                        <div style={{ fontWeight: 700, color: marquee ? '#ffe0a2' : 'var(--text)', marginBottom: '0.22rem' }}>{sale.player}{marquee ? ' ✦' : ''}</div>
+                        <div style={{ color: 'var(--muted)', fontSize: '0.82rem', marginBottom: '0.3rem' }}>{sale.winner} • {PLAYER_TEAMS[sale.winner]}</div>
+                        <div style={{ fontWeight: 800 }}>₹{sale.price.toLocaleString()}</div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+
+            {isAdmin && (
+              <div>
+                {!confirmReset ? (
+                  <button className="btn btn-ghost" onClick={() => setConfirmReset(true)} style={{ width: '100%' }}>
+                    Reset Entire Auction
+                  </button>
+                ) : (
+                  <div className="glass-panel" style={{ borderRadius: '28px', padding: '1rem', display: 'grid', gap: '0.65rem' }}>
+                    <div style={{ color: 'var(--muted)', fontSize: '0.88rem' }}>This clears the entire state for all players.</div>
+                    <button className="btn btn-danger" onClick={onReset}>Confirm Reset</button>
+                    <button className="btn btn-ghost" onClick={() => setConfirmReset(false)}>Cancel</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </aside>
+        </div>
       </div>
     </div>
   )
+}
+
+function MetricCard({ label, value, accent }) {
+  return (
+    <div className="glass-panel" style={{ borderRadius: '22px', padding: '0.9rem' }}>
+      <div className="section-label" style={{ marginBottom: '0.4rem' }}>{label}</div>
+      <div style={{ fontWeight: 800, color: accent }}>{value}</div>
+    </div>
+  )
+}
+
+function InfoRow({ label, value, valueColor }) {
+  return (
+    <div style={{ padding: '0.8rem 0.9rem', borderRadius: '20px', background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="section-label" style={{ marginBottom: '0.28rem' }}>{label}</div>
+      <div style={{ color: valueColor, fontWeight: 700 }}>{value}</div>
+    </div>
+  )
+}
+
+function actionCopy(action) {
+  switch (action) {
+    case 'bid':
+      return 'Bid placed'
+    case 'unbid':
+      return 'Bid removed'
+    case 'sold':
+      return 'Player sold'
+    case 'skip':
+      return 'Player skipped'
+    default:
+      return action
+  }
 }

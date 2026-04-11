@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { supabase, PLAYERS } from './lib/supabase.js'
 import Lobby from './components/Lobby.jsx'
 import Auction from './components/Auction.jsx'
 import Results from './components/Results.jsx'
+import Atmosphere from './components/Atmosphere.jsx'
 
 export default function App() {
   const [player, setPlayer] = useState(null)
@@ -32,6 +33,7 @@ export default function App() {
       setLoading(false)
       return
     }
+
     setGameState(data)
     setLoading(false)
   }
@@ -48,10 +50,19 @@ export default function App() {
 
   async function handleReset() {
     await supabase.from('auction_state').upsert({
-      id: 1, phase: 'lobby', roster: [], roster_index: 0,
-      current_player: null, current_ovr: null, current_bid: 0,
-      current_leader: null, bid_history: [], purses: {}, sold_log: []
+      id: 1,
+      phase: 'lobby',
+      roster: [],
+      roster_index: 0,
+      current_player: null,
+      current_ovr: null,
+      current_bid: 0,
+      current_leader: null,
+      bid_history: [],
+      purses: {},
+      sold_log: [],
     })
+
     setPlayer(null)
     localStorage.removeItem('ipl_player')
     fetchGameState()
@@ -66,10 +77,14 @@ export default function App() {
 
 function LoadingScreen() {
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#06040a' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: 'Bebas Neue', fontSize: '3rem', color: '#c8a84b', letterSpacing: '0.1em' }}>IPL Mega Auction</div>
-        <div style={{ color: '#333', fontSize: '0.8rem', marginTop: '0.5rem', fontFamily: 'Barlow Condensed', letterSpacing: '0.3em' }}>CONNECTING...</div>
+    <div className="app-shell">
+      <Atmosphere accent="#f2c66d" secondary="#65d7ff" />
+      <div className="page-content" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '1.5rem' }}>
+        <div className="glass-panel-strong" style={{ width: 'min(480px, 100%)', borderRadius: '32px', padding: '2rem', textAlign: 'center', animation: 'fadeRise 260ms ease forwards' }}>
+          <div className="pill" style={{ marginBottom: '1.1rem' }}>Live Sync</div>
+          <h1 className="screen-title" style={{ marginBottom: '0.85rem' }}>IPL Mega Auction</h1>
+          <p className="screen-subtitle">Loading the auction room, player pool, and live table state.</p>
+        </div>
       </div>
     </div>
   )
@@ -77,23 +92,27 @@ function LoadingScreen() {
 
 function RecoveryScreen({ onReset }) {
   const [working, setWorking] = useState(false)
+
   async function go() {
     setWorking(true)
     await onReset()
     setWorking(false)
   }
+
   return (
-    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#06040a', padding: '2rem' }}>
-      <div style={{ textAlign: 'center', maxWidth: '380px' }}>
-        <div style={{ fontFamily: 'Bebas Neue', fontSize: '2.5rem', color: '#c8a84b', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>IPL Mega Auction</div>
-        <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#444', letterSpacing: '0.3em', marginBottom: '2.5rem' }}>AUCTION CONTROL ROOM</div>
-        <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.95rem', color: '#555', marginBottom: '2rem', lineHeight: 1.7 }}>
-          No auction data found.<br />The row may be missing from Supabase.
+    <div className="app-shell">
+      <Atmosphere accent="#f2c66d" secondary="#9d8cff" />
+      <div className="page-content" style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: '1.5rem' }}>
+        <div className="glass-panel-strong" style={{ width: 'min(540px, 100%)', borderRadius: '32px', padding: '2rem', animation: 'fadeRise 260ms ease forwards' }}>
+          <div className="pill" style={{ marginBottom: '1rem' }}>Recovery</div>
+          <h1 className="screen-title" style={{ marginBottom: '0.8rem' }}>Auction Control Room</h1>
+          <p className="screen-subtitle" style={{ marginBottom: '1.6rem' }}>
+            The app could not find the live auction row in Supabase. Re-initialising will recreate the single-state record and bring everyone back into sync.
+          </p>
+          <button className="btn btn-primary" onClick={go} disabled={working} style={{ width: '100%' }}>
+            {working ? 'Initialising auction data...' : 'Initialise Auction Data'}
+          </button>
         </div>
-        <button onClick={go} disabled={working}
-          style={{ padding: '0.9rem 2.5rem', background: '#c8a84b', border: 'none', borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: '#06040a', cursor: working ? 'not-allowed' : 'pointer', opacity: working ? 0.6 : 1, transition: 'opacity 0.2s' }}>
-          {working ? 'Initialising...' : 'Initialise Auction Data'}
-        </button>
       </div>
     </div>
   )

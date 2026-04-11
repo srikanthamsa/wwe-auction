@@ -234,14 +234,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
       <div style={{ position: 'relative', zIndex: 10, padding: '0.8rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: '#c8a84b', letterSpacing: '0.08em' }}>IPL Mega Auction</div>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#2a2020', letterSpacing: '0.25em' }}>{doneIdx + 1} / {total}</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#8a93a8', letterSpacing: '0.25em' }}>{doneIdx + 1} / {total}</div>
         </div>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#2a2020', letterSpacing: '0.2em', marginBottom: '1px' }}>YOU</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#8a93a8', letterSpacing: '0.2em', marginBottom: '1px' }}>YOU</div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: PlayerColor(player), letterSpacing: '0.08em' }}>{player} <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{PLAYER_TEAMS[player]}</span></div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#2a2020', letterSpacing: '0.2em', marginBottom: '1px' }}>PURSE</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#8a93a8', letterSpacing: '0.2em', marginBottom: '1px' }}>PURSE</div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: '#c8a84b', letterSpacing: '0.05em' }}>₹{purse.toLocaleString()}</div>
         </div>
       </div>
@@ -286,7 +286,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: 'clamp(2.8rem, 10vw, 5.5rem)', color: isMarquee ? '#f8e6a0' : '#fff', letterSpacing: '0.02em', lineHeight: 0.95, textAlign: 'center', animation: 'starIn 0.45s ease', textShadow: isMarquee ? '0 0 45px rgba(248,230,160,0.42)' : '0 4px 60px rgba(255,255,255,0.06)' }}>
               {gs.current_player}
             </div>
-            <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: isMarquee ? '#d3b568' : '#2a2020', letterSpacing: '0.2em', marginTop: '0.6rem', animation: 'starIn 0.55s ease' }}>
+            <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: isMarquee ? '#d3b568' : '#aeb8cc', letterSpacing: '0.2em', marginTop: '0.6rem', animation: 'starIn 0.55s ease' }}>
               BASE ₹{openingBid.toLocaleString()}
             </div>
           </div>
@@ -294,7 +294,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
         {/* ── CURRENT BID ── */}
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.3em', color: '#2a2020', marginBottom: '0.3rem' }}>CURRENT BID</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.3em', color: '#8a93a8', marginBottom: '0.3rem' }}>CURRENT BID</div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2.5rem, 8vw, 4rem)', color: '#c8a84b', letterSpacing: '0.05em', lineHeight: 1, textShadow: '0 0 40px rgba(200,168,75,0.25)' }}>
             ₹{currentBid.toLocaleString()}
           </div>
@@ -303,7 +303,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               {isLeader ? '← YOU ARE WINNING' : `↑ ${leader} (${PLAYER_TEAMS[leader]})`}
             </div>
           ) : (
-            <div style={{ marginTop: '0.4rem', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#2a2020', letterSpacing: '0.15em' }}>Open for base-price purchase</div>
+            <div style={{ marginTop: '0.4rem', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#c7d0e0', letterSpacing: '0.15em' }}>Open for base-price purchase</div>
           )}
         </div>
 
@@ -342,7 +342,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <button className="bid-btn"
               disabled={bidding || !canAfford}
               onClick={e => placeBid(minimumBid, e)}
-              style={{ padding: '1.1rem', background: canAfford ? 'rgba(200,168,75,0.13)' : 'rgba(255,255,255,0.02)', border: `1px solid ${canAfford ? 'rgba(200,168,75,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.25rem', letterSpacing: '0.15em', color: canAfford ? '#c8a84b' : '#2a2020', cursor: canAfford ? 'pointer' : 'not-allowed' }}>
+              style={{ padding: '1.1rem', background: canAfford ? 'rgba(200,168,75,0.13)' : 'rgba(255,255,255,0.02)', border: `1px solid ${canAfford ? 'rgba(200,168,75,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.25rem', letterSpacing: '0.15em', color: canAfford ? '#c8a84b' : '#647089', cursor: canAfford ? 'pointer' : 'not-allowed' }}>
               {leader ? `BID ₹${minimumBid.toLocaleString()}` : `BUY AT BASE ₹${minimumBid.toLocaleString()}`}
             </button>
           )}
@@ -377,12 +377,12 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <button className="bid-btn"
               onClick={e => sellPlayer(e)}
               disabled={!leader || bidding}
-              style={{ flex: 1, padding: '1rem', background: leader ? 'rgba(130,179,102,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(130,179,102,0.4)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: leader ? '#82b366' : '#2a2020', cursor: leader ? 'pointer' : 'not-allowed' }}>
+              style={{ flex: 1, padding: '1rem', background: leader ? 'rgba(130,179,102,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(130,179,102,0.4)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: leader ? '#82b366' : '#647089', cursor: leader ? 'pointer' : 'not-allowed' }}>
               🔨 Sold — {leader ? `${leader} (${PLAYER_TEAMS[leader]})` : 'no bids'}
             </button>
             {!confirmSkip ? (
               <button className="bid-btn" onClick={() => setConfirmSkip(true)}
-                style={{ padding: '1rem 1.1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.15em', color: '#333', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                style={{ padding: '1rem 1.1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.15em', color: '#b5bfd2', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Skip
               </button>
             ) : (
@@ -392,7 +392,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                   Confirm skip
                 </button>
                 <button className="bid-btn" onClick={() => setConfirmSkip(false)}
-                  style={{ padding: '0.75rem 0.6rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#333', cursor: 'pointer' }}>
+                  style={{ padding: '0.75rem 0.6rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#b5bfd2', cursor: 'pointer' }}>
                   Cancel
                 </button>
               </div>
@@ -402,7 +402,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
         {/* ── PURSE BARS ── */}
         <div style={{ marginBottom: '1.25rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.3em', color: '#222', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Purses</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.3em', color: '#8a93a8', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Purses</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.4rem' }}>
             {PLAYERS.map(p => {
               const amt = gs.purses?.[p] ?? STARTING_PURSE
@@ -412,14 +412,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               const isWinner = p === leader
               return (
                 <div key={p} style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', letterSpacing: '0.03em', color: isMe ? col : isWinner ? '#c8a84b' : '#252525', fontWeight: isMe || isWinner ? 700 : 400, marginBottom: '3px', transition: 'color 0.3s' }}>
+                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', letterSpacing: '0.03em', color: isMe ? col : isWinner ? '#c8a84b' : '#b5bfd2', fontWeight: isMe || isWinner ? 700 : 500, marginBottom: '3px', transition: 'color 0.3s' }}>
                     {p}{isWinner ? ' ★' : ''}<br />
                     <span style={{ opacity: 0.6, fontSize: '0.5rem' }}>{PLAYER_TEAMS[p]}</span>
                   </div>
                   <div style={{ height: '36px', background: 'rgba(255,255,255,0.03)', borderRadius: '1px', overflow: 'hidden', position: 'relative' }}>
                     <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: `${pct}%`, background: col, opacity: isMe ? 0.65 : 0.25, transition: 'height 0.5s ease, opacity 0.3s', borderRadius: '1px 1px 0 0' }} />
                   </div>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', color: '#252525', marginTop: '2px' }}>₹{(amt / 100000).toFixed(1)}L</div>
+                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', color: '#d3dced', marginTop: '2px' }}>₹{(amt / 100000).toFixed(1)}L</div>
                 </div>
               )
             })}
@@ -428,14 +428,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
         {/* ── SOLD LOG ── */}
         <div style={{ paddingBottom: '2rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.3em', color: '#222', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Sold log ({sold.length})</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.3em', color: '#8a93a8', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Sold log ({sold.length})</div>
           {sold.length === 0 ? (
-            <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#1e1e1e', letterSpacing: '0.1em' }}>No sales yet</div>
+            <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#d3dced', letterSpacing: '0.1em' }}>No sales yet</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {[...sold].reverse().map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0.6rem', background: MARQUEE_PLAYERS.has(s.player) ? 'linear-gradient(135deg, rgba(200,168,75,0.12), rgba(255,255,255,0.02))' : s.winner === player ? `rgba(${hexToRgb(PlayerColor(player))}, 0.06)` : 'rgba(255,255,255,0.015)', borderRadius: '2px', border: `1px solid ${MARQUEE_PLAYERS.has(s.player) ? 'rgba(248,214,128,0.28)' : 'rgba(255,255,255,0.03)'}` }}>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#252525', minWidth: '1.2rem' }}>{sold.length - i}</div>
+                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#a7b1c5', minWidth: '1.2rem' }}>{sold.length - i}</div>
                   <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.85rem', fontWeight: 700, color: MARQUEE_PLAYERS.has(s.player) ? '#f1d88b' : '#3a3a3a', letterSpacing: '0.02em' }}>
                     {s.player}{MARQUEE_PLAYERS.has(s.player) ? ' ✦' : ''}
                   </div>
@@ -459,7 +459,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
                 <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#3a3028', letterSpacing: '0.1em' }}>Wipes everything.</span>
                 <button onClick={onReset} style={{ background: 'none', border: '1px solid rgba(160,48,48,0.35)', borderRadius: '2px', padding: '0.3rem 0.8rem', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.15em', color: '#802020', cursor: 'pointer' }}>Yes, reset</button>
-                <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#252525', cursor: 'pointer' }}>Cancel</button>
+                <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#b5bfd2', cursor: 'pointer' }}>Cancel</button>
               </div>
             )}
           </div>

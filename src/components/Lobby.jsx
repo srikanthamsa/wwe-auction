@@ -1,8 +1,12 @@
 import React, { useState } from 'react'
-import { supabase, PLAYERS, ROSTER, STARTING_PURSE, shuffle, getBaseBid } from '../lib/supabase.js'
+import { supabase, PLAYERS, PLAYER_TEAMS, ROSTER, STARTING_PURSE, shuffle, getBaseBid } from '../lib/supabase.js'
 
 const PLAYER_COLORS = {
-  Srikant: '#6c8ebf', Ashpak: '#82b366', KVD: '#d6a94a', Ekansh: '#ae6aaf', Debu: '#bf6060'
+  Srikant: '#e60026',  // RCB
+  Ashpak: '#f96a17',   // SRH
+  KVD: '#f0c040',      // CSK
+  Ekansh: '#6a3fa0',   // KKR
+  Debu: '#005da0',     // MI
 }
 
 export default function Lobby({ onSelect, gameState, onReset }) {
@@ -24,7 +28,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
     await supabase.from('auction_state').upsert({
       id: 1, phase: 'bidding',
       roster: shuffled, roster_index: 0,
-      current_superstar: first[0], current_ovr: first[1],
+      current_player: first[0], current_ovr: first[1],
       current_bid: getBaseBid(first[1]), current_leader: null,
       bid_history: [], purses, sold_log: [],
     })
@@ -43,15 +47,15 @@ export default function Lobby({ onSelect, gameState, onReset }) {
     <div style={{ minHeight: '100vh', background: '#06040a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.5rem', position: 'relative', overflow: 'hidden' }}>
 
       {/* background glow */}
-      <div style={{ position: 'fixed', top: '30%', left: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(100,60,180,0.12) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: 'fixed', top: '30%', left: '50%', transform: 'translate(-50%, -50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(200,168,75,0.08) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px)' }} />
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '500px' }}>
 
         {/* wordmark */}
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(3rem, 12vw, 5rem)', color: '#c8a84b', letterSpacing: '0.08em', lineHeight: 1, textShadow: '0 0 80px rgba(200,168,75,0.3)' }}>WWE 2K25</div>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.45em', color: '#3a3028', marginTop: '0.4rem', textTransform: 'uppercase' }}>Superstar Auction House</div>
+          <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(3rem, 12vw, 5rem)', color: '#c8a84b', letterSpacing: '0.08em', lineHeight: 1, textShadow: '0 0 80px rgba(200,168,75,0.3)' }}>IPL Mega Auction</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.45em', color: '#3a3028', marginTop: '0.4rem', textTransform: 'uppercase' }}>Stars, Specialists & Legends Pool</div>
         </div>
 
         {/* status */}
@@ -75,12 +79,14 @@ export default function Lobby({ onSelect, gameState, onReset }) {
                     background: active ? `rgba(${hexToRgb(col)}, 0.12)` : 'rgba(255,255,255,0.02)',
                     border: active ? `1px solid ${col}` : '1px solid rgba(255,255,255,0.06)',
                     borderRadius: '2px', cursor: 'pointer',
-                    fontFamily: 'Barlow Condensed', fontSize: '1.15rem', fontWeight: 700,
-                    letterSpacing: '0.15em', color: active ? col : '#3a3028',
+                    fontFamily: 'Barlow Condensed', fontSize: '1.05rem', fontWeight: 700,
+                    letterSpacing: '0.1em', color: active ? col : '#3a3028',
                     textTransform: 'uppercase', transition: 'all 0.2s',
                     textShadow: active ? `0 0 20px rgba(${hexToRgb(col)}, 0.5)` : 'none',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
                   }}>
-                  {p}
+                  <span>{p}</span>
+                  <span style={{ fontSize: '0.65rem', letterSpacing: '0.25em', opacity: active ? 0.9 : 0.4, fontWeight: 400 }}>{PLAYER_TEAMS[p]}</span>
                 </button>
               )
             })}
@@ -92,13 +98,13 @@ export default function Lobby({ onSelect, gameState, onReset }) {
         {/* action button */}
         {isActive ? (
           <button onClick={() => onSelect(selected)} disabled={!selected}
-            style={{ width: '100%', padding: '1.1rem', background: selected ? 'transparent' : 'transparent', border: `1px solid ${selected ? 'rgba(200,168,75,0.5)' : 'rgba(255,255,255,0.06)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.2rem', letterSpacing: '0.2em', color: selected ? '#c8a84b' : '#2a2a2a', cursor: selected ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
+            style={{ width: '100%', padding: '1.1rem', background: 'transparent', border: `1px solid ${selected ? 'rgba(200,168,75,0.5)' : 'rgba(255,255,255,0.06)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.2rem', letterSpacing: '0.2em', color: selected ? '#c8a84b' : '#2a2a2a', cursor: selected ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
             Join Auction →
           </button>
         ) : isAdmin ? (
           <button onClick={startAuction} disabled={!selected || starting}
             style={{ width: '100%', padding: '1.15rem', background: 'linear-gradient(135deg, #c8a84b 0%, #9a7a2a 100%)', border: 'none', borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.3rem', letterSpacing: '0.2em', color: '#06040a', cursor: starting ? 'wait' : 'pointer', opacity: starting ? 0.7 : 1, transition: 'opacity 0.2s', boxShadow: '0 0 40px rgba(200,168,75,0.2)' }}>
-            {starting ? 'Shuffling roster...' : 'Start Auction'}
+            {starting ? 'Shuffling player pool...' : 'Start Auction'}
           </button>
         ) : (
           <div style={{ textAlign: 'center', padding: '1rem', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#333', letterSpacing: '0.15em' }}>

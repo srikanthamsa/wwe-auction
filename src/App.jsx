@@ -37,23 +37,23 @@ export default function App() {
   }
 
   useEffect(() => {
-    const saved = localStorage.getItem('wwe_player')
+    const saved = localStorage.getItem('ipl_player')
     if (saved && PLAYERS.includes(saved)) setPlayer(saved)
   }, [])
 
   function handleSelectPlayer(name) {
     setPlayer(name)
-    localStorage.setItem('wwe_player', name)
+    localStorage.setItem('ipl_player', name)
   }
 
   async function handleReset() {
     await supabase.from('auction_state').upsert({
       id: 1, phase: 'lobby', roster: [], roster_index: 0,
-      current_superstar: null, current_ovr: null, current_bid: 0,
+      current_player: null, current_ovr: null, current_bid: 0,
       current_leader: null, bid_history: [], purses: {}, sold_log: []
     })
     setPlayer(null)
-    localStorage.removeItem('wwe_player')
+    localStorage.removeItem('ipl_player')
     fetchGameState()
   }
 
@@ -68,7 +68,7 @@ function LoadingScreen() {
   return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#06040a' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontFamily: 'Bebas Neue', fontSize: '3rem', color: '#c8a84b', letterSpacing: '0.1em' }}>WWE 2K25</div>
+        <div style={{ fontFamily: 'Bebas Neue', fontSize: '3rem', color: '#c8a84b', letterSpacing: '0.1em' }}>IPL Mega Auction</div>
         <div style={{ color: '#333', fontSize: '0.8rem', marginTop: '0.5rem', fontFamily: 'Barlow Condensed', letterSpacing: '0.3em' }}>CONNECTING...</div>
       </div>
     </div>
@@ -85,8 +85,8 @@ function RecoveryScreen({ onReset }) {
   return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#06040a', padding: '2rem' }}>
       <div style={{ textAlign: 'center', maxWidth: '380px' }}>
-        <div style={{ fontFamily: 'Bebas Neue', fontSize: '2.5rem', color: '#c8a84b', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>WWE 2K25</div>
-        <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#444', letterSpacing: '0.3em', marginBottom: '2.5rem' }}>AUCTION HOUSE</div>
+        <div style={{ fontFamily: 'Bebas Neue', fontSize: '2.5rem', color: '#c8a84b', letterSpacing: '0.08em', marginBottom: '0.25rem' }}>IPL Mega Auction</div>
+        <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#444', letterSpacing: '0.3em', marginBottom: '2.5rem' }}>AUCTION CONTROL ROOM</div>
         <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.95rem', color: '#555', marginBottom: '2rem', lineHeight: 1.7 }}>
           No auction data found.<br />The row may be missing from Supabase.
         </div>

@@ -59,6 +59,17 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
   const isMarquee = MARQUEE_PLAYERS.has(gs?.current_player)
   const quickRaiseOptions = [10, 25, 50]  // Lakhs
 
+  // derived display state
+  const pursePct = purse / STARTING_PURSE
+  const purseWarning = pursePct < 0.2
+  const purseCritical = pursePct < 0.1
+  const progressPct = total > 0 ? (doneIdx / total) * 100 : 0
+  const heatPct = currentBid > openingBid ? Math.min(100, ((currentBid - openingBid) / (openingBid * 8)) * 100) : 0
+  const liveBidTrail = [
+    ...bidHistory.filter(b => b?.bidder).slice(-2),
+    ...(leader ? [{ bidder: leader, bid: currentBid }] : [])
+  ]
+
   // detect player change → show sold or skipped flash
   useEffect(() => {
     if (!gs) return
@@ -189,6 +200,10 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         @keyframes glowPulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
         @keyframes premiumShimmer { 0%{transform:translateX(-130%) skewX(-20deg)} 100%{transform:translateX(130%) skewX(-20deg)} }
         @keyframes premiumHalo { 0%,100%{opacity:0.45;transform:scale(0.98)} 50%{opacity:0.85;transform:scale(1.02)} }
+        @keyframes charIn { 0%{opacity:0;transform:translateY(18px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes pursePulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes leadPulse { 0%,100%{opacity:0.08} 50%{opacity:0.18} }
+        @keyframes heatGlow { 0%,100%{filter:brightness(1)} 50%{filter:brightness(1.4)} }
         .bid-btn { transition: all 0.15s; }
         .bid-btn:hover:not(:disabled) { filter: brightness(1.2); transform: scale(1.03); }
         .bid-btn:active:not(:disabled) { transform: scale(0.96); }
@@ -257,13 +272,22 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: PlayerColor(player), letterSpacing: '0.08em' }}>{player} <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{PLAYER_TEAMS[player]}</span></div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#8a93a8', letterSpacing: '0.2em', marginBottom: '1px' }}>PURSE</div>
-          <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', color: '#c8a84b', letterSpacing: '0.05em' }}>{formatINR(purse)}</div>
+          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: purseWarning ? '#e06040' : '#8a93a8', letterSpacing: '0.2em', marginBottom: '1px', transition: 'color 0.4s' }}>
+            {purseCritical ? '⚠ PURSE' : purseWarning ? '! PURSE' : 'PURSE'}
+          </div>
+          <div style={{ fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.05em', color: purseCritical ? '#e04040' : purseWarning ? '#e08040' : '#c8a84b', animation: purseCritical ? 'pursePulse 0.9s ease-in-out infinite' : purseWarning ? 'pursePulse 1.8s ease-in-out infinite' : 'none', transition: 'color 0.4s' }}>
+            {formatINR(purse)}
+          </div>
         </div>
       </div>
 
+      {/* ── PROGRESS BAR ── */}
+      <div style={{ position: 'relative', zIndex: 10, height: '3px', background: 'rgba(255,255,255,0.04)' }}>
+        <div style={{ height: '100%', width: `${progressPct}%`, background: 'linear-gradient(90deg, #7a6535, #c8a84b)', transition: 'width 0.6s ease', boxShadow: '0 0 8px rgba(200,168,75,0.6)' }} />
+      </div>
+
       {/* ── MAIN CONTENT ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', maxWidth: '560px', margin: '0 auto', width: '100%', padding: '0 1.25rem', position: 'relative', zIndex: 1 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', maxWidth: '560px', margin: '0 auto', width: '100%', padding: '0 1.25rem 6rem', position: 'relative', zIndex: 1 }}>
 
         {/* ── PLAYER NAME — huge, centered, cinematic ── */}
         <div style={{ flex: '0 0 auto', padding: '3rem 0 2rem' }} key={gs.current_player}>
@@ -299,8 +323,10 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.4em', color: tier.color, marginBottom: '0.75rem', textTransform: 'uppercase', fontWeight: 700, animation: 'starIn 0.5s ease' }}>
               {tier.label}-TIER · OVR {gs.current_ovr}
             </div>
-            <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: 'clamp(2.8rem, 10vw, 5.5rem)', color: isMarquee ? '#f8e6a0' : '#fff', letterSpacing: '0.02em', lineHeight: 0.95, textAlign: 'center', animation: 'starIn 0.45s ease', textShadow: isMarquee ? '0 0 45px rgba(248,230,160,0.42)' : '0 4px 60px rgba(255,255,255,0.06)' }}>
-              {gs.current_player}
+            <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: 'clamp(2.8rem, 10vw, 5.5rem)', color: isMarquee ? '#f8e6a0' : '#fff', letterSpacing: '0.02em', lineHeight: 0.95, textAlign: 'center', textShadow: isMarquee ? '0 0 45px rgba(248,230,160,0.42)' : '0 4px 60px rgba(255,255,255,0.06)' }}>
+              {gs.current_player.split('').map((ch, i) => (
+                <span key={i} style={{ display: 'inline-block', animation: 'charIn 0.35s ease both', animationDelay: `${i * 0.025}s` }}>{ch === ' ' ? '\u00A0' : ch}</span>
+              ))}
             </div>
             <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: isMarquee ? '#d3b568' : '#aeb8cc', letterSpacing: '0.2em', marginTop: '0.6rem', animation: 'starIn 0.55s ease' }}>
               BASE {formatINR(openingBid)}
@@ -308,20 +334,49 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           </div>
         </div>
 
+        {/* ── HEAT METER ── */}
+        {heatPct > 0 && (
+          <div style={{ marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+              <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', letterSpacing: '0.3em', color: '#555', textTransform: 'uppercase' }}>Bid heat</div>
+              <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', color: heatPct > 70 ? '#e04040' : heatPct > 40 ? '#e08040' : '#c8a84b', letterSpacing: '0.1em' }}>
+                {heatPct > 70 ? 'HOT' : heatPct > 40 ? 'WARM' : 'RISING'}
+              </div>
+            </div>
+            <div style={{ height: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${heatPct}%`, background: heatPct > 70 ? 'linear-gradient(90deg, #c8a84b, #e04040)' : heatPct > 40 ? 'linear-gradient(90deg, #c8a84b, #e08040)' : '#c8a84b', transition: 'width 0.4s ease', animation: heatPct > 70 ? 'heatGlow 1s ease-in-out infinite' : 'none', boxShadow: heatPct > 70 ? '0 0 8px rgba(224,64,64,0.7)' : '0 0 6px rgba(200,168,75,0.4)' }} />
+            </div>
+          </div>
+        )}
+
         {/* ── CURRENT BID ── */}
-        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: liveBidTrail.length > 0 ? '0.75rem' : '1.75rem' }}>
           <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.3em', color: '#8a93a8', marginBottom: '0.3rem' }}>CURRENT BID</div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: 'clamp(2.5rem, 8vw, 4rem)', color: '#c8a84b', letterSpacing: '0.05em', lineHeight: 1, textShadow: '0 0 40px rgba(200,168,75,0.25)' }}>
             {formatINR(currentBid)}
           </div>
           {leader ? (
             <div style={{ marginTop: '0.4rem', fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: PlayerColor(leader), letterSpacing: '0.1em', textShadow: `0 0 30px rgba(${hexToRgb(PlayerColor(leader))}, 0.4)` }}>
-              {isLeader ? '← YOU ARE WINNING' : `↑ ${leader} (${PLAYER_TEAMS[leader]})`}
+              {isLeader ? '★ YOU ARE WINNING' : `↑ ${leader} (${PLAYER_TEAMS[leader]})`}
             </div>
           ) : (
             <div style={{ marginTop: '0.4rem', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', color: '#c7d0e0', letterSpacing: '0.15em' }}>Open for base-price purchase</div>
           )}
         </div>
+
+        {/* ── LIVE BID TRAIL ── */}
+        {liveBidTrail.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '0.3rem', marginBottom: '1.25rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '2px', border: '1px solid rgba(255,255,255,0.04)' }}>
+            {liveBidTrail.map((entry, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && <span style={{ color: '#333', fontSize: '0.7rem' }}>→</span>}
+                <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: entry.bidder === player ? PlayerColor(player) : '#8a93a8', fontWeight: entry.bidder === player ? 700 : 400, letterSpacing: '0.05em' }}>
+                  {entry.bidder === player ? 'YOU' : entry.bidder} <span style={{ color: i === liveBidTrail.length - 1 ? '#c8a84b' : '#555' }}>{formatINR(entry.bid)}</span>
+                </span>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
 
         {/* ── ACTION FEEDBACK ── */}
         <div style={{ textAlign: 'center', height: '1.5rem', marginBottom: '0.75rem', position: 'relative' }}>
@@ -351,8 +406,14 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
           {/* primary bid button OR winning state */}
           {isLeader ? (
-            <div style={{ padding: '1rem', background: `rgba(${hexToRgb(PlayerColor(player))}, 0.08)`, border: `1px solid rgba(${hexToRgb(PlayerColor(player))}, 0.25)`, borderRadius: '2px', textAlign: 'center', fontFamily: 'Barlow Condensed', fontSize: '0.9rem', letterSpacing: '0.2em', color: PlayerColor(player) }}>
-              You're leading — wait for someone to outbid
+            <div style={{ position: 'relative', padding: '1rem', borderRadius: '2px', textAlign: 'center', border: `1px solid rgba(${hexToRgb(PlayerColor(player))}, 0.5)`, overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', inset: 0, background: `rgba(${hexToRgb(PlayerColor(player))}, 0.08)`, animation: 'leadPulse 1.8s ease-in-out infinite' }} />
+              <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.2em', color: PlayerColor(player), textShadow: `0 0 20px rgba(${hexToRgb(PlayerColor(player))}, 0.6)` }}>
+                ★ YOU'RE LEADING
+              </div>
+              <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.15em', color: `rgba(${hexToRgb(PlayerColor(player))}, 0.6)`, marginTop: '2px' }}>
+                Wait for someone to outbid
+              </div>
             </div>
           ) : (
             <button className="bid-btn"
@@ -389,26 +450,26 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
         {/* ── AUCTIONEER CONTROLS (Srikant only) ── */}
         {isAdmin && (
-          <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '1.25rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem' }}>
             <button className="bid-btn"
               onClick={e => sellPlayer(e)}
               disabled={!leader || bidding}
-              style={{ flex: 1, padding: '1rem', background: leader ? 'rgba(130,179,102,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(130,179,102,0.4)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.15em', color: leader ? '#82b366' : '#647089', cursor: leader ? 'pointer' : 'not-allowed' }}>
-              🔨 Sold — {leader ? `${leader} (${PLAYER_TEAMS[leader]})` : 'no bids'}
+              style={{ width: '100%', padding: '1rem', background: leader ? 'rgba(130,179,102,0.1)' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(130,179,102,0.4)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.2rem', letterSpacing: '0.15em', color: leader ? '#82b366' : '#647089', cursor: leader ? 'pointer' : 'not-allowed' }}>
+              🔨 SOLD {leader ? `→ ${leader}` : '— no bids'}
             </button>
             {!confirmSkip ? (
               <button className="bid-btn" onClick={() => setConfirmSkip(true)}
-                style={{ padding: '1rem 1.1rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.15em', color: '#b5bfd2', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                Skip
+                style={{ width: '100%', padding: '0.75rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', letterSpacing: '0.2em', color: '#647089', cursor: 'pointer' }}>
+                Skip player
               </button>
             ) : (
-              <div style={{ display: 'flex', gap: '0.4rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                 <button className="bid-btn" onClick={skipPlayer}
-                  style={{ padding: '0.75rem 0.75rem', background: 'rgba(160,80,80,0.1)', border: '1px solid rgba(160,80,80,0.3)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#a05050', cursor: 'pointer' }}>
+                  style={{ padding: '0.85rem', background: 'rgba(160,80,80,0.1)', border: '1px solid rgba(160,80,80,0.35)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', letterSpacing: '0.1em', color: '#c06060', cursor: 'pointer' }}>
                   Confirm skip
                 </button>
                 <button className="bid-btn" onClick={() => setConfirmSkip(false)}
-                  style={{ padding: '0.75rem 0.6rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#b5bfd2', cursor: 'pointer' }}>
+                  style={{ padding: '0.85rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.85rem', letterSpacing: '0.1em', color: '#b5bfd2', cursor: 'pointer' }}>
                   Cancel
                 </button>
               </div>
@@ -416,31 +477,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           </div>
         )}
 
-        {/* ── PURSE BARS ── */}
-        <div style={{ marginBottom: '1.25rem' }}>
-          <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.3em', color: '#8a93a8', marginBottom: '0.6rem', textTransform: 'uppercase' }}>Purses</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.4rem' }}>
-            {PLAYERS.map(p => {
-              const amt = gs.purses?.[p] ?? STARTING_PURSE
-              const pct = (amt / STARTING_PURSE) * 100
-              const col = PlayerColor(p)
-              const isMe = p === player
-              const isWinner = p === leader
-              return (
-                <div key={p} style={{ textAlign: 'center' }}>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', letterSpacing: '0.03em', color: isMe ? col : isWinner ? '#c8a84b' : '#b5bfd2', fontWeight: isMe || isWinner ? 700 : 500, marginBottom: '3px', transition: 'color 0.3s' }}>
-                    {p}{isWinner ? ' ★' : ''}<br />
-                    <span style={{ opacity: 0.6, fontSize: '0.5rem' }}>{PLAYER_TEAMS[p]}</span>
-                  </div>
-                  <div style={{ height: '36px', background: 'rgba(255,255,255,0.03)', borderRadius: '1px', overflow: 'hidden', position: 'relative' }}>
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: `${pct}%`, background: col, opacity: isMe ? 0.65 : 0.25, transition: 'height 0.5s ease, opacity 0.3s', borderRadius: '1px 1px 0 0' }} />
-                  </div>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.55rem', color: '#d3dced', marginTop: '2px' }}>{formatINR(amt)}</div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
+        {/* purse section removed — moved to sticky footer below */}
 
         {/* ── SOLD LOG ── */}
         <div style={{ paddingBottom: '2rem' }}>
@@ -481,6 +518,41 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           </div>
         )}
 
+      </div>
+
+      {/* ── STICKY PURSE FOOTER ── */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(6,4,10,0.96)', borderTop: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(8px)', padding: '0.5rem 0.75rem 0.6rem' }}>
+        <div style={{ maxWidth: '560px', margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '0.35rem' }}>
+            {PLAYERS.map(p => {
+              const amt = gs.purses?.[p] ?? STARTING_PURSE
+              const pct = Math.max(0, (amt / STARTING_PURSE) * 100)
+              const col = PlayerColor(p)
+              const isMe = p === player
+              const isWin = p === leader
+              const pWarn = amt / STARTING_PURSE < 0.2
+              const pCrit = amt / STARTING_PURSE < 0.1
+              return (
+                <div key={p} style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.6rem', letterSpacing: '0.04em', color: isMe ? col : isWin ? '#c8a84b' : '#647089', fontWeight: isMe || isWin ? 700 : 400, transition: 'color 0.3s' }}>
+                      {p}{isWin ? ' ★' : ''}
+                    </div>
+                    <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.5rem', color: pCrit ? '#e04040' : pWarn ? '#e08040' : '#555', animation: pCrit ? 'pursePulse 0.9s ease-in-out infinite' : 'none' }}>
+                      {pCrit ? '⚠' : pWarn ? '!' : ''}
+                    </div>
+                  </div>
+                  <div style={{ height: '3px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${pct}%`, background: pCrit ? '#e04040' : pWarn ? '#e08040' : col, opacity: isMe ? 0.9 : 0.4, transition: 'width 0.5s ease, background 0.4s', borderRadius: '2px' }} />
+                  </div>
+                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.5rem', color: pCrit ? '#e04040' : pWarn ? '#e08040' : '#3a3a3a', transition: 'color 0.4s', animation: pCrit ? 'pursePulse 0.9s ease-in-out infinite' : 'none' }}>
+                    {formatINR(amt)}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </div>
     </div>
   )

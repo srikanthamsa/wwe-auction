@@ -23,13 +23,16 @@ export default function Lobby({ onSelect, gameState, onReset }) {
     if (!selected) return
     setStarting(true)
     // Group players by category, shuffle within each, order: BAT → BOWL → ALL → WK
-    const groups = { BAT: [], BOWL: [], ALL: [], WK: [] }
-    ROSTER.forEach(p => { const cat = PLAYER_CATEGORIES[p[0]] || 'BAT'; groups[cat].push(p) })
+    const groups = { BAT: [], BOWL: [], ALL: [] }
+    ROSTER.forEach(p => {
+      const cat = PLAYER_CATEGORIES[p[0]] || 'BAT'
+      const group = cat === 'WK' ? 'BAT' : cat
+      groups[group].push(p)
+    })
     const shuffled = [
       ...shuffle(groups.BAT),
       ...shuffle(groups.BOWL),
       ...shuffle(groups.ALL),
-      ...shuffle(groups.WK),
     ]
     const purses = {}
     PLAYERS.forEach(p => purses[p] = STARTING_PURSE)

@@ -60,7 +60,8 @@ export default function App() {
   if (loading) return <LoadingScreen />
   if (!gameState) return <RecoveryScreen onReset={handleReset} />
   if (gameState.phase === 'results') return <Results gameState={gameState} player={player} onReset={handleReset} />
-  if (gameState.phase !== 'bidding' || !player) return <Lobby onSelect={handleSelectPlayer} gameState={gameState} onReset={handleReset} />
+  const isBidding = gameState.phase === 'bidding' || gameState.phase === 'bidding_r2'
+  if (!isBidding || !player) return <Lobby onSelect={handleSelectPlayer} gameState={gameState} onReset={handleReset} />
   return <Auction player={player} gameState={gameState} onRefresh={fetchGameState} onReset={handleReset} />
 }
 

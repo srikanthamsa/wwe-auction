@@ -133,19 +133,6 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     setBidding(false)
   }
 
-  async function startRetryRound(skippedList, extraUpdates = {}) {
-    const retryRoster = shuffle([...skippedList])
-    const next = retryRoster[0]
-    await supabase.from('auction_state').update({
-      ...extraUpdates,
-      phase: 'bidding',
-      roster: retryRoster, roster_index: 0,
-      current_player: next[0], current_ovr: next[1],
-      current_bid: getBaseBid(next[1]), current_leader: null,
-      bid_history: [], skipped_log: [], is_retry_round: true,
-    }).eq('id', 1)
-  }
-
   async function sellPlayer(e) {
     if (!isAdmin || !leader) return
     if (e) triggerRipple(e.clientX, e.clientY, '#82b366')
@@ -159,9 +146,17 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     newPurses[leader] = (newPurses[leader] ?? 0) - currentBid
     const nextIdx = doneIdx + 1
     if (nextIdx >= total) {
-      const skippedLeft = gs.skipped_log ?? []
-      if (skippedLeft.length > 0 && !gs.is_retry_round) {
-        await startRetryRound(skippedLeft, { sold_log: newLog, purses: newPurses })
+      const soldNames = new Set(newLog.map(s => s.player))
+      const unsold = gs.roster.filter(p => !soldNames.has(p[0]))
+      if (unsold.length > 0 && gs.phase === 'bidding') {
+        const retryRoster = shuffle([...unsold])
+        const next = retryRoster[0]
+        await supabase.from('auction_state').update({
+          phase: 'bidding_r2', roster: retryRoster, roster_index: 0,
+          current_player: next[0], current_ovr: next[1],
+          current_bid: getBaseBid(next[1]), current_leader: null,
+          bid_history: [], sold_log: newLog, purses: newPurses,
+        }).eq('id', 1)
       } else {
         await supabase.from('auction_state').update({ phase: 'results', sold_log: newLog, purses: newPurses }).eq('id', 1)
       }
@@ -171,7 +166,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     await supabase.from('auction_state').update({
       roster_index: nextIdx, current_player: next[0], current_ovr: next[1],
       current_bid: getBaseBid(next[1]), current_leader: null,
-      bid_history: [], sold_log: newLog, purses: newPurses, phase: 'bidding',
+      bid_history: [], sold_log: newLog, purses: newPurses, phase: gs.phase,
     }).eq('id', 1)
   }
 
@@ -179,11 +174,18 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     if (!isAdmin) return
     flash('skip')
     setConfirmSkip(false)
-    const newSkipped = [...(gs.skipped_log ?? []), [gs.current_player, gs.current_ovr]]
     const nextIdx = doneIdx + 1
     if (nextIdx >= total) {
-      if (newSkipped.length > 0 && !gs.is_retry_round) {
-        await startRetryRound(newSkipped)
+      const soldNames = new Set(sold.map(s => s.player))
+      const unsold = gs.roster.filter(p => !soldNames.has(p[0]) && p[0] !== gs.current_player)
+      if (unsold.length > 0 && gs.phase === 'bidding') {
+        const retryRoster = shuffle([...unsold, [gs.current_player, gs.current_ovr]])
+        const next = retryRoster[0]
+        await supabase.from('auction_state').update({
+          phase: 'bidding_r2', roster: retryRoster, roster_index: 0,
+          current_player: next[0], current_ovr: next[1],
+          current_bid: getBaseBid(next[1]), current_leader: null, bid_history: [],
+        }).eq('id', 1)
       } else {
         await supabase.from('auction_state').update({ phase: 'results' }).eq('id', 1)
       }
@@ -193,7 +195,6 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     await supabase.from('auction_state').update({
       roster_index: nextIdx, current_player: next[0], current_ovr: next[1],
       current_bid: getBaseBid(next[1]), current_leader: null, bid_history: [],
-      skipped_log: newSkipped,
     }).eq('id', 1)
   }
 
@@ -296,7 +297,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
         <div>
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: '#c8a84b', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             IPL Mega Auction
-            {gs?.is_retry_round && (
+            {gs?.phase === 'bidding_r2' && (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: 'rgba(200,168,75,0.15)', border: '1px solid rgba(200,168,75,0.3)', borderRadius: '2px', padding: '0 5px', fontSize: '0.6rem', letterSpacing: '0.2em', verticalAlign: 'middle' }}>
                 <RefreshCw size={9} color="#c8a84b" /> R2
               </span>

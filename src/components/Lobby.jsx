@@ -39,7 +39,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
       roster: shuffled, roster_index: 0,
       current_player: first[0], current_ovr: first[1],
       current_bid: getBaseBid(first[1]), current_leader: null,
-      bid_history: [], purses, sold_log: [], skipped_log: [], is_retry_round: false,
+      bid_history: [], purses, sold_log: [],
     })
     onSelect(selected)
   }

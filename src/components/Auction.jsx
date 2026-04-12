@@ -447,9 +447,17 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               </span>
             </div>
             <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: 'clamp(2.8rem, 10vw, 5.5rem)', color: isMarquee ? '#f8e6a0' : '#fff', letterSpacing: '0.02em', lineHeight: 0.95, textAlign: 'center', textShadow: isMarquee ? '0 0 45px rgba(248,230,160,0.42)' : '0 4px 60px rgba(255,255,255,0.06)' }}>
-              {gs.current_player.split('').map((ch, i) => (
-                <span key={i} style={{ display: 'inline-block', animation: 'charIn 0.35s ease both', animationDelay: `${i * 0.025}s` }}>{ch === ' ' ? '\u00A0' : ch}</span>
-              ))}
+              {gs.current_player.split(' ').map((word, wi, arr) => {
+                const offset = arr.slice(0, wi).reduce((sum, w) => sum + w.length + 1, 0)
+                return (
+                  <React.Fragment key={wi}>
+                    {word.split('').map((ch, ci) => (
+                      <span key={ci} style={{ display: 'inline-block', animation: 'charIn 0.35s ease both', animationDelay: `${(offset + ci) * 0.025}s` }}>{ch}</span>
+                    ))}
+                    {wi < arr.length - 1 && ' '}
+                  </React.Fragment>
+                )
+              })}
             </div>
             <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: isMarquee ? '#d3b568' : '#aeb8cc', letterSpacing: '0.2em', marginTop: '0.6rem', animation: 'starIn 0.55s ease' }}>
               BASE {formatINR(openingBid)}

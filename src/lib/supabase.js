@@ -18,11 +18,27 @@ export const PLAYER_TEAMS = {
   Debu: 'MI',
 }
 
-export const STARTING_PURSE = 1000000
-export const BID_INCREMENT = 100
+// All monetary values stored in Lakhs (L). 1 Cr = 100 L.
+export const STARTING_PURSE = 12000  // 120 Cr
+export const BID_INCREMENT = 10       // 10 L minimum increment
 
 export function getBaseBid(ovr) {
-  return 100
+  if (ovr >= 90) return 300  // ₹3 Cr
+  if (ovr >= 85) return 200  // ₹2 Cr
+  if (ovr >= 80) return 150  // ₹1.5 Cr
+  if (ovr >= 75) return 100  // ₹1 Cr
+  if (ovr >= 70) return 75   // ₹75 L
+  return 50                   // ₹50 L
+}
+
+// Format Lakhs value to Indian currency string
+export function formatINR(lakhs) {
+  if (lakhs >= 100) {
+    const cr = lakhs / 100
+    const display = cr % 1 === 0 ? cr.toString() : parseFloat(cr.toFixed(2)).toString()
+    return `₹${display}Cr`
+  }
+  return `₹${lakhs}L`
 }
 
 export function getTier(ovr) {

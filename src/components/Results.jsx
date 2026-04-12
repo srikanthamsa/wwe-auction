@@ -1,5 +1,5 @@
 import React from 'react'
-import { PLAYERS, PLAYER_TEAMS, STARTING_PURSE } from '../lib/supabase.js'
+import { PLAYERS, PLAYER_TEAMS, STARTING_PURSE, formatINR } from '../lib/supabase.js'
 import { MARQUEE_PLAYERS } from '../lib/roster.js'
 
 const PLAYER_COLORS = {
@@ -52,10 +52,10 @@ export default function Results({ gameState, player, onReset }) {
                 <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.5rem', color: index === 0 ? '#c8a84b' : '#1e1e1e', minWidth: '1.5rem' }}>{index + 1}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.15rem', color: col, letterSpacing: '0.06em' }}>{entry.name} <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>{PLAYER_TEAMS[entry.name]}</span></div>
-                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#2a2020', letterSpacing: '0.1em' }}>{entry.count} players · ₹{entry.remaining.toLocaleString()} remaining</div>
+                  <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#2a2020', letterSpacing: '0.1em' }}>{entry.count} players · {formatINR(entry.remaining)} remaining</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: '#7a6535', letterSpacing: '0.05em' }}>₹{entry.spent.toLocaleString()}</div>
+                  <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: '#7a6535', letterSpacing: '0.05em' }}>{formatINR(entry.spent)}</div>
                   <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#252525' }}>spent</div>
                 </div>
               </div>
@@ -81,7 +81,7 @@ export default function Results({ gameState, player, onReset }) {
                       <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.9rem', fontWeight: 700, color: isMarquee ? '#f1d88b' : '#3a3a3a' }}>
                         {sale.player}{isMarquee ? ' ✦' : ''}
                       </div>
-                      <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.85rem', color: '#7a6535' }}>₹{sale.price.toLocaleString()}</div>
+                      <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.85rem', color: '#7a6535' }}>{formatINR(sale.price)}</div>
                     </div>
                   )
                 })}
@@ -103,12 +103,12 @@ export default function Results({ gameState, player, onReset }) {
                       {sale.player}{isMarquee ? ' ✦' : ''}
                     </div>
                     <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: PLAYER_COLORS[sale.winner], letterSpacing: '0.08em' }}>{sale.winner}</div>
-                    <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.92rem', color: '#c8a84b' }}>₹{sale.price.toLocaleString()}</div>
+                    <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.92rem', color: '#c8a84b' }}>{formatINR(sale.price)}</div>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                     {trail.map((step, trailIndex) => (
                       <div key={`${sale.player}-${trailIndex}`} style={{ padding: '0.28rem 0.45rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '999px', fontFamily: 'Barlow Condensed', fontSize: '0.72rem', color: '#9c9c9c', letterSpacing: '0.04em' }}>
-                        {trailIndex + 1}. {step.bidder} ₹{step.bid.toLocaleString()}
+                        {trailIndex + 1}. {step.bidder} {formatINR(step.bid)}
                       </div>
                     ))}
                   </div>

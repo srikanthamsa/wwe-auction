@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { supabase, PLAYERS, PLAYER_TEAMS, ROSTER, STARTING_PURSE, shuffle, getBaseBid } from '../lib/supabase.js'
+import { PLAYER_CATEGORIES } from '../lib/roster.js'
 
 const PLAYER_COLORS = {
   Srikant: '#e60026',  // RCB
@@ -21,7 +22,15 @@ export default function Lobby({ onSelect, gameState, onReset }) {
   async function startAuction() {
     if (!selected) return
     setStarting(true)
-    const shuffled = shuffle(ROSTER)
+    // Group players by category, shuffle within each, order: BAT → BOWL → ALL → WK
+    const groups = { BAT: [], BOWL: [], ALL: [], WK: [] }
+    ROSTER.forEach(p => { const cat = PLAYER_CATEGORIES[p[0]] || 'BAT'; groups[cat].push(p) })
+    const shuffled = [
+      ...shuffle(groups.BAT),
+      ...shuffle(groups.BOWL),
+      ...shuffle(groups.ALL),
+      ...shuffle(groups.WK),
+    ]
     const purses = {}
     PLAYERS.forEach(p => purses[p] = STARTING_PURSE)
     const first = shuffled[0]
@@ -30,7 +39,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
       roster: shuffled, roster_index: 0,
       current_player: first[0], current_ovr: first[1],
       current_bid: getBaseBid(first[1]), current_leader: null,
-      bid_history: [], purses, sold_log: [],
+      bid_history: [], purses, sold_log: [], skipped_log: [], is_retry_round: false,
     })
     onSelect(selected)
   }

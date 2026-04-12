@@ -1,5 +1,6 @@
 import React from 'react'
 import { PLAYERS, PLAYER_TEAMS, STARTING_PURSE, formatINR } from '../lib/supabase.js'
+import { Diamond } from '../lib/icons.jsx'
 import { MARQUEE_PLAYERS } from '../lib/roster.js'
 
 const PLAYER_COLORS = {
@@ -79,7 +80,7 @@ export default function Results({ gameState, player, onReset }) {
                     <div key={`${sale.player}-${index}`} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.6rem', background: isMarquee ? 'linear-gradient(135deg, rgba(200,168,75,0.14), rgba(255,255,255,0.02))' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMarquee ? 'rgba(248,214,128,0.22)' : 'rgba(255,255,255,0.03)'}`, borderRadius: '2px' }}>
                       <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#252525', minWidth: '2.2rem' }}>{sale.ovr}</div>
                       <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.9rem', fontWeight: 700, color: isMarquee ? '#f1d88b' : '#3a3a3a' }}>
-                        {sale.player}{isMarquee ? ' ✦' : ''}
+                        {sale.player}{isMarquee ? <Diamond size={10} color="#c8a84b" style={{ marginLeft: 4, verticalAlign: 'middle' }} /> : ''}
                       </div>
                       <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.85rem', color: '#7a6535' }}>{formatINR(sale.price)}</div>
                     </div>
@@ -100,7 +101,7 @@ export default function Results({ gameState, player, onReset }) {
                 <div key={`${sale.player}-${index}-trail`} style={{ padding: '0.8rem 0.9rem', background: isMarquee ? 'linear-gradient(135deg, rgba(200,168,75,0.12), rgba(255,255,255,0.02))' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMarquee ? 'rgba(248,214,128,0.22)' : 'rgba(255,255,255,0.04)'}`, borderRadius: '2px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.55rem' }}>
                     <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.95rem', color: isMarquee ? '#f1d88b' : '#d7d7d7', letterSpacing: '0.04em', flex: 1 }}>
-                      {sale.player}{isMarquee ? ' ✦' : ''}
+                      {sale.player}{isMarquee ? <Diamond size={10} color="#c8a84b" style={{ marginLeft: 4, verticalAlign: 'middle' }} /> : ''}
                     </div>
                     <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: PLAYER_COLORS[sale.winner], letterSpacing: '0.08em' }}>{sale.winner}</div>
                     <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.92rem', color: '#c8a84b' }}>{formatINR(sale.price)}</div>

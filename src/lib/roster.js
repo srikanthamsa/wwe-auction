@@ -105,6 +105,7 @@ const MODERN_INDIAN_STARS = [
   ['Piyush Chawla', 72],
   ['Shikhar Dhawan', 82],
   ['Ayush Mhatre', 72],
+  ['Arjun Tendulkar', 69],
 ]
 
 const MODERN_OVERSEAS_STARS = [
@@ -395,6 +396,7 @@ const GLOBAL_LEGENDS = [
   ['Mushfiqur Rahim', 81],
   ['Mohammad Ashraful', 78],
   ['Morne Morkel', 84],
+  ['Albie Morkel', 78],
 ]
 
 export const MARQUEE_PLAYERS = new Set([
@@ -528,6 +530,7 @@ export const PLAYER_CATEGORIES = {
   'Muttiah Muralitharan': 'BOWL', 'Chaminda Vaas': 'BOWL', 'Shane Bond': 'BOWL',
   'Curtly Ambrose': 'BOWL', 'Courtney Walsh': 'BOWL', 'Mashrafe Mortaza': 'BOWL',
   'Morne Morkel': 'BOWL',
+  'Arjun Tendulkar': 'BOWL',
 
   // ── ALL-ROUNDERS ──
   'Ravindra Jadeja': 'ALL', 'Hardik Pandya': 'ALL', 'Axar Patel': 'ALL',
@@ -568,6 +571,7 @@ export const PLAYER_CATEGORIES = {
   'Nuwan Kulasekara': 'ALL', 'Daniel Vettori': 'ALL', 'Jacob Oram': 'ALL',
   'Scott Styris': 'ALL', 'Chris Cairns': 'ALL', 'Dwayne Bravo': 'ALL',
   'Dwayne Smith': 'ALL',
+  'Albie Morkel': 'ALL',
 
   // ── WICKET-KEEPERS ──
   'Rishabh Pant': 'WK', 'KL Rahul': 'WK', 'Sanju Samson': 'WK',

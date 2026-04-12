@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase, PLAYERS, PLAYER_TEAMS, BID_INCREMENT, STARTING_PURSE, getBaseBid, getTier, formatINR, shuffle } from '../lib/supabase.js'
-import { MARQUEE_PLAYERS } from '../lib/roster.js'
+import { MARQUEE_PLAYERS, PLAYER_CATEGORIES } from '../lib/roster.js'
+
+const CAT_LABEL = { BAT: 'Batters', BOWL: 'Bowlers', ALL: 'All-rounders', WK: 'Batters' }
+const CAT_COLOR = { BAT: '#4a9eff', BOWL: '#ff6b4a', ALL: '#a78bfa', WK: '#4a9eff' }
+function effectiveCat(name) {
+  const c = PLAYER_CATEGORIES[name]
+  return c === 'WK' ? 'BAT' : c || 'BAT'
+}
 import { Hammer, Star, Warning, SkipForward, Diamond, ChevronRight, RefreshCw } from '../lib/icons.jsx'
 
 const PLAYER_COLORS = {
@@ -70,6 +77,22 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     ...bidHistory.filter(b => b?.bidder).slice(-2),
     ...(leader ? [{ bidder: leader, bid: currentBid }] : [])
   ]
+
+  // category state
+  const currentCat = gs ? effectiveCat(gs.current_player) : 'BAT'
+  const remaining = gs?.roster?.slice(doneIdx) ?? []
+  const catCounts = { BAT: 0, BOWL: 0, ALL: 0 }
+  remaining.forEach(p => { const c = effectiveCat(p[0]); if (c in catCounts) catCounts[c]++ })
+
+  async function jumpToCategory(cat) {
+    const idx = gs.roster.findIndex((p, i) => i > doneIdx && effectiveCat(p[0]) === cat)
+    if (idx === -1) return
+    const next = gs.roster[idx]
+    await supabase.from('auction_state').update({
+      roster_index: idx, current_player: next[0], current_ovr: next[1],
+      current_bid: getBaseBid(next[1]), current_leader: null, bid_history: [],
+    }).eq('id', 1)
+  }
 
   // detect player change → show sold or skipped flash
   useEffect(() => {
@@ -330,6 +353,23 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
       {isAdmin && (
         <div style={{ position: 'relative', zIndex: 10, padding: '0.5rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.04)', maxWidth: '560px', margin: '0 auto', width: '100%' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            {/* category jump strip */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.35rem' }}>
+              {[{ cat: 'BAT', label: 'Batters' }, { cat: 'BOWL', label: 'Bowlers' }, { cat: 'ALL', label: 'All-rounders' }].map(({ cat, label }) => {
+                const count = catCounts[cat]
+                const isCurrent = currentCat === cat
+                const color = CAT_COLOR[cat]
+                return (
+                  <button key={cat} className="bid-btn"
+                    disabled={count === 0 || isCurrent}
+                    onClick={() => jumpToCategory(cat)}
+                    style={{ padding: '0.45rem 0.4rem', background: isCurrent ? `${color}18` : 'transparent', border: `1px solid ${isCurrent ? color + '60' : 'rgba(255,255,255,0.06)'}`, borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.12em', color: isCurrent ? color : count === 0 ? '#2a2a2a' : '#647089', cursor: count === 0 || isCurrent ? 'default' : 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px' }}>
+                    <span style={{ fontWeight: 700 }}>{label}</span>
+                    <span style={{ fontSize: '0.55rem', opacity: 0.7 }}>{count} left</span>
+                  </button>
+                )
+              })}
+            </div>
             <button className="bid-btn"
               onClick={e => sellPlayer(e)}
               disabled={!leader || bidding}
@@ -392,8 +432,13 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                 Marquee Player
               </div>
             )}
-            <div style={{ position: 'relative', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.4em', color: tier.color, marginBottom: '0.75rem', textTransform: 'uppercase', fontWeight: 700, animation: 'starIn 0.5s ease' }}>
-              {tier.label}-TIER · OVR {gs.current_ovr}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', animation: 'starIn 0.5s ease', justifyContent: 'center' }}>
+              <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.4em', color: tier.color, textTransform: 'uppercase', fontWeight: 700 }}>
+                {tier.label}-TIER · OVR {gs.current_ovr}
+              </span>
+              <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.25em', color: CAT_COLOR[currentCat], background: `${CAT_COLOR[currentCat]}18`, border: `1px solid ${CAT_COLOR[currentCat]}40`, borderRadius: '2px', padding: '1px 6px', textTransform: 'uppercase', fontWeight: 700 }}>
+                {CAT_LABEL[currentCat]}
+              </span>
             </div>
             <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: 'clamp(2.8rem, 10vw, 5.5rem)', color: isMarquee ? '#f8e6a0' : '#fff', letterSpacing: '0.02em', lineHeight: 0.95, textAlign: 'center', textShadow: isMarquee ? '0 0 45px rgba(248,230,160,0.42)' : '0 4px 60px rgba(255,255,255,0.06)' }}>
               {gs.current_player.split('').map((ch, i) => (

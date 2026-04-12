@@ -82,11 +82,10 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
   const currentCat = gs ? effectiveCat(gs.current_player) : 'BAT'
 
   function getSoldNames() {
-    return new Set(
-      (Array.isArray(gs?.sold_log) ? gs.sold_log : [])
-        .map(s => s?.player)
-        .filter(Boolean)
-    )
+    let log = gs?.sold_log ?? []
+    if (typeof log === 'string') { try { log = JSON.parse(log) } catch { log = [] } }
+    if (!Array.isArray(log)) log = []
+    return new Set(log.map(s => s?.player).filter(Boolean))
   }
 
   const catCounts = { BAT: 0, BOWL: 0, ALL: 0 }
@@ -618,7 +617,11 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
         {/* ── ADMIN RESET ── */}
         {isAdmin && (
-          <div style={{ textAlign: 'center', paddingBottom: '3rem' }}>
+          <div style={{ textAlign: 'center', paddingBottom: '3rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center' }}>
+            <button onClick={async () => { await supabase.from('auction_state').update({ phase: 'results' }).eq('id', 1) }}
+              style={{ background: 'none', border: '1px solid rgba(200,168,75,0.2)', borderRadius: '10px', padding: '0.4rem 1.2rem', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.25em', color: '#7a6535', cursor: 'pointer', textTransform: 'uppercase' }}>
+              End auction → results
+            </button>
             {!confirmReset ? (
               <button onClick={() => setConfirmReset(true)}
                 style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.25em', color: '#1e1414', cursor: 'pointer', textTransform: 'uppercase' }}>

@@ -211,7 +211,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
     skip: '→ Skipped',
   }
 
-  if (!gs) return null
+  if (!gs || !gs.current_player) return null
 
   return (
     <div style={{ minHeight: '100vh', background: '#06040a', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>

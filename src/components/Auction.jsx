@@ -80,18 +80,30 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
   // category state — counts ALL unsold players across the full roster
   const currentCat = gs ? effectiveCat(gs.current_player) : 'BAT'
-  const soldNames = new Set(sold.map(s => s.player))
+
+  function getSoldNames() {
+    return new Set(
+      (Array.isArray(gs?.sold_log) ? gs.sold_log : [])
+        .map(s => s?.player)
+        .filter(Boolean)
+    )
+  }
+
   const catCounts = { BAT: 0, BOWL: 0, ALL: 0 }
+  const _sold = getSoldNames()
   ;(gs?.roster ?? []).forEach((p, i) => {
-    if (i !== doneIdx && !soldNames.has(p[0])) {
+    if (i !== doneIdx && p?.[0] && !_sold.has(p[0])) {
       const c = effectiveCat(p[0])
       if (c in catCounts) catCounts[c]++
     }
   })
 
   async function jumpToCategory(cat) {
-    // search entire roster for first unsold player of that category
-    const idx = gs.roster.findIndex((p, i) => i !== doneIdx && !soldNames.has(p[0]) && effectiveCat(p[0]) === cat)
+    if (!gs?.roster) return
+    const soldNow = getSoldNames()
+    const idx = gs.roster.findIndex((p, i) =>
+      i !== doneIdx && p?.[0] && !soldNow.has(p[0]) && effectiveCat(p[0]) === cat
+    )
     if (idx === -1) return
     const next = gs.roster[idx]
     await supabase.from('auction_state').update({

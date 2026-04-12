@@ -49,7 +49,7 @@ export default function Results({ gameState, player, onReset }) {
             const col = PLAYER_COLORS[entry.name]
             const isMe = entry.name === player
             return (
-              <div key={entry.name} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.85rem 1rem', marginBottom: '0.4rem', background: isMe ? 'rgba(200,168,75,0.06)' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMe ? 'rgba(200,168,75,0.18)' : 'rgba(255,255,255,0.04)'}`, borderRadius: '2px' }}>
+              <div key={entry.name} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.85rem 1rem', marginBottom: '0.4rem', background: isMe ? 'rgba(200,168,75,0.06)' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMe ? 'rgba(200,168,75,0.18)' : 'rgba(255,255,255,0.04)'}`, borderRadius: '10px' }}>
                 <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.5rem', color: index === 0 ? '#c8a84b' : '#1e1e1e', minWidth: '1.5rem' }}>{index + 1}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.15rem', color: col, letterSpacing: '0.06em' }}>{entry.name} <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>{PLAYER_TEAMS[entry.name]}</span></div>
@@ -77,7 +77,7 @@ export default function Results({ gameState, player, onReset }) {
                 {squad.sort((a, b) => b.ovr - a.ovr).map((sale, index) => {
                   const isMarquee = MARQUEE_PLAYERS.has(sale.player)
                   return (
-                    <div key={`${sale.player}-${index}`} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.6rem', background: isMarquee ? 'linear-gradient(135deg, rgba(200,168,75,0.14), rgba(255,255,255,0.02))' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMarquee ? 'rgba(248,214,128,0.22)' : 'rgba(255,255,255,0.03)'}`, borderRadius: '2px' }}>
+                    <div key={`${sale.player}-${index}`} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0.6rem', background: isMarquee ? 'linear-gradient(135deg, rgba(200,168,75,0.14), rgba(255,255,255,0.02))' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMarquee ? 'rgba(248,214,128,0.22)' : 'rgba(255,255,255,0.03)'}`, borderRadius: '10px' }}>
                       <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#252525', minWidth: '2.2rem' }}>{sale.ovr}</div>
                       <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.9rem', fontWeight: 700, color: isMarquee ? '#f1d88b' : '#3a3a3a' }}>
                         {sale.player}{isMarquee ? <Diamond size={10} color="#c8a84b" style={{ marginLeft: 4, verticalAlign: 'middle' }} /> : ''}
@@ -98,7 +98,7 @@ export default function Results({ gameState, player, onReset }) {
               const trail = getBidTrail(sale)
               const isMarquee = MARQUEE_PLAYERS.has(sale.player)
               return (
-                <div key={`${sale.player}-${index}-trail`} style={{ padding: '0.8rem 0.9rem', background: isMarquee ? 'linear-gradient(135deg, rgba(200,168,75,0.12), rgba(255,255,255,0.02))' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMarquee ? 'rgba(248,214,128,0.22)' : 'rgba(255,255,255,0.04)'}`, borderRadius: '2px' }}>
+                <div key={`${sale.player}-${index}-trail`} style={{ padding: '0.8rem 0.9rem', background: isMarquee ? 'linear-gradient(135deg, rgba(200,168,75,0.12), rgba(255,255,255,0.02))' : 'rgba(255,255,255,0.015)', border: `1px solid ${isMarquee ? 'rgba(248,214,128,0.22)' : 'rgba(255,255,255,0.04)'}`, borderRadius: '10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.55rem' }}>
                     <div style={{ fontFamily: 'Bebas Neue', fontSize: '0.95rem', color: isMarquee ? '#f1d88b' : '#d7d7d7', letterSpacing: '0.04em', flex: 1 }}>
                       {sale.player}{isMarquee ? <Diamond size={10} color="#c8a84b" style={{ marginLeft: 4, verticalAlign: 'middle' }} /> : ''}
@@ -120,7 +120,7 @@ export default function Results({ gameState, player, onReset }) {
         </div>
 
         {player === 'Srikant' && (
-          <button onClick={onReset} style={{ width: '100%', padding: '1rem', marginTop: '1rem', marginBottom: '3rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '2px', color: '#2a2020', fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.15em', cursor: 'pointer', transition: 'border-color 0.2s' }}>
+          <button onClick={onReset} style={{ width: '100%', padding: '1rem', marginTop: '1rem', marginBottom: '3rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', color: '#2a2020', fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.15em', cursor: 'pointer', transition: 'border-color 0.2s' }}>
             Reset & Start New Auction
           </button>
         )}

@@ -72,7 +72,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
 
         {/* status */}
         {isActive && (
-          <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '0.6rem 1rem', background: 'rgba(200,168,75,0.06)', border: '1px solid rgba(200,168,75,0.15)', borderRadius: '2px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem', padding: '0.6rem 1rem', background: 'rgba(200,168,75,0.06)', border: '1px solid rgba(200,168,75,0.15)', borderRadius: '10px' }}>
             <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.25em', color: '#7a6535' }}>AUCTION IN PROGRESS — SELECT YOUR NAME TO JOIN</span>
           </div>
         )}
@@ -90,7 +90,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
                     padding: '1.1rem 1rem',
                     background: active ? `rgba(${hexToRgb(col)}, 0.12)` : 'rgba(255,255,255,0.02)',
                     border: active ? `1px solid ${col}` : '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: '2px', cursor: 'pointer',
+                    borderRadius: '10px', cursor: 'pointer',
                     fontFamily: 'Barlow Condensed', fontSize: '1.05rem', fontWeight: 700,
                     letterSpacing: '0.1em', color: active ? col : '#3a3028',
                     textTransform: 'uppercase', transition: 'all 0.2s',
@@ -110,12 +110,12 @@ export default function Lobby({ onSelect, gameState, onReset }) {
         {/* action button */}
         {isActive ? (
           <button onClick={() => onSelect(selected)} disabled={!selected}
-            style={{ width: '100%', padding: '1.1rem', background: 'transparent', border: `1px solid ${selected ? 'rgba(200,168,75,0.5)' : 'rgba(255,255,255,0.06)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.2rem', letterSpacing: '0.2em', color: selected ? '#c8a84b' : '#2a2a2a', cursor: selected ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
+            style={{ width: '100%', padding: '1.1rem', background: 'transparent', border: `1px solid ${selected ? 'rgba(200,168,75,0.5)' : 'rgba(255,255,255,0.06)'}`, borderRadius: '10px', fontFamily: 'Bebas Neue', fontSize: '1.2rem', letterSpacing: '0.2em', color: selected ? '#c8a84b' : '#2a2a2a', cursor: selected ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
             Join Auction →
           </button>
         ) : isAdmin ? (
           <button onClick={startAuction} disabled={!selected || starting}
-            style={{ width: '100%', padding: '1.15rem', background: 'linear-gradient(135deg, #c8a84b 0%, #9a7a2a 100%)', border: 'none', borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.3rem', letterSpacing: '0.2em', color: '#06040a', cursor: starting ? 'wait' : 'pointer', opacity: starting ? 0.7 : 1, transition: 'opacity 0.2s', boxShadow: '0 0 40px rgba(200,168,75,0.2)' }}>
+            style={{ width: '100%', padding: '1.15rem', background: 'linear-gradient(135deg, #c8a84b 0%, #9a7a2a 100%)', border: 'none', borderRadius: '10px', fontFamily: 'Bebas Neue', fontSize: '1.3rem', letterSpacing: '0.2em', color: '#06040a', cursor: starting ? 'wait' : 'pointer', opacity: starting ? 0.7 : 1, transition: 'opacity 0.2s', boxShadow: '0 0 40px rgba(200,168,75,0.2)' }}>
             {starting ? 'Shuffling player pool...' : 'Start Auction'}
           </button>
         ) : (
@@ -136,7 +136,7 @@ export default function Lobby({ onSelect, gameState, onReset }) {
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
                 <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.8rem', color: '#555', letterSpacing: '0.1em' }}>Sure? This wipes everything.</span>
                 <button onClick={doReset} disabled={resetting}
-                  style={{ background: 'none', border: '1px solid rgba(200,60,60,0.4)', borderRadius: '2px', padding: '0.3rem 0.75rem', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.15em', color: '#a03030', cursor: 'pointer' }}>
+                  style={{ background: 'none', border: '1px solid rgba(200,60,60,0.4)', borderRadius: '10px', padding: '0.3rem 0.75rem', fontFamily: 'Barlow Condensed', fontSize: '0.75rem', letterSpacing: '0.15em', color: '#a03030', cursor: 'pointer' }}>
                   {resetting ? 'Resetting...' : 'Yes, reset'}
                 </button>
                 <button onClick={() => setConfirmReset(false)}

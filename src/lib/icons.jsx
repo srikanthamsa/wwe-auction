@@ -59,9 +59,9 @@ export const Trophy = ({ size = 16, color = 'currentColor', style = {} }) => (
 
 export const Undo = ({ size = 14, color = 'currentColor', style = {} }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={style}>
-    <path d="M3 7v6h6"/>
-    <path d="M3 13C5 7 10 4 16 5.5a9 9 0 0 1 5 7.5"/>
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+    <polyline points="9 14 4 9 9 4"/>
+    <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
   </svg>
 )
 

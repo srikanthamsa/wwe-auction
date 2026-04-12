@@ -327,7 +327,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           <div style={{ fontFamily: 'Bebas Neue', fontSize: '1.1rem', color: '#c8a84b', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             IPL Mega Auction
             {gs?.phase === 'bidding_r2' && (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: 'rgba(200,168,75,0.15)', border: '1px solid rgba(200,168,75,0.3)', borderRadius: '2px', padding: '0 5px', fontSize: '0.6rem', letterSpacing: '0.2em', verticalAlign: 'middle' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: 'rgba(200,168,75,0.15)', border: '1px solid rgba(200,168,75,0.3)', borderRadius: '10px', padding: '0 5px', fontSize: '0.6rem', letterSpacing: '0.2em', verticalAlign: 'middle' }}>
                 <RefreshCw size={9} color="#c8a84b" /> R2
               </span>
             )}
@@ -369,7 +369,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                   <button key={cat} className="bid-btn"
                     disabled={count === 0 || isCurrent}
                     onClick={() => jumpToCategory(cat)}
-                    style={{ padding: '0.45rem 0.4rem', background: isCurrent ? `${color}18` : 'transparent', border: `1px solid ${isCurrent ? color + '60' : 'rgba(255,255,255,0.06)'}`, borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.12em', color: isCurrent ? color : count === 0 ? '#2a2a2a' : '#647089', cursor: count === 0 || isCurrent ? 'default' : 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px' }}>
+                    style={{ padding: '0.45rem 0.4rem', background: isCurrent ? `${color}18` : 'transparent', border: `1px solid ${isCurrent ? color + '60' : 'rgba(255,255,255,0.06)'}`, borderRadius: '10px', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.12em', color: isCurrent ? color : count === 0 ? '#2a2a2a' : '#647089', cursor: count === 0 || isCurrent ? 'default' : 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px' }}>
                     <span style={{ fontWeight: 700 }}>{label}</span>
                     <span style={{ fontSize: '0.55rem', opacity: 0.7 }}>{count} left</span>
                   </button>
@@ -379,23 +379,23 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <button className="bid-btn"
               onClick={e => sellPlayer(e)}
               disabled={!leader || bidding}
-              style={{ width: '100%', padding: '0.85rem', background: leader ? 'rgba(130,179,102,0.12)' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(130,179,102,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '3px', fontFamily: 'Bebas Neue', fontSize: '1.15rem', letterSpacing: '0.15em', color: leader ? '#82b366' : '#647089', cursor: leader ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+              style={{ width: '100%', padding: '0.85rem', background: leader ? 'rgba(130,179,102,0.12)' : 'rgba(255,255,255,0.02)', border: `1px solid ${leader ? 'rgba(130,179,102,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '10px', fontFamily: 'Bebas Neue', fontSize: '1.15rem', letterSpacing: '0.15em', color: leader ? '#82b366' : '#647089', cursor: leader ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
               <Hammer size={18} color={leader ? '#82b366' : '#647089'} />
               SOLD {leader ? `→ ${leader}` : '— no bids'}
             </button>
             {!confirmSkip ? (
               <button className="bid-btn" onClick={() => setConfirmSkip(true)}
-                style={{ width: '100%', padding: '0.6rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '3px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.2em', color: '#3a3a3a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                style={{ width: '100%', padding: '0.6rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '10px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.2em', color: '#3a3a3a', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
                 <SkipForward size={12} color="#3a3a3a" /> Skip player
               </button>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem' }}>
                 <button className="bid-btn" onClick={skipPlayer}
-                  style={{ padding: '0.7rem', background: 'rgba(160,80,80,0.1)', border: '1px solid rgba(160,80,80,0.35)', borderRadius: '3px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.1em', color: '#c06060', cursor: 'pointer' }}>
+                  style={{ padding: '0.7rem', background: 'rgba(160,80,80,0.1)', border: '1px solid rgba(160,80,80,0.35)', borderRadius: '10px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.1em', color: '#c06060', cursor: 'pointer' }}>
                   Confirm skip
                 </button>
                 <button className="bid-btn" onClick={() => setConfirmSkip(false)}
-                  style={{ padding: '0.7rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '3px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.1em', color: '#647089', cursor: 'pointer' }}>
+                  style={{ padding: '0.7rem', background: 'transparent', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.1em', color: '#647089', cursor: 'pointer' }}>
                   Cancel
                 </button>
               </div>
@@ -442,7 +442,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.4em', color: tier.color, textTransform: 'uppercase', fontWeight: 700 }}>
                 {tier.label}-TIER · OVR {gs.current_ovr}
               </span>
-              <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.25em', color: CAT_COLOR[currentCat], background: `${CAT_COLOR[currentCat]}18`, border: `1px solid ${CAT_COLOR[currentCat]}40`, borderRadius: '2px', padding: '1px 6px', textTransform: 'uppercase', fontWeight: 700 }}>
+              <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', letterSpacing: '0.25em', color: CAT_COLOR[currentCat], background: `${CAT_COLOR[currentCat]}18`, border: `1px solid ${CAT_COLOR[currentCat]}40`, borderRadius: '10px', padding: '1px 6px', textTransform: 'uppercase', fontWeight: 700 }}>
                 {CAT_LABEL[currentCat]}
               </span>
             </div>
@@ -474,7 +474,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                 {heatPct > 70 ? 'HOT' : heatPct > 40 ? 'WARM' : 'RISING'}
               </div>
             </div>
-            <div style={{ height: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: '2px', overflow: 'hidden' }}>
+            <div style={{ height: '4px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${heatPct}%`, background: heatPct > 70 ? 'linear-gradient(90deg, #c8a84b, #e04040)' : heatPct > 40 ? 'linear-gradient(90deg, #c8a84b, #e08040)' : '#c8a84b', transition: 'width 0.4s ease', animation: heatPct > 70 ? 'heatGlow 1s ease-in-out infinite' : 'none', boxShadow: heatPct > 70 ? '0 0 8px rgba(224,64,64,0.7)' : '0 0 6px rgba(200,168,75,0.4)' }} />
             </div>
           </div>
@@ -497,7 +497,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
         {/* ── LIVE BID TRAIL ── */}
         {liveBidTrail.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '0.3rem', marginBottom: '1.25rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '2px', border: '1px solid rgba(255,255,255,0.04)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '0.3rem', marginBottom: '1.25rem', padding: '0.5rem 0.75rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.04)' }}>
             {liveBidTrail.map((entry, i) => (
               <React.Fragment key={i}>
                 {i > 0 && <ChevronRight size={11} color="#333" />}
@@ -529,7 +529,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               <button key={inc} className="bid-btn"
                 disabled={bidding || isLeader || purse < amount}
                 onClick={e => placeBid(amount, e)}
-                style={{ padding: '0.85rem 0.5rem', background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)', borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.1em', color: '#c8a84b', cursor: 'pointer' }}>
+                style={{ padding: '0.85rem 0.5rem', background: 'rgba(200,168,75,0.07)', border: '1px solid rgba(200,168,75,0.2)', borderRadius: '10px', fontFamily: 'Bebas Neue', fontSize: '1rem', letterSpacing: '0.1em', color: '#c8a84b', cursor: 'pointer' }}>
                 +{formatINR(inc)}
               </button>
             )})}
@@ -537,7 +537,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
 
           {/* primary bid button OR winning state */}
           {isLeader ? (
-            <div style={{ position: 'relative', padding: '1rem', borderRadius: '2px', textAlign: 'center', border: `1px solid rgba(${hexToRgb(PlayerColor(player))}, 0.5)`, overflow: 'hidden' }}>
+            <div style={{ position: 'relative', padding: '1rem', borderRadius: '10px', textAlign: 'center', border: `1px solid rgba(${hexToRgb(PlayerColor(player))}, 0.5)`, overflow: 'hidden' }}>
               <div style={{ position: 'absolute', inset: 0, background: `rgba(${hexToRgb(PlayerColor(player))}, 0.08)`, animation: 'leadPulse 1.8s ease-in-out infinite' }} />
               <div style={{ position: 'relative', fontFamily: 'Bebas Neue', fontSize: '1.1rem', letterSpacing: '0.2em', color: PlayerColor(player), textShadow: `0 0 20px rgba(${hexToRgb(PlayerColor(player))}, 0.6)`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
                 <Star size={14} color={PlayerColor(player)} /> YOU'RE LEADING
@@ -550,7 +550,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <button className="bid-btn"
               disabled={bidding || !canAfford}
               onClick={e => placeBid(minimumBid, e)}
-              style={{ padding: '1.1rem', background: canAfford ? 'rgba(200,168,75,0.13)' : 'rgba(255,255,255,0.02)', border: `1px solid ${canAfford ? 'rgba(200,168,75,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '2px', fontFamily: 'Bebas Neue', fontSize: '1.25rem', letterSpacing: '0.15em', color: canAfford ? '#c8a84b' : '#647089', cursor: canAfford ? 'pointer' : 'not-allowed' }}>
+              style={{ padding: '1.1rem', background: canAfford ? 'rgba(200,168,75,0.13)' : 'rgba(255,255,255,0.02)', border: `1px solid ${canAfford ? 'rgba(200,168,75,0.45)' : 'rgba(255,255,255,0.05)'}`, borderRadius: '10px', fontFamily: 'Bebas Neue', fontSize: '1.25rem', letterSpacing: '0.15em', color: canAfford ? '#c8a84b' : '#647089', cursor: canAfford ? 'pointer' : 'not-allowed' }}>
               {leader ? `BID ${formatINR(minimumBid)}` : `BUY AT BASE ${formatINR(minimumBid)}`}
             </button>
           )}
@@ -561,10 +561,10 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
               onChange={e => setCustomBid(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleCustomBid(e)}
               placeholder={`Custom (min ${formatINR(minimumBid)})`}
-              style={{ flex: 1, padding: '0.75rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '2px', color: '#fff', fontFamily: 'Barlow Condensed', fontSize: '0.95rem', outline: 'none', letterSpacing: '0.05em' }} />
+              style={{ flex: 1, padding: '0.75rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', color: '#fff', fontFamily: 'Barlow Condensed', fontSize: '0.95rem', outline: 'none', letterSpacing: '0.05em' }} />
             <button className="bid-btn" onClick={handleCustomBid}
               disabled={!customBid || parseInt(customBid, 10) < minimumBid || parseInt(customBid, 10) > purse}
-              style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.9rem', letterSpacing: '0.1em', color: '#888', cursor: 'pointer' }}>
+              style={{ padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontFamily: 'Barlow Condensed', fontSize: '0.9rem', letterSpacing: '0.1em', color: '#888', cursor: 'pointer' }}>
               Place
             </button>
           </div>
@@ -573,7 +573,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           {isLeader && bidHistory.length > 0 && (
             <button className="bid-btn" onClick={e => undoBid(e)}
               disabled={bidding}
-              style={{ padding: '0.65rem', background: 'rgba(191,96,96,0.06)', border: '1px solid rgba(191,96,96,0.2)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.2em', color: '#bf6060', cursor: 'pointer', textTransform: 'uppercase' }}>
+              style={{ padding: '0.65rem', background: 'rgba(191,96,96,0.06)', border: '1px solid rgba(191,96,96,0.2)', borderRadius: '10px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.2em', color: '#bf6060', cursor: 'pointer', textTransform: 'uppercase' }}>
               <Undo size={13} color="#bf6060" style={{ marginRight: 6, verticalAlign: 'middle' }} /> Remove my last bid
             </button>
           )}
@@ -591,7 +591,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               {[...sold].reverse().map((s, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0.6rem', background: MARQUEE_PLAYERS.has(s.player) ? 'linear-gradient(135deg, rgba(200,168,75,0.12), rgba(255,255,255,0.02))' : s.winner === player ? `rgba(${hexToRgb(PlayerColor(player))}, 0.06)` : 'rgba(255,255,255,0.015)', borderRadius: '2px', border: `1px solid ${MARQUEE_PLAYERS.has(s.player) ? 'rgba(248,214,128,0.28)' : 'rgba(255,255,255,0.03)'}` }}>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.45rem 0.6rem', background: MARQUEE_PLAYERS.has(s.player) ? 'linear-gradient(135deg, rgba(200,168,75,0.12), rgba(255,255,255,0.02))' : s.winner === player ? `rgba(${hexToRgb(PlayerColor(player))}, 0.06)` : 'rgba(255,255,255,0.015)', borderRadius: '10px', border: `1px solid ${MARQUEE_PLAYERS.has(s.player) ? 'rgba(248,214,128,0.28)' : 'rgba(255,255,255,0.03)'}` }}>
                   <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.65rem', color: '#a7b1c5', minWidth: '1.2rem' }}>{sold.length - i}</div>
                   <div style={{ flex: 1, fontFamily: 'Barlow Condensed', fontSize: '0.85rem', fontWeight: 700, color: MARQUEE_PLAYERS.has(s.player) ? '#f1d88b' : '#3a3a3a', letterSpacing: '0.02em' }}>
                     {s.player}{MARQUEE_PLAYERS.has(s.player) ? <Diamond size={10} color="#c8a84b" style={{ marginLeft: 4, verticalAlign: 'middle' }} /> : ''}
@@ -615,7 +615,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             ) : (
               <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', alignItems: 'center' }}>
                 <span style={{ fontFamily: 'Barlow Condensed', fontSize: '0.75rem', color: '#3a3028', letterSpacing: '0.1em' }}>Wipes everything.</span>
-                <button onClick={onReset} style={{ background: 'none', border: '1px solid rgba(160,48,48,0.35)', borderRadius: '2px', padding: '0.3rem 0.8rem', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.15em', color: '#802020', cursor: 'pointer' }}>Yes, reset</button>
+                <button onClick={onReset} style={{ background: 'none', border: '1px solid rgba(160,48,48,0.35)', borderRadius: '10px', padding: '0.3rem 0.8rem', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', letterSpacing: '0.15em', color: '#802020', cursor: 'pointer' }}>Yes, reset</button>
                 <button onClick={() => setConfirmReset(false)} style={{ background: 'none', border: 'none', fontFamily: 'Barlow Condensed', fontSize: '0.7rem', color: '#b5bfd2', cursor: 'pointer' }}>Cancel</button>
               </div>
             )}
@@ -646,8 +646,8 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
                       {pCrit ? '⚠' : pWarn ? '!' : ''}
                     </div>
                   </div>
-                  <div style={{ height: '3px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${pct}%`, background: pCrit ? '#e04040' : pWarn ? '#e08040' : col, opacity: isMe ? 0.9 : 0.4, transition: 'width 0.5s ease, background 0.4s', borderRadius: '2px' }} />
+                  <div style={{ height: '3px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${pct}%`, background: pCrit ? '#e04040' : pWarn ? '#e08040' : col, opacity: isMe ? 0.9 : 0.4, transition: 'width 0.5s ease, background 0.4s', borderRadius: '10px' }} />
                   </div>
                   <div style={{ fontFamily: 'Barlow Condensed', fontSize: '0.5rem', color: pCrit ? '#e04040' : pWarn ? '#e08040' : '#3a3a3a', transition: 'color 0.4s', animation: pCrit ? 'pursePulse 0.9s ease-in-out infinite' : 'none' }}>
                     {formatINR(amt)}

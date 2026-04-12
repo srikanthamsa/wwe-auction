@@ -8,7 +8,7 @@ function effectiveCat(name) {
   const c = PLAYER_CATEGORIES[name]
   return c === 'WK' ? 'BAT' : c || 'BAT'
 }
-import { Hammer, Star, Warning, SkipForward, Diamond, ChevronRight, RefreshCw } from '../lib/icons.jsx'
+import { Hammer, Star, Warning, SkipForward, Diamond, ChevronRight, RefreshCw, Undo } from '../lib/icons.jsx'
 
 const PLAYER_COLORS = {
   Srikant: '#e60026',  // RCB
@@ -574,7 +574,7 @@ export default function Auction({ player, gameState, onRefresh, onReset }) {
             <button className="bid-btn" onClick={e => undoBid(e)}
               disabled={bidding}
               style={{ padding: '0.65rem', background: 'rgba(191,96,96,0.06)', border: '1px solid rgba(191,96,96,0.2)', borderRadius: '2px', fontFamily: 'Barlow Condensed', fontSize: '0.8rem', letterSpacing: '0.2em', color: '#bf6060', cursor: 'pointer', textTransform: 'uppercase' }}>
-              ↩ Remove my last bid
+              <Undo size={13} color="#bf6060" style={{ marginRight: 6, verticalAlign: 'middle' }} /> Remove my last bid
             </button>
           )}
         </div>
